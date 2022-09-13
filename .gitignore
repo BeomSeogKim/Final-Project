@@ -28,7 +28,6 @@ out/
 
 ### Setting File ###
 src/test
-src/main/resources
 
 ### NetBeans ###
 /nbproject/private/
