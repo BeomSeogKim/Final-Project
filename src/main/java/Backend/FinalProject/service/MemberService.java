@@ -2,6 +2,7 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.RefreshToken;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -10,6 +11,7 @@ import Backend.FinalProject.dto.request.MemberEditRequestDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.MemberRepository;
+import Backend.FinalProject.repository.RefreshTokenRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
@@ -30,8 +33,10 @@ public class MemberService {
     private final TokenProvider tokenProvider;
     private final AmazonS3Service amazonS3Service;
     private final FilesRepository fileRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
+    String baseAwsImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
     String folderName = "/memberImage";
 
     @Transactional
@@ -59,7 +64,7 @@ public class MemberService {
         if (!isPresentNickname(nickname).isSuccess())
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
         // 이미지를 업로드 하지 않을 시 기본 이미지 설정
-        if (imgFile.isEmpty()) {
+        if (imgFile == null) {
             imgUrl = baseImage;
         } else {
             // 이미지 업로드 관련 로직
@@ -80,6 +85,7 @@ public class MemberService {
         return ResponseDto.success(member.getUserId() + "님 회원가입 성공");
     }
 
+    @Transactional
     public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         Member member = isPresentMember(loginRequestDto.getUserId());
 
@@ -99,6 +105,7 @@ public class MemberService {
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");
     }
 
+    @Transactional
     public ResponseDto<?> updateMember(MemberEditRequestDto request, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
         String imgUrl;
 
@@ -135,6 +142,42 @@ public class MemberService {
         }
 
        return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
+    }
+
+    @Transactional
+    public ResponseDto<?> logout(HttpServletRequest request) {
+        if(!tokenProvider.validateToken(request.getHeader("RefreshToken")))
+            return ResponseDto.fail("INVALID TOKEN","토큰 값이 올바르지 않습니다.");
+
+        // 맴버객체 찾아오기
+        Member member = tokenProvider.getMemberFromAuthentication();
+        if (null == member)
+            return ResponseDto.fail("MEMBER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
+        tokenProvider.deleteRefreshToken(member);
+
+
+        return ResponseDto.success("로그아웃 완");
+    }
+
+    @Transactional
+    public ResponseDto<?> signout(HttpServletRequest request) {
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        if (!member.getImgUrl().equals(baseAwsImage)) {
+            ImageFile deleteImage = fileRepository.findByUrl(member.getImgUrl());
+            amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
+        }
+        refreshTokenRepository.deleteById(member.getUserId());
+        memberRepository.delete(member);
+
+
+        return ResponseDto.success("회원 탈퇴가 성공적으로 수행되었습니다.");
     }
 
 
@@ -186,6 +229,7 @@ public class MemberService {
         }
         return ResponseDto.success(member);
     }
+
 
 
 }
