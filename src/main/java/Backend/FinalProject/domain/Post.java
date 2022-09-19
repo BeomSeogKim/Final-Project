@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post {
+public class Post extends Timestamped{
 
     @Id
     @GeneratedValue
