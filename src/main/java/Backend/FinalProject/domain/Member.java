@@ -18,24 +18,33 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long member_id;
+    @Column(name = "member_id")
+    private Long id;
 
     @Column(unique = true)
-    private String id;
+    private String userId;
 
     private String password;
 
     @Column(unique = true)
     private String nickname;
 
-    private String img_url;
-
-    @OneToMany(mappedBy = "member")
-    private List<Post> posts;
+    @Column(length = 1000)
+    private String imgUrl;
 
     @Enumerated(value = EnumType.STRING)
     private Authority userRole;
 
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateImage(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 }
