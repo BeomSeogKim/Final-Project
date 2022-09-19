@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Member {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long member_id;
 

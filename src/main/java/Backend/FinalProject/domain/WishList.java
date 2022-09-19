@@ -16,7 +16,6 @@ import static javax.persistence.FetchType.*;
 @AllArgsConstructor
 public class WishList {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

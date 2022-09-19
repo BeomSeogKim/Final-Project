@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Post {
 
-    @Id
     @GeneratedValue
     @Column(name = "post_id")
     private Long id;
