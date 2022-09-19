@@ -18,10 +18,11 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long member_id;
+    @Column(name = "member_id")
+    private Long id;
 
     @Column(unique = true)
-    private String id;
+    private String userId;
 
     private String password;
 
@@ -29,9 +30,6 @@ public class Member {
     private String nickname;
 
     private String img_url;
-
-    @OneToMany(mappedBy = "member")
-    private List<Post> posts;
 
     @Enumerated(value = EnumType.STRING)
     private Authority userRole;
