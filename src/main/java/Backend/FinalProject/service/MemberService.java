@@ -4,16 +4,21 @@ import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.dto.TokenDto;
+import Backend.FinalProject.dto.request.LoginRequestDto;
+import Backend.FinalProject.dto.request.MemberEditRequestDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
+import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
-import com.amazonaws.services.ec2.model.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 @Service
@@ -24,61 +29,121 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
     private final AmazonS3Service amazonS3Service;
+    private final FilesRepository fileRepository;
 
+    String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
+    String folderName = "/memberImage";
 
     @Transactional
-    public ResponseDto<?> createMember(SignupRequestDto requestDto, MultipartFile imgFile) {
+    public ResponseDto<String> createMember(SignupRequestDto requestDto, MultipartFile imgFile) {
+
         String userId = requestDto.getUserId();
         String password = requestDto.getPassword();
         String passwordCheck = requestDto.getPasswordCheck();
         String nickname = requestDto.getNickname();
         String imgUrl;
-        System.out.println("password = " + password);
-        System.out.println("passwordCheck = " + passwordCheck);
+
         // null 값 및 공백이 있는 값 체크하기
         if (userId == null || password == null || nickname == null) {
-            return ResponseDto.fail("입력값을 다시 확인해주세요");
+            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (userId.trim().isEmpty() || password.trim().isEmpty() || nickname.trim().isEmpty()) {
-            return ResponseDto.fail("빈칸을 채워주세요");
+            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
         // 비밀번호 및 비밀번호 확인 일치 검사
         if (!password.equals(passwordCheck))
-            return ResponseDto.fail("두 비밀번호가 일치하지 않습니다");
+            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
         // 아이디 중복검사
         if (!isPresentId(userId).isSuccess())
-            return ResponseDto.fail("이미 존재하는 아이디 입니다.");
+            return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 아이디 입니다.");
         // 닉네임 중복검사
         if (!isPresentNickname(nickname).isSuccess())
-            return ResponseDto.fail("이미 존재하는 닉네임 입니다.");
+            return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
         // 이미지를 업로드 하지 않을 시 기본 이미지 설정
         if (imgFile.isEmpty()) {
-            imgUrl = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
+            imgUrl = baseImage;
         } else {
             // 이미지 업로드 관련 로직
-            ResponseDto<?> image = amazonS3Service.uploadFile(imgFile);
+            ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
             ImageFile imageFile = (ImageFile) image.getData();
             imgUrl = imageFile.getUrl();
         }
-
 
         Member member = Member.builder()
                 .userId(userId)
                 .password(passwordEncoder.encode(password))
                 .nickname(nickname)
-                .img_url(imgUrl)
+                .imgUrl(imgUrl)
                 .userRole(Authority.ROLE_MEMBER)
                 .build();
 
         memberRepository.save(member);
-        return ResponseDto.success(member);
+        return ResponseDto.success(member.getUserId() + "님 회원가입 성공");
     }
+
+    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        Member member = isPresentMember(loginRequestDto.getUserId());
+
+        if (member == null) {
+            return ResponseDto.fail("INVALID_ID", "존재하지 않는 아이디입니다.");
+        }
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
+            return ResponseDto.fail("INVALID_PASSWORD", "잘못된 비밀번호 입니다.");
+        }
+
+        // 토큰 생성
+        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
+        // 헤더에 토큰 담기
+        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+
+        return ResponseDto.success(member.getUserId() + "님 로그인 성공");
+    }
+
+    public ResponseDto<?> updateMember(MemberEditRequestDto request, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
+        String imgUrl;
+
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(httpServletRequest);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+        Member findMember = memberRepository.findById(member.getId()).get();
+
+
+        if(request.getPassword() != null)
+            findMember.updatePassword(passwordEncoder.encode(request.getPassword()));
+
+        if (request.getNickname() != null)
+            findMember.updateNickname(request.getNickname());
+
+        if (!imgFile.isEmpty()){
+            if (member.getImgUrl().equals(baseImage)) {
+                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+                ImageFile imageFile = (ImageFile) image.getData();
+                imgUrl = imageFile.getUrl();
+                findMember.updateImage(imgUrl);
+            } else {
+                ImageFile findImageFile = fileRepository.findByUrl(member.getImgUrl());
+                amazonS3Service.removeFile(findImageFile.getImageName(), folderName);
+                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+                ImageFile imageFile = (ImageFile) image.getData();
+                imgUrl = imageFile.getUrl();
+                findMember.updateImage(imgUrl);
+            }
+        }
+
+       return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
+    }
+
 
 
     // 회원 아이디 중복 검사 method
     public ResponseDto<String> isPresentId(String id) {
         Optional<Member> userId = memberRepository.findByUserId(id);
         if (userId.isPresent()) {
-            return ResponseDto.fail("이미 존재하는 회원 아이디입니다.");
+            return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 회원 아이디입니다.");
         } else return ResponseDto.success("사용 가능한 아이디입니다.");
     }
 
@@ -86,8 +151,41 @@ public class MemberService {
     public ResponseDto<String> isPresentNickname(String nickname) {
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
         if (findNickname.isPresent()) {
-            return ResponseDto.fail("이미 존재하는 닉네임입니다.");
+            return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임입니다.");
         } else return ResponseDto.success("사용 가능한 닉네임입니다.");
-
     }
+
+    // 회원 검색
+    @Transactional(readOnly = true)
+    public Member isPresentMember(String userId) {
+        Optional<Member> findMember = memberRepository.findByUserId(userId);
+        return findMember.orElse(null);
+    }
+
+    // RefreshToken 유효성 검사
+    @Transactional
+    public Member validateMember(HttpServletRequest request) {
+        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
+            return null;
+        }
+        return tokenProvider.getMemberFromAuthentication();
+    }
+
+    // T
+    private ResponseDto<?> validateCheck(HttpServletRequest request) {
+
+        // RefreshToken 및 Authorization 유효성 검사
+        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
+            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
+        }
+        Member member = validateMember(request);
+
+        // 토큰 유효성 검사
+        if (member == null) {
+            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
+        }
+        return ResponseDto.success(member);
+    }
+
+
 }

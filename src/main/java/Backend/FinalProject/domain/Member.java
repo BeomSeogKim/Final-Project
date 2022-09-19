@@ -29,11 +29,22 @@ public class Member {
     @Column(unique = true)
     private String nickname;
 
-    private String img_url;
+    @Column(length = 1000)
+    private String imgUrl;
 
     @Enumerated(value = EnumType.STRING)
     private Authority userRole;
 
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateImage(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 }

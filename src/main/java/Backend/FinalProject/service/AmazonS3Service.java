@@ -28,17 +28,17 @@ public class AmazonS3Service {
     private final AmazonS3Client amazonS3Client;
     private final FilesRepository filesRepository;
 
-    @Value("${cloud.aws.s3.bucket}" + "/memberImage")
+    @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     //파일업로드
     @Transactional
-    public ResponseDto<?> uploadFile(MultipartFile multipartFile) {
+    public ResponseDto<?> uploadFile(MultipartFile multipartFile, String filePath) {
         if (validateFileExists(multipartFile))      // 빈 파일인지 확인
-            return ResponseDto.fail("등록된 이미지가 없습니다.");
+            return ResponseDto.fail("NO-IMAGE-FILE","등록된 이미지가 없습니다.");
         String contentType = multipartFile.getContentType();
         if (!contentType.equals("image/png") && !contentType.equals("image/jpeg") && !contentType.equals("image/jpg") && !contentType.equals("image/bmp"))
-            return ResponseDto.fail("JPG, PNG, BMP만 업로드 가능합니다.");
+            return ResponseDto.fail("IMAGE CONTENT-TYPE", "JPG, PNG, BMP만 업로드 가능합니다.");
 
         String fileName = createFileName(multipartFile.getOriginalFilename());  // 난수파일이름생성 (난수이름+파일이름)
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -46,10 +46,10 @@ public class AmazonS3Service {
         objectMetadata.setContentLength(multipartFile.getSize());
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
-            amazonS3Client.putObject(new PutObjectRequest(bucketName, fileName, inputStream, objectMetadata)
+            amazonS3Client.putObject(new PutObjectRequest(bucketName + filePath, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));        // S3에 업로드
         } catch (IOException e) {
-            return ResponseDto.fail("파일 업로드 실패");
+            return ResponseDto.fail("UPLOAD-FAILED","파일 업로드 실패");
         }
         ImageFile imageMapper = ImageFile.builder()                         // 업로드한 파일들을 관리할 테이블에 파일이름, URL넣기
                 .url(amazonS3Client.getUrl(bucketName, fileName).toString())
@@ -66,13 +66,13 @@ public class AmazonS3Service {
 
     //파일삭제
     @Transactional
-    public boolean removeFile(String fileName) {
+    public boolean removeFile(String fileName, String filePath) {
         Optional<ImageFile> optionalImageMapper = filesRepository.findByImageName(fileName); // 파일이름으로 파일가져오기
         if (optionalImageMapper.isEmpty())    // 실제있는 파일인지 확인
             return true;
         ImageFile image = optionalImageMapper.get();
         filesRepository.deleteById(image.getId());    // imageMapper에서 삭제
-        DeleteObjectRequest request = new DeleteObjectRequest(bucketName, fileName); // 삭제 request생성
+        DeleteObjectRequest request = new DeleteObjectRequest(bucketName + filePath, fileName); // 삭제 request생성
         amazonS3Client.deleteObject(request);      // s3에서 파일삭제
         return false;
     }
