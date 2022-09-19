@@ -8,17 +8,18 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Post {
+public class Post extends Timestamped{
 
     @Id
     @GeneratedValue
-    @Column(name = "post_id")
     private Long id;
 
     private String title;
@@ -45,4 +46,13 @@ public class Post {
     private String address;
 
     private String d_day;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> commentList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<Application> applicationList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<WishList> wishLists = new ArrayList<>();
 }

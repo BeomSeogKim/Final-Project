@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,11 +16,10 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
+public class Member extends Timestamped{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
     private Long id;
 
     @Column(unique = true)
@@ -35,8 +36,20 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private Authority userRole;
 
+    @OneToMany(mappedBy = "member")
+    private List<Post> postList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Comment> commentList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<WishList> wishLists = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Application> applicationList = new ArrayList<>();
 
     public void updatePassword(String password) {
+
         this.password = password;
     }
 

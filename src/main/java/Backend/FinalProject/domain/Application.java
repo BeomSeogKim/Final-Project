@@ -17,7 +17,7 @@ import static javax.persistence.GenerationType.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Application {
+public class Application extends Timestamped{
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
