@@ -14,7 +14,7 @@ import static javax.persistence.FetchType.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishList {
+public class WishList extends Timestamped{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
