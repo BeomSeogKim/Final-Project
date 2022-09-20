@@ -21,8 +21,6 @@ public class Comment extends Timestamped{
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    private String title;
-
     private String content;
 
     @ManyToOne(fetch = LAZY)
@@ -33,4 +31,8 @@ public class Comment extends Timestamped{
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public void update(String commentDto) {
+        this.content = commentDto;
+    }
 }
