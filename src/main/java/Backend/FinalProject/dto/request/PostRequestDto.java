@@ -1,8 +1,13 @@
 package Backend.FinalProject.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Getter
 public class PostRequestDto {
@@ -10,10 +15,15 @@ public class PostRequestDto {
     private String address;
     private String content;
     private int maxNum;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private String img;
-    private String comment;
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd-HH")
+    private String startDate;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd-HH")
+    private String endDate;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd-HH")
+    private String dDay;
 }
