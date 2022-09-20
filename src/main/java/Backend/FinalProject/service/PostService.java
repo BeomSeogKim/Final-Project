@@ -1,13 +1,16 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Time;
+import Backend.FinalProject.domain.Comment;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.enums.PostState;
+import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
+import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,8 @@ public class PostService {
     private final TokenProvider tokenProvider;
 
     private final AmazonS3Service amazonS3Service;
+
+    private final CommentRepository commentRepository;
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -131,20 +136,41 @@ public class PostService {
             );
 
         }
-        return ResponseDto.success("SUCCESS");
+        return ResponseDto.success("PostResponseDtoList");
+    }
+    // 게시글 상세 조회
+    public ResponseDto<?> getPost(Long id){
+
+        Post post = isPresentPost(id);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
+        if (null == post) {
+      return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
     }
 
-    public ResponseDto<?> getPost(Long id){     // 게시글 상세 조회
-        Post post = isPresentPost(id);
+        List<Comment> commentList = commentRepository.findAllByPost(post);
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
+        for (Comment comment : commentList) {
+            commentResponseDtoList.add(
+                    CommentResponseDto.builder()
+                            .id(comment.getId())
+                            .author(comment.getMember().getNickname())
+                            .content(comment.getContent())
+                            .createdAt(comment.getCreatedAt())
+                            .modifiedAt(comment.getModifiedAt())
+                            .build()
+            );
+        }
         return ResponseDto.success(PostResponseDto.builder()
+                .id(post.getId())
                 .title(post.getTitle())
                 .address(post.getAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
-                .imgPost(post.getImgUrl())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
+                .imgPost(post.getImgUrl())
+                .commentResponseDtoList(commentResponseDtoList)
+                .expire(" ")
                 .build()
         );
 
