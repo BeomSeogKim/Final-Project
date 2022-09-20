@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Getter
 @Builder
@@ -14,10 +16,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 public class ImageFile extends Timestamped{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private String imageName;
+
     @Column(length = 1000)
     private String url;
 

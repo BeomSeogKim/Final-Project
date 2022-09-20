@@ -37,4 +37,11 @@ public class Application extends Timestamped{
     private Post post;
 
 
+    public void approve() {
+        this.status = ApplicationState.APPROVED;
+    }
+
+    public void disapprove() {
+        this.status = ApplicationState.DENIED;
+    }
 }

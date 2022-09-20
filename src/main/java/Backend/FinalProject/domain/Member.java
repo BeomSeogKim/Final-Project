@@ -11,6 +11,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.persistence.EnumType.STRING;
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Getter
 @Builder
@@ -19,7 +22,7 @@ import java.util.List;
 public class Member extends Timestamped{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Column(unique = true)
@@ -33,7 +36,7 @@ public class Member extends Timestamped{
     @Column(length = 1000)
     private String imgUrl;
 
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(value = STRING)
     private Authority userRole;
 
     @OneToMany(mappedBy = "member")

@@ -156,7 +156,7 @@ public class MemberService {
         tokenProvider.deleteRefreshToken(member);
 
 
-        return ResponseDto.success("로그아웃 완");
+        return ResponseDto.success("로그아웃 완료");
     }
 
     @Transactional

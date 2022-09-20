@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class RefreshToken extends Timestamped {
     private String id;
 
     @JoinColumn(name = "member_id", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = LAZY)
     private Member member;
 
     @Column(nullable = false)

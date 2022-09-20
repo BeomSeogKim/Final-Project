@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,13 +16,19 @@ public class PostController {
 
     private final PostService postService;
 
+    /**
+     * 게시글 작성
+     * @param request 게시글에 필요한 항목들
+     * @param imgFile 이미지 사진
+     * @param httpServletRequest Member 검증에 필요한 헤더
+     */
     @PostMapping("/post")
     public ResponseDto<?> createPost(
-            @RequestPart PostRequestDto requestDto,
-            @RequestPart MultipartFile imgFile,
+            @RequestPart PostRequestDto request,
+            @RequestPart(required = false) MultipartFile imgFile,
             HttpServletRequest httpServletRequest
     ) {
-        return postService.createPost(requestDto, imgFile, httpServletRequest);
+        return postService.createPost(request, imgFile, httpServletRequest);
     }
 
     @GetMapping("/post")

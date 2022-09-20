@@ -5,20 +5,23 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
+
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostResponseDto {
+    private Long id;
     private String title;
     private String address;
     private String content;
     private int maxNum;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private int expire;
-    private String comment;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String expire;
     private String imgPost;
+    private List<CommentResponseDto> commentResponseDtoList;
 
 }
