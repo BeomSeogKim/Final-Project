@@ -37,4 +37,13 @@ public class CommentController {
         return commentService.editComment(commentId, commentRequestDto, request);
     }
 
+    /**
+     * 댓글 삭제
+     */
+    @DeleteMapping("/comment/{commentId}")
+    public ResponseDto<?> deleteComment(
+            @PathVariable Long commentId,
+            HttpServletRequest request) {
+        return commentService.deleteComment(commentId, request);
+    }
 }

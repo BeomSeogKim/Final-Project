@@ -88,6 +88,31 @@ public class CommentService {
 
     }
 
+    // 댓글 삭제
+    public ResponseDto<?> deleteComment(Long commentId, HttpServletRequest request) {
+
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        // 작성자 검증
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        Comment comment = optionalComment.orElse(null);
+        if (comment == null) {
+            return ResponseDto.fail("NOT FOUND", "해당 댓글을 찾을 수 없습니다.");
+        }
+        if (comment.getMember().getId() != member.getId()) {
+            return ResponseDto.fail("NO AUTHORITY", "작성자만 수정이 가능합니다.");
+        }
+
+        commentRepository.delete(comment);
+        return ResponseDto.success("댓글 삭제가 완료되었습니다.");
+    }
+
 
     // RefreshToken 유효성 검사
     @Transactional
