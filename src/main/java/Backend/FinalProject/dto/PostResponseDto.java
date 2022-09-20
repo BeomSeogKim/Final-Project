@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 @Builder
 @Getter
@@ -15,8 +16,8 @@ public class PostResponseDto {
     private String address;
     private String content;
     private int maxNum;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int expire;
     private String comment;
     private String imgPost;
