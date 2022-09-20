@@ -1,8 +1,10 @@
 package Backend.FinalProject.service;
 
+import Backend.FinalProject.Tool.Time;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
+import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
@@ -21,6 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostService {
 
     private final PostRepository postRepository;
@@ -28,41 +31,58 @@ public class PostService {
     private final TokenProvider tokenProvider;
 
     private final AmazonS3Service amazonS3Service;
+    Time time = new Time();
 
     String folderName = "/postImage";
+    String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
 
     @Transactional  // 게시글 등록
-    public ResponseDto<?> createPost(PostRequestDto requestDto, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> createPost(PostRequestDto request, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
 
-        Member member = validateMember(httpServletRequest);
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(httpServletRequest);
 
-        String title = requestDto.getTitle();
-        String address = requestDto.getAddress();
-        String content = requestDto.getContent();
-        int maxNum = requestDto.getMaxNum();
-        LocalDateTime startDate = requestDto.getStartDate();
-        LocalDateTime endDate = requestDto.getEndDate();
-        String imgPost;
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+        String title = request.getTitle();
+        String address = request.getAddress();
+        String content = request.getContent();
+        int maxNum = request.getMaxNum();
+        LocalDateTime startDate = time.stringToDate(request.getStartDate());
+        LocalDateTime endDate = time.stringToDate(request.getEndDate());
+        LocalDateTime dDay = time.stringToDate(request.getDDay());
+        String imgUrl;
 
-        if (title == null || address == null || content == null ||  startDate == null || endDate == null ) {
+        if (title == null || address == null || content == null || maxNum == 0 ||
+                startDate == null || endDate == null || dDay == null) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty() ) {
+        } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
-        ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
-        ImageFile imageFile = (ImageFile) image.getData();
-        imgPost = imageFile.getUrl();
+        // 이미지 업로드 관련 로직
+        if (imgFile == null || imgFile.isEmpty()) {
+            imgUrl = baseImage;
+        } else {
+            ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+            ImageFile imageFile = (ImageFile) image.getData();
+            imgUrl = imageFile.getUrl();
+        }
 
         Post post = Post.builder()
-                .member(member)
                 .title(title)
-                .address(address)
                 .content(content)
                 .maxNum(maxNum)
+                .currentNum(0)              // 현재 모집된 정원의 수
                 .startDate(startDate)
                 .endDate(endDate)
-                .imgPost(imgPost)
+                .imgUrl(imgUrl)
+                .status(PostState.RECRUIT)      // 현재 모집 중
+                .member(member)
+                .address(address)
+                .dDay(dDay)                      // 남은 모집일자
                 .build();
 
         postRepository.save(post);
@@ -96,7 +116,7 @@ public class PostService {
                 .address(post.getAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
-                .imgPost(post.getImgPost())
+                .imgPost(post.getImgUrl())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .build()
@@ -122,6 +142,21 @@ public class PostService {
             return null;
         }
         return tokenProvider.getMemberFromAuthentication();
+    }
+
+    private ResponseDto<?> validateCheck(HttpServletRequest request) {
+
+        // RefreshToken 및 Authorization 유효성 검사
+        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
+            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
+        }
+        Member member = validateMember(request);
+
+        // 토큰 유효성 검사
+        if (member == null) {
+            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
+        }
+        return ResponseDto.success(member);
     }
 
     @Transactional(readOnly = true)

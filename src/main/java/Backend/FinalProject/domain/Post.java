@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.persistence.EnumType.STRING;
+import static javax.persistence.FetchType.*;
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Builder
 @Getter
@@ -19,7 +23,7 @@ import java.util.List;
 public class Post extends Timestamped{
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private String title;
@@ -34,18 +38,19 @@ public class Post extends Timestamped{
 
     private LocalDateTime endDate;
 
-    private String imgPost;
+    private LocalDateTime dDay;
 
-    @Enumerated(EnumType.STRING)
+    @Column(length = 1000)
+    private String imgUrl;
+
+    @Enumerated(value = STRING)
     private PostState status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     private String address;
-
-    private String dDay;
 
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList = new ArrayList<>();
