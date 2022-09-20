@@ -1,5 +1,6 @@
 package Backend.FinalProject.dto.request;
 
+import Backend.FinalProject.Tool.Time;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,15 +16,15 @@ public class PostRequestDto {
     private String address;
     private String content;
     private int maxNum;
-    @DateTimeFormat(pattern = "yyyy-MM-dd-HH")
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd-HH")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String startDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd-HH")
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd-HH")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String endDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd-HH")
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd-HH")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String dDay;
 }

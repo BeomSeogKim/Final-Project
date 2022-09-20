@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static java.time.LocalDate.now;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +39,8 @@ public class PostService {
     String folderName = "/postImage";
     String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
 
-    @Transactional  // 게시글 등록
+    // 게시글 등록
+    @Transactional
     public ResponseDto<?> createPost(PostRequestDto request, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
@@ -50,17 +54,40 @@ public class PostService {
         String address = request.getAddress();
         String content = request.getContent();
         int maxNum = request.getMaxNum();
-        LocalDateTime startDate = time.stringToDate(request.getStartDate());
-        LocalDateTime endDate = time.stringToDate(request.getEndDate());
-        LocalDateTime dDay = time.stringToDate(request.getDDay());
         String imgUrl;
 
         if (title == null || address == null || content == null || maxNum == 0 ||
-                startDate == null || endDate == null || dDay == null) {
+                request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
+
+        // 날짜 String 을 LocalDate 로 변경
+        LocalDate startDate, endDate, dDay;
+        try {
+            startDate = time.stringToLocalDate(request.getStartDate());
+            endDate = time.stringToLocalDate(request.getEndDate());
+            dDay = time.stringToLocalDate(request.getDDay());
+        } catch (Exception e) {
+            return ResponseDto.fail("INVALID TYPE", "날짜 형식을 확인해주세요");
+        }
+
+        // 모집 시작 날짜가 현재보다 이전일 경우 에러 처리
+        if (startDate.isBefore(now()) || endDate.isBefore(now()) || dDay.isBefore(now())) {
+            return ResponseDto.fail("WRONG DATE", "현재보다 이전 날짜를 택할 수 없습니다.");
+        }
+
+        // 모집 마감일자, 모집일이 모집 시작일자보다 이전일 경우 에러처리
+        if (endDate.isBefore(startDate) || dDay.isBefore(startDate)) {
+            return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
+        }
+
+        // 모집 일자가 모집 마감일보다 이전일 경우 에러처리
+        if (dDay.isBefore(endDate)) {
+            return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
+        }
+
 
         // 이미지 업로드 관련 로직
         if (imgFile == null || imgFile.isEmpty()) {
@@ -92,7 +119,6 @@ public class PostService {
     }
 
     public ResponseDto<?> getAllPost() {    // 게시글 전체 조회
-
         List<Post> all = postRepository.findAll();
         List<PostResponseDto> PostResponseDtoList = new ArrayList<>();
         for (Post post : all) {

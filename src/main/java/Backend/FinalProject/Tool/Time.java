@@ -1,5 +1,6 @@
 package Backend.FinalProject.Tool;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -16,11 +17,16 @@ public class Time {
 
 
     // Formatter
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     // String -> LocalDateTime
-    public LocalDateTime stringToDate(String dateStr) {
+    public LocalDateTime stringToLocalDateTime(String dateStr) {
         return LocalDateTime.parse(dateStr, formatter);
+    }
+
+    // String -> LocalDate
+    public LocalDate stringToLocalDate(String dateStr) {
+        return LocalDate.parse(dateStr, formatter);
     }
 
 

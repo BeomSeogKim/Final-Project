@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,11 @@ public class Post extends Timestamped{
 
     private int currentNum;
 
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
-    private LocalDateTime dDay;
+    private LocalDate dDay;
 
     @Column(length = 1000)
     private String imgUrl;
