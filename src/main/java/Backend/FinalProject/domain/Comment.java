@@ -21,8 +21,6 @@ public class Comment extends Timestamped{
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    private String title;
-
     private String content;
 
     @ManyToOne(fetch = LAZY)
