@@ -23,7 +23,7 @@ public class FinalProjectApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
 						.allowedOrigins("http://localhost:3000")
-						.exposedHeaders("Authorization", "RefreshToken")
+						.exposedHeaders("Authorization", "RefreshToken", "ImgUrl")
 						.allowedMethods("*")
 						.allowedHeaders("*")
 						.allowCredentials(true)
