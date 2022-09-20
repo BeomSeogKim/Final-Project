@@ -4,6 +4,8 @@ import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.enums.ApplicationState;
+import Backend.FinalProject.dto.ApplicationListResponseDto;
+import Backend.FinalProject.dto.ApplicationResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.ApplicationRequestDto;
 import Backend.FinalProject.repository.ApplicationRepository;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,6 +64,8 @@ public class ApplicationService {
 
         // 게시글 작성자가 신청을 할 경우 거절
         if (post.getMember().getId() == member.getId()) {
+            System.out.println("post = " + post.getMember().getId());
+            System.out.println("member = " + member.getId());
             return ResponseDto.fail("INVALID ACCESS", "모임 주최자는 신청할 수 없습니다.");
         }
 
@@ -123,6 +129,51 @@ public class ApplicationService {
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
 
+    public ResponseDto<?> getApplicationList(Long postId, HttpServletRequest request) {
+
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        Post post = optionalPost.orElse(null);
+        if (post == null) {
+            return ResponseDto.fail("EMPTY", "해당 게시글이 존재하지 않습니다.");
+        }
+
+        if (post.getMember().getId() != member.getId()) {
+            return ResponseDto.fail("NO AUTHORIZATION", "접근 권한이 없습니다");
+        }
+
+        Optional<List<Application>> optionalApplicationList = applicationRepository.findAllByPostId(postId);
+        List<Application> applicationList = optionalApplicationList.orElse(null);
+        if (applicationList == null) {
+            return ResponseDto.fail("NO ATTENDEE", "지원자가 존재하지 않습니다.");
+        }
+        List<ApplicationListResponseDto> applicationListResponseDtoList = new ArrayList<>();
+
+        for (Application application : applicationList) {
+            applicationListResponseDtoList.add(
+                    ApplicationListResponseDto.builder()
+                            .nickname(application.getMember().getNickname())
+                            .imgUrl(application.getMember().getImgUrl())
+                            .state(application.getStatus())
+                            .build()
+            );
+        }
+
+        return ResponseDto.success(
+                ApplicationResponseDto.builder()
+                        .title(post.getTitle())
+                        .applicants(applicationListResponseDtoList)
+                        .build()
+        );
+
+    }
 
 
 
