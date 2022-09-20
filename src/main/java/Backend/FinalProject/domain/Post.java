@@ -26,13 +26,15 @@ public class Post extends Timestamped{
 
     private String content;
 
-    private int max_num;
+    private int maxNum;
 
-    private int current_num;
+    private int currentNum;
 
-    private LocalDateTime start_date;
+    private LocalDateTime startDate;
 
-    private LocalDateTime end_date;
+    private LocalDateTime endDate;
+
+    private String imgPost;
 
     @Enumerated(EnumType.STRING)
     private PostState status;
@@ -41,11 +43,9 @@ public class Post extends Timestamped{
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private String img_url;
-
     private String address;
 
-    private String d_day;
+    private String dDay;
 
     @OneToMany(mappedBy = "post")
     private List<Comment> commentList = new ArrayList<>();
@@ -55,4 +55,5 @@ public class Post extends Timestamped{
 
     @OneToMany(mappedBy = "post")
     private List<WishList> wishLists = new ArrayList<>();
+
 }
