@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CommentService {
     private final TokenProvider tokenProvider;
@@ -56,6 +57,36 @@ public class CommentService {
 
     }
 
+    // 댓글 수정
+    public ResponseDto<?> editComment(Long commentId, CommentRequestDto commentRequestDto, HttpServletRequest request) {
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        // 작성자 검증
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        Comment comment = optionalComment.orElse(null);
+        if (comment == null) {
+            return ResponseDto.fail("NOT FOUND", "해당 댓글을 찾을 수 없습니다.");
+        }
+        if (comment.getMember().getId() != member.getId()) {
+            return ResponseDto.fail("NO AUTHORITY", "작성자만 수정이 가능합니다.");
+        }
+
+        String commentDto = commentRequestDto.getComment();
+        if (commentDto == null || commentDto.isEmpty()) {
+            return ResponseDto.fail("EMPTY COMMENT", "내용을 기입해주세요");
+        }
+
+        comment.update(commentDto);
+
+        return ResponseDto.success("댓글 수정이 완료되었습니다.");
+
+    }
 
 
     // RefreshToken 유효성 검사
@@ -82,4 +113,6 @@ public class CommentService {
         }
         return ResponseDto.success(member);
     }
+
+
 }

@@ -31,4 +31,8 @@ public class Comment extends Timestamped{
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public void update(String commentDto) {
+        this.content = commentDto;
+    }
 }
