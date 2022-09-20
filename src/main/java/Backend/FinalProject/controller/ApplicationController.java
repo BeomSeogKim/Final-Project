@@ -5,10 +5,7 @@ import Backend.FinalProject.dto.request.ApplicationRequestDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,6 +35,7 @@ public class ApplicationController {
             HttpServletRequest request) {
         return applicationService.approveApplication(applicationId, request);
     }
+
     /**
      * 게시글 참여 거절
      */
@@ -48,4 +46,13 @@ public class ApplicationController {
         return applicationService.disapproveApplication(applicationId, request);
     }
 
+    /**
+     * 지원자 보기
+     */
+    @GetMapping("/post/application/{postId}")
+    public ResponseDto<?> getApplicationList(
+            @PathVariable Long postId,
+            HttpServletRequest request) {
+        return applicationService.getApplicationList(postId, request);
+    }
 }
