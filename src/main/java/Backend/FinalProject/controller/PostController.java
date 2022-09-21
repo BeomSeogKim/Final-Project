@@ -2,6 +2,7 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
+import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,9 @@ public class PostController {
 
     /**
      * 게시글 작성
-     * @param request 게시글에 필요한 항목들
-     * @param imgFile 이미지 사진
+     *
+     * @param request            게시글에 필요한 항목들
+     * @param imgFile            이미지 사진
      * @param httpServletRequest Member 검증에 필요한 헤더
      */
     @PostMapping("/post")
@@ -32,18 +34,18 @@ public class PostController {
     }
 
     @GetMapping("/post")
-    public ResponseDto<?> getAllPost(){
+    public ResponseDto<?> getAllPost() {
         return postService.getAllPost();
     }
 
     @GetMapping("/post/{id}")
-    public ResponseDto<?> getPost(@PathVariable Long id){
+    public ResponseDto<?> getPost(@PathVariable Long id) {
         return postService.getPost(id);
     }
 
     @PutMapping("/post/{id}")
-    public ResponseDto<?> updatePost(@PathVariable Long id, HttpServletRequest httpServletRequest){
-        return postService.updatePost(id, httpServletRequest);
+    public ResponseDto<?> updatePost(@PathVariable Long id, @RequestBody PostUpdateRequestDto requestDto, HttpServletRequest httpServletRequest) {
+        return postService.updatePost(id, requestDto, httpServletRequest);
     }
 
     @DeleteMapping("/post/{id}")
