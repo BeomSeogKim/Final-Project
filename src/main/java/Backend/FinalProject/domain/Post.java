@@ -1,14 +1,12 @@
 package Backend.FinalProject.domain;
 
 import Backend.FinalProject.domain.enums.PostState;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import Backend.FinalProject.dto.request.PostUpdateRequestDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class Post extends Timestamped{
 
     @Enumerated(value = STRING)
     private PostState status;
-
+    @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -62,4 +60,20 @@ public class Post extends Timestamped{
     @OneToMany(mappedBy = "post")
     private List<WishList> wishLists = new ArrayList<>();
 
+    public void update(PostUpdateRequestDto PostUpdateRequestDto){
+        this.title = PostUpdateRequestDto.getTitle();
+        this.address = PostUpdateRequestDto.getAddress();
+        this.content = PostUpdateRequestDto.getContent();
+        this.maxNum = PostUpdateRequestDto.getMaxNum();
+
+
+    }
+    public void update2(LocalDate startDate, LocalDate endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public boolean validateMember(Member member) {
+        return !this.member.equals(member);
+    }
 }
