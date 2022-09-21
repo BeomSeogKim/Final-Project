@@ -68,6 +68,7 @@ public class SecurityConfiguration {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**/*").permitAll()
                 .antMatchers("/member/**", "/ws/chat", "/api/view/**").permitAll()
+                .antMatchers("/oauth/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
