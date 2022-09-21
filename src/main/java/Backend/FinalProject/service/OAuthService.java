@@ -42,7 +42,7 @@ public class OAuthService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     *
+     * 카카오 로그인
      * @param code
      * @return
      */
