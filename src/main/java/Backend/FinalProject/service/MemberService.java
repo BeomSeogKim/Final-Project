@@ -2,7 +2,6 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.RefreshToken;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -39,13 +38,16 @@ public class MemberService {
     String baseAwsImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
     String folderName = "/memberImage";
 
-    @Transactional
-    public ResponseDto<String> createMember(SignupRequestDto requestDto, MultipartFile imgFile) {
 
-        String userId = requestDto.getUserId();
-        String password = requestDto.getPassword();
-        String passwordCheck = requestDto.getPasswordCheck();
-        String nickname = requestDto.getNickname();
+
+    @Transactional
+    public ResponseDto<String> createMember(SignupRequestDto request) {
+
+        String userId = request.getUserId();
+        String password = request.getPassword();
+        String passwordCheck = request.getPasswordCheck();
+        String nickname = request.getNickname();
+        MultipartFile imgFile = request.getImgFile();
         String imgUrl;
 
         // null 값 및 공백이 있는 값 체크하기
@@ -64,7 +66,7 @@ public class MemberService {
         if (!isPresentNickname(nickname).isSuccess())
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
         // 이미지를 업로드 하지 않을 시 기본 이미지 설정
-        if (imgFile == null) {
+        if (imgFile == null || imgFile.isEmpty()) {
             imgUrl = baseImage;
         } else {
             // 이미지 업로드 관련 로직

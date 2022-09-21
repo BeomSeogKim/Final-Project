@@ -23,14 +23,13 @@ public class MemberController {
 
     /**
      * 회원가입
-     * @param request : 회원가입에 필요한 정보들을 담은 Dto
-     * @param imgFile : 회원가입시 이미지 파일 업로드
+     * @param signupRequestDto 이미지 파일을 포함한 여러가지 데이터
+     * @return
      */
     @PostMapping("/member/signup")
     public ResponseDto<String> signup(
-            @RequestPart SignupRequestDto request,
-            @RequestPart(required = false) MultipartFile imgFile) {
-        return memberService.createMember(request, imgFile);
+            @ModelAttribute SignupRequestDto signupRequestDto) {
+        return memberService.createMember(signupRequestDto);
     }
 
     /**
