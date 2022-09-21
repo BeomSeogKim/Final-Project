@@ -2,6 +2,7 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.RefreshToken;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -150,6 +151,14 @@ public class MemberService {
 
     @Transactional
     public ResponseDto<?> logout(HttpServletRequest request) {
+
+        String refreshToken = request.getHeader("RefreshToken");
+        RefreshToken validateToken = refreshTokenRepository.findByKeyValue(refreshToken).orElse(null);
+
+        if (validateToken == null) {
+            return ResponseDto.fail("ALREADY LOGOUT", "이미 로그아웃 하셨습니다.");
+        }
+
         if(!tokenProvider.validateToken(request.getHeader("RefreshToken")))
             return ResponseDto.fail("INVALID TOKEN","토큰 값이 올바르지 않습니다.");
 
