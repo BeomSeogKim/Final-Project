@@ -27,6 +27,14 @@
 2. LocalDate.parse 가 제대로 동작하지 않는 형상 
    * 원인 : 기존에 LocalDateTime 으로 작업을 하던 상황이기에 Method 들이 LocalDateTime 으로 구현되어 있었음
    * 해결방법 : Entity 및 Dto LocalDateTime 및 LocalDateTime 메서드 => LocalDate 로 변경. 
+3. 무한 로그아웃 현상 
+   * 원인 : 기존에는 Database 에서 RefreshToken 의 유효성을 검사하는 로직이 없었음. 이로 인해 기존에 들고 있던 RefreshToken 으로 무한 로그아웃이 가능함
+   * 해결방법 : logout 시 우선적으로 Database 에 RefreshToken 이 존재하는 지 검사하는 로직을 추가함. 
+
+
+# 기능 개선 사항
+1. 회원가입
+    * 개선 내용 : 
    
 
 

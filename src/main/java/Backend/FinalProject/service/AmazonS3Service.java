@@ -52,7 +52,7 @@ public class AmazonS3Service {
             return ResponseDto.fail("UPLOAD-FAILED","파일 업로드 실패");
         }
         ImageFile imageMapper = ImageFile.builder()                         // 업로드한 파일들을 관리할 테이블에 파일이름, URL넣기
-                .url(amazonS3Client.getUrl(bucketName, fileName).toString())
+                .url(amazonS3Client.getUrl(bucketName+filePath, fileName).toString())
                 .imageName(fileName)
                 .build();
         filesRepository.save(imageMapper);
