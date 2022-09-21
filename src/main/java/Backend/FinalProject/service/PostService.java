@@ -10,6 +10,7 @@ import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
+import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -123,20 +123,24 @@ public class PostService {
         return ResponseDto.success(post.getTitle());
     }
 
-    public ResponseDto<?> getAllPost() {    // 게시글 전체 조회
+    // 게시글 전체 조회
+    public ResponseDto<?> getAllPost() {
         List<Post> all = postRepository.findAll();
         List<PostResponseDto> PostResponseDtoList = new ArrayList<>();
         for (Post post : all) {
             PostResponseDtoList.add(
                     PostResponseDto.builder()
+                            .id(post.getId())
                             .title(post.getTitle())
                             .address(post.getAddress())
                             .maxNum(post.getMaxNum())
+                            .startDate(post.getStartDate())
+                            .endDate(post.getEndDate())
                             .build()
             );
 
         }
-        return ResponseDto.success("PostResponseDtoList");
+        return ResponseDto.success(PostResponseDtoList);
     }
     // 게시글 상세 조회
     public ResponseDto<?> getPost(Long id){
@@ -166,7 +170,7 @@ public class PostService {
                 .address(post.getAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
-                .startDate(post.getStartDate())
+                .startDate((post.getStartDate()))
                 .endDate(post.getEndDate())
                 .imgPost(post.getImgUrl())
                 .commentResponseDtoList(commentResponseDtoList)
@@ -177,32 +181,95 @@ public class PostService {
     }
 
     @Transactional  // 게시글 업데이트
-    public ResponseDto<?> updatePost(Long id, HttpServletRequest httpServletRequest){
+    public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto PostUpdateRequestDto, HttpServletRequest httpServletRequest){
 
-        return null;
+        if (null == httpServletRequest.getHeader("RefreshToken")) {
+            return ResponseDto.fail("MEMBER_NOT_FOUND",
+                    "로그인이 필요합니다.");
+        }
 
+        if (null == httpServletRequest.getHeader("Authorization")) {
+            return ResponseDto.fail("MEMBER_NOT_FOUND",
+                    "로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(httpServletRequest);
+        if (null == member) {
+            return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+        }
+
+        Post post = isPresentPost(id);
+        if (null == post) {
+            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+
+//        System.out.println(post.getMember().equals(member));
+//        System.out.println(post.getMember().getUserId() + " " + member.getUserId());
+
+        if (post.validateMember(member)) {
+            return ResponseDto.fail("BAD_REQUEST", "작성자만 수정할 수 있습니다.");
+        }
+        LocalDate startDate, endDate;
+        try {
+            startDate = time.stringToLocalDate(PostUpdateRequestDto.getStartDate());
+            endDate = time.stringToLocalDate(PostUpdateRequestDto.getEndDate());
+        } catch (Exception e) {
+            return ResponseDto.fail("INVALID TYPE", "날짜 형식을 확인해주세요");
+        }
+
+        post.update(PostUpdateRequestDto);
+
+        post.update2(startDate,endDate);
+
+        return ResponseDto.success(post);
     }
-    @Transactional   // 게시글 삭제
-    public ResponseDto<?> deletePost(Long id, HttpServletRequest httpServletRequest){
 
-        return null;
+    @Transactional // 게시글 삭제
+    public ResponseDto<?> deletePost(Long id, HttpServletRequest httpServletRequest) {
+        if (null == httpServletRequest.getHeader("RefreshToken")) {
+            return ResponseDto.fail("MEMBER_NOT_FOUND",
+                    "로그인이 필요합니다.");
+        }
+
+        if (null == httpServletRequest.getHeader("Authorization")) {
+            return ResponseDto.fail("MEMBER_NOT_FOUND",
+                    "로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(httpServletRequest);
+        if (null == member) {
+            return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+        }
+
+        Post post = isPresentPost(id);
+        if (null == post) {
+            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+
+        if (post.validateMember(member)) {
+            return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
+        }
+
+
+
+        postRepository.delete(post);
+        return ResponseDto.success("delete success");
     }
 
-
-    public Member validateMember(HttpServletRequest request) {
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
+    public Member validateMember(HttpServletRequest httpServletRequest) {
+        if (!tokenProvider.validateToken(httpServletRequest.getHeader("RefreshToken"))) {
             return null;
         }
         return tokenProvider.getMemberFromAuthentication();
     }
 
-    private ResponseDto<?> validateCheck(HttpServletRequest request) {
+    private ResponseDto<?> validateCheck(HttpServletRequest httpServletRequest) {
 
         // RefreshToken 및 Authorization 유효성 검사
-        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
+        if (httpServletRequest.getHeader("Authorization") == null || httpServletRequest.getHeader("RefreshToken") == null) {
             return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
         }
-        Member member = validateMember(request);
+        Member member = validateMember(httpServletRequest);
 
         // 토큰 유효성 검사
         if (member == null) {
