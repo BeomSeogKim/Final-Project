@@ -11,6 +11,7 @@ import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
+import Backend.FinalProject.dto.response.AllPostResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
@@ -42,11 +43,11 @@ public class PostService {
     Time time = new Time();
 
     String folderName = "/postImage";
-    String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
+    String baseImage = "https://s3.ap-northeast-2.amazonaws.com/tommy-bucket-final/postImage/948c5814-3746-4873-95ce-6743aeeec07bbaseImage.jpeg";
 
     // 게시글 등록
     @Transactional
-    public ResponseDto<?> createPost(PostRequestDto request, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validateCheck(httpServletRequest);
@@ -55,10 +56,12 @@ public class PostService {
             return responseDto;
         }
         Member member = (Member) responseDto.getData();
+
         String title = request.getTitle();
         String address = request.getAddress();
         String content = request.getContent();
         int maxNum = request.getMaxNum();
+        MultipartFile imgFile = request.getImgFile();
         String imgUrl;
 
         if (title == null || address == null || content == null || maxNum == 0 ||
@@ -120,28 +123,29 @@ public class PostService {
         postRepository.save(post);
 
 
-        return ResponseDto.success(post.getTitle());
+        return ResponseDto.success("게시글 작성이 완료되었습니다.");
     }
 
     // 게시글 전체 조회
     public ResponseDto<?> getAllPost() {
+
         List<Post> all = postRepository.findAll();
-        List<PostResponseDto> PostResponseDtoList = new ArrayList<>();
+        List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
         for (Post post : all) {
             PostResponseDtoList.add(
-                    PostResponseDto.builder()
+                    AllPostResponseDto.builder()
                             .id(post.getId())
                             .title(post.getTitle())
                             .address(post.getAddress())
-                            .maxNum(post.getMaxNum())
-                            .startDate(post.getStartDate())
-                            .endDate(post.getEndDate())
+                            .restDay(time.convertLocalDateToTime((post.getEndDate())))
+                            .dDay(post.getDDay())
+                            .imgUrl(post.getImgUrl())
                             .build()
             );
-
         }
         return ResponseDto.success(PostResponseDtoList);
     }
+
     // 게시글 상세 조회
     public ResponseDto<?> getPost(Long id){
 
@@ -157,24 +161,23 @@ public class PostService {
             commentResponseDtoList.add(
                     CommentResponseDto.builder()
                             .id(comment.getId())
-                            .author(comment.getMember().getNickname())
+                            .nickname(comment.getMember().getNickname())
                             .content(comment.getContent())
                             .createdAt(comment.getCreatedAt())
-                            .modifiedAt(comment.getModifiedAt())
                             .build()
             );
         }
         return ResponseDto.success(PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
+                .author(post.getMember().getNickname())
                 .address(post.getAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
-                .startDate((post.getStartDate()))
-                .endDate(post.getEndDate())
-                .imgPost(post.getImgUrl())
+                .restDay(time.convertLocalDateToTime(post.getEndDate()))
+                .dDay(post.getDDay())
+                .imgUrl(post.getImgUrl())
                 .commentResponseDtoList(commentResponseDtoList)
-                .expire(" ")
                 .build()
         );
 
@@ -203,9 +206,6 @@ public class PostService {
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
-//        System.out.println(post.getMember().equals(member));
-//        System.out.println(post.getMember().getUserId() + " " + member.getUserId());
-
         if (post.validateMember(member)) {
             return ResponseDto.fail("BAD_REQUEST", "작성자만 수정할 수 있습니다.");
         }
@@ -225,22 +225,17 @@ public class PostService {
     }
 
     @Transactional // 게시글 삭제
-    public ResponseDto<?> deletePost(Long id, HttpServletRequest httpServletRequest) {
-        if (null == httpServletRequest.getHeader("RefreshToken")) {
-            return ResponseDto.fail("MEMBER_NOT_FOUND",
-                    "로그인이 필요합니다.");
-        }
+    public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
 
-        if (null == httpServletRequest.getHeader("Authorization")) {
-            return ResponseDto.fail("MEMBER_NOT_FOUND",
-                    "로그인이 필요합니다.");
-        }
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validateCheck(request);
 
-        Member member = validateMember(httpServletRequest);
-        if (null == member) {
-            return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
+        if (!responseDto.isSuccess()) {
+            return responseDto;
         }
+        Member member = (Member) responseDto.getData();
 
+        // 개사굴 유효성 검사e
         Post post = isPresentPost(id);
         if (null == post) {
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
@@ -250,10 +245,8 @@ public class PostService {
             return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
         }
 
-
-
         postRepository.delete(post);
-        return ResponseDto.success("delete success");
+        return ResponseDto.success("게시글이 삭제되었습니다.");
     }
 
     public Member validateMember(HttpServletRequest httpServletRequest) {

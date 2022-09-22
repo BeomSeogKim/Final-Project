@@ -31,7 +31,7 @@ public class Time {
 
 
     // ~일전 ~초전으로 바꿔서 나타내주는 로직
-    public String convertLocaldatetimeToTime(LocalDateTime localDateTime) {
+    public String convertLocalDatetimeToTime(LocalDateTime localDateTime) {
         LocalDateTime now = LocalDateTime.now();
 
         long diffTime = localDateTime.until(now, ChronoUnit.SECONDS); // now보다 이후면 +, 전이면 -
@@ -49,6 +49,24 @@ public class Time {
             return diffTime + "시간 전";
         }
         diffTime = diffTime / TIME_MAXIMUM.HOUR;
+        if (diffTime < TIME_MAXIMUM.DAY) {
+            return diffTime + "일 전";
+        }
+        diffTime = diffTime / TIME_MAXIMUM.DAY;
+        if (diffTime < TIME_MAXIMUM.MONTH) {
+            return diffTime + "개월 전";
+        }
+        diffTime = diffTime / TIME_MAXIMUM.MONTH;
+        return diffTime + "년 전";
+    }
+
+    // ~일전 ~초전으로 바꿔서 나타내주는 로직
+    public String convertLocalDateToTime(LocalDate localDate) {
+        LocalDate now = LocalDate.now();
+
+        long diffTime = now.until(localDate, ChronoUnit.DAYS); // now보다 이후면 +, 전이면 -
+
+        String msg = null;
         if (diffTime < TIME_MAXIMUM.DAY) {
             return diffTime + "일 전";
         }
