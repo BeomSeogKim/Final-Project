@@ -51,7 +51,7 @@ public class Post extends Timestamped{
 
     private String address;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
@@ -60,13 +60,12 @@ public class Post extends Timestamped{
     @OneToMany(mappedBy = "post")
     private List<WishList> wishLists = new ArrayList<>();
 
+
     public void update(PostUpdateRequestDto PostUpdateRequestDto){
         this.title = PostUpdateRequestDto.getTitle();
         this.address = PostUpdateRequestDto.getAddress();
         this.content = PostUpdateRequestDto.getContent();
         this.maxNum = PostUpdateRequestDto.getMaxNum();
-
-
     }
     public void update2(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
