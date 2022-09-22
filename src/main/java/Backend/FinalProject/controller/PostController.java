@@ -17,39 +17,59 @@ public class PostController {
 
     private final PostService postService;
 
+
     /**
      * 게시글 작성
-     *
-     * @param request            게시글에 필요한 항목들
-     * @param imgFile            이미지 사진
-     * @param httpServletRequest Member 검증에 필요한 헤더
+     * @param postRequestDto 작성에 필요한 데이터
+     * @param request Token 이 담긴 데이터
      */
     @PostMapping("/post")
     public ResponseDto<?> createPost(
-            @RequestPart PostRequestDto request,
-            @RequestPart(required = false) MultipartFile imgFile,
-            HttpServletRequest httpServletRequest
-    ) {
-        return postService.createPost(request, imgFile, httpServletRequest);
+            @ModelAttribute PostRequestDto postRequestDto,
+            HttpServletRequest request) {
+        return postService.createPost(postRequestDto, request);
     }
 
+    /**
+     * 전체 게시글 조회
+     */
     @GetMapping("/post")
     public ResponseDto<?> getAllPost() {
         return postService.getAllPost();
     }
 
-    @GetMapping("/post/{id}")
-    public ResponseDto<?> getPost(@PathVariable Long id) {
-        return postService.getPost(id);
+    /**
+     * 상세 게시글 조회
+     * @param postId : 게시글 아이디
+     */
+    @GetMapping("/post/{postId}")
+    public ResponseDto<?> getPost(@PathVariable Long postId) {
+        return postService.getPost(postId);
     }
 
-    @PutMapping("/post/{id}")
-    public ResponseDto<?> updatePost(@PathVariable Long id, @RequestBody PostUpdateRequestDto requestDto, HttpServletRequest httpServletRequest) {
-        return postService.updatePost(id, requestDto, httpServletRequest);
+    /**
+     * 게시글 업데이트
+     * @param postId : 게시글 아이디
+     * @param requestDto : 업데이트에 필요한 데이터
+     * @param request : Token이 담긴 데이터
+     * @return
+     */
+    @PutMapping("/post/{postId}")
+    public ResponseDto<?> updatePost(@PathVariable Long postId,
+                                     @RequestBody PostUpdateRequestDto requestDto,
+                                     HttpServletRequest request) {
+        return postService.updatePost(postId, requestDto, request);
     }
 
-    @DeleteMapping("/post/{id}")
-    public ResponseDto<?> deletePost(@PathVariable Long id, HttpServletRequest httpServletRequest){
-        return postService.deletePost(id, httpServletRequest);
+    /**
+     * 게시글 삭제
+     * @param postId : 게시글 아이디
+     * @param request : Token이 담긴 데이터
+     * @return
+     */
+    @DeleteMapping("/post/{postId}")
+    public ResponseDto<?> deletePost(@PathVariable Long postId,
+                                     HttpServletRequest request){
+        return postService.deletePost(postId, request);
     }
 }
