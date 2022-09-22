@@ -69,6 +69,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.OPTIONS, "/**/*").permitAll()
                 .antMatchers("/member/**", "/ws/chat", "/api/view/**").permitAll()
                 .antMatchers("/oauth/**").permitAll()
+                .antMatchers("/chat/**","/chat/user","/webjars/**", "/ws-stomp/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
