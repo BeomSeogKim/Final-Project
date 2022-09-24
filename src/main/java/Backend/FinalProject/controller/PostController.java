@@ -6,10 +6,8 @@ import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class PostController {
     /**
      * 전체 게시글 조회
      */
-    @GetMapping("/post")
+    @GetMapping("/post/all")
     public ResponseDto<?> getAllPost() {
         return postService.getAllPost();
     }
