@@ -1,10 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Time;
-import Backend.FinalProject.domain.Comment;
-import Backend.FinalProject.domain.ImageFile;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.Post;
+import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
@@ -12,11 +9,14 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
+import Backend.FinalProject.dto.response.WishListDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
+import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +40,8 @@ public class PostService {
     private final AmazonS3Service amazonS3Service;
 
     private final CommentRepository commentRepository;
+
+    private final WishListRepository wishListRepository;
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -223,8 +225,8 @@ public class PostService {
 
         return ResponseDto.success(post);
     }
-
-    @Transactional // 게시글 삭제
+    // 게시글 삭제
+    @Transactional
     public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
 
         // 토큰 유효성 검사
@@ -248,6 +250,8 @@ public class PostService {
         postRepository.delete(post);
         return ResponseDto.success("게시글이 삭제되었습니다.");
     }
+
+
 
     public Member validateMember(HttpServletRequest httpServletRequest) {
         if (!tokenProvider.validateToken(httpServletRequest.getHeader("RefreshToken"))) {
@@ -276,5 +280,6 @@ public class PostService {
         Optional<Post> optionalPost = postRepository.findById(id);
         return optionalPost.orElse(null);
     }
+
 
 }
