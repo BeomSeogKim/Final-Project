@@ -1,6 +1,7 @@
 package Backend.FinalProject.domain;
 
 import Backend.FinalProject.domain.enums.ApplicationState;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,11 +28,11 @@ public class Application extends Timestamped{
     private ApplicationState status;
 
     private String content;
-
+    @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
+    @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;

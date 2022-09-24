@@ -72,4 +72,11 @@ public class PostController {
                                      HttpServletRequest request){
         return postService.deletePost(postId, request);
     }
+
+    // 게시글 찜
+    @PostMapping("/post/wish/{postId}")
+    public ResponseDto<?> wishListPost(@PathVariable Long postId,
+                                     HttpServletRequest request){
+        return postService.wishListPost(postId, request);
+    }
 }
