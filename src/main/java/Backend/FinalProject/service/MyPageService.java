@@ -7,6 +7,7 @@ import Backend.FinalProject.domain.WishList;
 import Backend.FinalProject.domain.enums.ApplicationState;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.response.MyPageDto;
+import Backend.FinalProject.dto.response.MypageListDto;
 import Backend.FinalProject.dto.response.WishListDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -32,7 +33,7 @@ public class MyPageService {
     private final WishListRepository wishListRepository;
 
     // 신청한 모임 조회
-    public ResponseDto<?> participation(HttpServletRequest request) {
+    public ResponseDto<?> application(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validateCheck(request);
 
@@ -52,7 +53,7 @@ public class MyPageService {
     }
 
     // 참여 중인 모임 조회
-    public ResponseDto<?> application(HttpServletRequest request) {
+    public ResponseDto<?> participation(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validateCheck(request);
 
@@ -67,19 +68,37 @@ public class MyPageService {
             return ResponseDto.fail("NOT FOUND", "신청한 모임이 없습니다.");
         }
 
-        List<Application> applicationListApproved = new ArrayList<>();
-
+        List<MypageListDto> mypageListDto = new ArrayList<>();
 
         for (Application application : applicationList) {
             if (application.getStatus() == null) {
                 return ResponseDto.fail("NOT FOUND", "참여중인 모임이 없습니다");
             }
             if (application.getStatus().equals(ApplicationState.APPROVED)) {
-                applicationListApproved.add(application);
-
+                mypageListDto.add(
+                        MypageListDto.builder()
+                                .title(application.getPost().getTitle())
+                                .imgUrl(application.getPost().getImgUrl())
+                                .address(application.getPost().getAddress())
+                                .dDay(application.getPost().getDDay())
+                                .build());
             }
         }
-        return ResponseDto.success(applicationListApproved);
+
+        List<Post> postList = postRepository.findAllByMemberId(member.getId());
+        for (Post post : postList) {
+            mypageListDto.add(
+                    MypageListDto.builder()
+                            .title(post.getTitle())
+                            .imgUrl(post.getImgUrl())
+                            .address(post.getAddress())
+                            .dDay(post.getDDay())
+                            .build()
+            );
+        }
+
+
+        return ResponseDto.success(mypageListDto);
     }
 
 
@@ -118,6 +137,32 @@ public class MyPageService {
         return ResponseDto.success(postList);
     }
 
+    // 찜한 모임 조회
+    public ResponseDto<?> addWish(HttpServletRequest request) {
+        ResponseDto<?> responseDto = validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        List<WishList> wishLists = wishListRepository.findAllByMemberId(member.getId()).orElse(null);
+        List<WishListDto> wishListDto = new ArrayList<>();
+
+        for (WishList wishList : wishLists) {
+            wishListDto.add(
+                    WishListDto.builder()
+                            .title(wishList.getPost().getTitle())
+                            .imgUrl(wishList.getPost().getImgUrl())
+                            .address(wishList.getPost().getAddress())
+                            .dDay(wishList.getPost().getDDay())
+                            .build()
+            );
+        }
+        return ResponseDto.success(wishListDto);
+
+    }
+
 
         // 토큰
         public Member validateMember (HttpServletRequest request){
@@ -143,4 +188,5 @@ public class MyPageService {
         }
 
 
-    }
+
+}

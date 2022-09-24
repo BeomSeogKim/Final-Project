@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishListDto {
+public class MypageListDto
+{
     private String title;
     private String imgUrl;
     private String address;

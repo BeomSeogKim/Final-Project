@@ -2,13 +2,11 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.service.MyPageService;
-import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class MyPageController {
 
     @GetMapping("/mypage/wish")
     public ResponseDto<?> wish(HttpServletRequest request) {
-        return myPageService.wish(request);
+        return myPageService.addWish(request);
     }
 
     @GetMapping("/mypage/leader")

@@ -9,14 +9,12 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
-import Backend.FinalProject.dto.response.WishListDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -250,6 +248,26 @@ public class PostService {
         postRepository.delete(post);
         return ResponseDto.success("게시글이 삭제되었습니다.");
     }
+
+
+    @Transactional public ResponseDto<?> wishListPost(Long postId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validateCheck(request);
+        if (!responseDto.isSuccess()){
+            return responseDto; }
+        Member member = (Member) responseDto.getData();
+
+        Post post = isPresentPost(postId);
+
+        if (null == post) {
+            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+
+        WishList wishList = WishList.builder()
+                .member(member)
+                .post(post)
+                .build();
+        wishListRepository.save(wishList);
+        return ResponseDto.success("찜하기가 완료 되었습니다."); }
 
 
 
