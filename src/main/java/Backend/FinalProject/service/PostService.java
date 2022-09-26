@@ -9,7 +9,6 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
-import Backend.FinalProject.dto.response.WishPeopleDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -177,13 +176,10 @@ public class PostService {
         }
 
         List<WishList> peopleList = wishListRepository.findAllByPostId(postId).orElse(null);
-        List<WishPeopleDto> peoples = new ArrayList<>();
-        for (WishList wishList : peopleList) {
-            peoples.add(
-                    WishPeopleDto.builder()
-                            .userId(wishList.getMember().getUserId())
-                            .build()
-            );
+
+        List<String> wishList = new ArrayList<>();
+        for (WishList list : peopleList) {
+            wishList.add(list.getMember().getUserId());
         }
 
 
@@ -203,7 +199,7 @@ public class PostService {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .commentList(commentResponseDtoList)
-                .wishPeople(peoples)
+                .wishPeople(wishList)
                 .build()
         );
 
