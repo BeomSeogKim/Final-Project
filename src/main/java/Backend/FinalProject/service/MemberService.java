@@ -53,9 +53,12 @@ public class MemberService {
 
         // null 값 및 공백이 있는 값 체크하기
         if (userId == null || password == null || nickname == null) {
+
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (userId.trim().isEmpty() || password.trim().isEmpty() || nickname.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+
+
         }
         // 비밀번호 및 비밀번호 확인 일치 검사
         if (!password.equals(passwordCheck))
@@ -105,6 +108,7 @@ public class MemberService {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", member.getImgUrl());
+        response.addHeader("nickname", member.getNickname());
 
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");

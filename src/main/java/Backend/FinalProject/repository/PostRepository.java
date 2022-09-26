@@ -1,5 +1,6 @@
 package Backend.FinalProject.repository;
 
+import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Optional<Post> findById(Long id);
 
-
-    List<Post> findAllById(Member member);
+    List<Post> findAllByMemberId(Long memberId);
 }

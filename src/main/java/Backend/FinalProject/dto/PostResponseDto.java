@@ -17,12 +17,15 @@ public class PostResponseDto {
     private Long id;
     private String title;
     private String author;
+    private String memberImgUrl;
     private String address;
     private String content;
     private int maxNum;
     private String restDay;
     private LocalDate dDay;
-    private String imgUrl;
-    private List<CommentResponseDto> commentResponseDtoList;
+    private String postImgUrl;
+    private List<CommentResponseDto> commentList;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
 }

@@ -40,7 +40,7 @@ public class PostController {
      * 상세 게시글 조회
      * @param postId : 게시글 아이디
      */
-    @GetMapping("/post/{postId}")
+    @GetMapping("/post/detail/{postId}")
     public ResponseDto<?> getPost(@PathVariable Long postId) {
         return postService.getPost(postId);
     }
@@ -69,5 +69,12 @@ public class PostController {
     public ResponseDto<?> deletePost(@PathVariable Long postId,
                                      HttpServletRequest request){
         return postService.deletePost(postId, request);
+    }
+
+    // 게시글 찜
+    @PostMapping("/post/wish/{postId}")
+    public ResponseDto<?> wishListPost(@PathVariable Long postId,
+                                     HttpServletRequest request){
+        return postService.wishListPost(postId, request);
     }
 }

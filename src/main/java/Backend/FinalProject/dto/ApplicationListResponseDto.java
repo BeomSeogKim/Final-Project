@@ -14,4 +14,5 @@ public class ApplicationListResponseDto {
     private String nickname;
     private String imgUrl;
     private ApplicationState state;
+    private String content;
 }

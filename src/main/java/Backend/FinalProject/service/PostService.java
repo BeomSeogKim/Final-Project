@@ -1,10 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Time;
-import Backend.FinalProject.domain.Comment;
-import Backend.FinalProject.domain.ImageFile;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.Post;
+import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
@@ -14,6 +11,7 @@ import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
+import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +38,8 @@ public class PostService {
     private final AmazonS3Service amazonS3Service;
 
     private final CommentRepository commentRepository;
+
+    private final WishListRepository wishListRepository;
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -147,9 +147,9 @@ public class PostService {
     }
 
     // 게시글 상세 조회
-    public ResponseDto<?> getPost(Long id){
+    public ResponseDto<?> getPost(Long postId){
 
-        Post post = isPresentPost(id);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
+        Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
         if (null == post) {
       return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
     }
@@ -171,13 +171,16 @@ public class PostService {
                 .id(post.getId())
                 .title(post.getTitle())
                 .author(post.getMember().getNickname())
+                .memberImgUrl(post.getMember().getImgUrl())
                 .address(post.getAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
                 .restDay(time.convertLocalDateToTime(post.getEndDate()))
                 .dDay(post.getDDay())
-                .imgUrl(post.getImgUrl())
-                .commentResponseDtoList(commentResponseDtoList)
+                .postImgUrl(post.getImgUrl())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
+                .commentList(commentResponseDtoList)
                 .build()
         );
 
@@ -223,8 +226,8 @@ public class PostService {
 
         return ResponseDto.success(post);
     }
-
-    @Transactional // 게시글 삭제
+    // 게시글 삭제
+    @Transactional
     public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
 
         // 토큰 유효성 검사
@@ -248,6 +251,28 @@ public class PostService {
         postRepository.delete(post);
         return ResponseDto.success("게시글이 삭제되었습니다.");
     }
+
+
+    @Transactional public ResponseDto<?> wishListPost(Long postId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validateCheck(request);
+        if (!responseDto.isSuccess()){
+            return responseDto; }
+        Member member = (Member) responseDto.getData();
+
+        Post post = isPresentPost(postId);
+
+        if (null == post) {
+            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+
+        WishList wishList = WishList.builder()
+                .member(member)
+                .post(post)
+                .build();
+        wishListRepository.save(wishList);
+        return ResponseDto.success("찜하기가 완료 되었습니다."); }
+
+
 
     public Member validateMember(HttpServletRequest httpServletRequest) {
         if (!tokenProvider.validateToken(httpServletRequest.getHeader("RefreshToken"))) {
@@ -276,5 +301,6 @@ public class PostService {
         Optional<Post> optionalPost = postRepository.findById(id);
         return optionalPost.orElse(null);
     }
+
 
 }
