@@ -1,6 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.UserDetailsImpl;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.KakaoUserInfoDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -16,6 +17,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -77,19 +82,19 @@ public class OAuthService {
             memberRepository.save(kakaoUser);
         }
 
-
         // 4. 강제 로그인 처리
-//        UserDetails userDetails = new UserDetailsImpl(kakaoUser);
-//        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetails userDetails = new UserDetailsImpl(kakaoUser);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(kakaoUser);
         // 헤더에 토큰 담기
+        response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", kakaoUser.getImgUrl());
-        response.addHeader("nickname", kakaoUser.getNickname());
+        response.addHeader("Id", kakaoUser.getUserId());
 
 
         return ResponseDto.success(kakaoUser.getNickname() + "님 로그인 성공");
@@ -147,7 +152,7 @@ public class OAuthService {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
-                .get("nickname").asText();
+                .get("nickname").toString();
         String imgUrl = jsonNode.get("properties")
                 .get("profile_image").asText();
         System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl);
