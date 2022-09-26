@@ -175,6 +175,7 @@ public class PostService {
                 .address(post.getAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
+                .currentNum(post.getCurrentNum())
                 .restDay(time.convertLocalDateToTime(post.getEndDate()))
                 .dDay(post.getDDay())
                 .postImgUrl(post.getImgUrl())

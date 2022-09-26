@@ -21,6 +21,7 @@ public class PostResponseDto {
     private String address;
     private String content;
     private int maxNum;
+    private int currentNum;
     private String restDay;
     private LocalDate dDay;
     private String postImgUrl;
