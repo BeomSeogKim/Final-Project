@@ -131,21 +131,25 @@ public class PostService {
 
         List<Post> all = postRepository.findAll();
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
+
         for (Post post : all) {
-            PostResponseDtoList.add(
-                    AllPostResponseDto.builder()
-                            .id(post.getId())
-                            .title(post.getTitle())
-                            .address(post.getAddress())
-                            .restDay(time.convertLocalDateToTime((post.getEndDate())))
-                            .dDay(post.getDDay())
-                            .imgUrl(post.getImgUrl())
-                            .build()
-            );
+            if (post.getStatus().equals(PostState.RECRUIT)) {
+                PostResponseDtoList.add(
+                        AllPostResponseDto.builder()
+                                .id(post.getId())
+                                .title(post.getTitle())
+                                .maxNum(post.getMaxNum())
+                                .address(post.getAddress())
+                                .restDay(time.convertLocalDateToTime((post.getEndDate())))
+                                .dDay(post.getDDay())
+                                .imgUrl(post.getImgUrl())
+                                .status(post.getStatus())
+                                .build()
+                );
+            }
         }
         return ResponseDto.success(PostResponseDtoList);
     }
-
     // 게시글 상세 조회
     public ResponseDto<?> getPost(Long postId){
 
