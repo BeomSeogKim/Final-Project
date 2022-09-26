@@ -126,7 +126,6 @@ public class MyPageService {
             }
             postList.add(
                     MyPageDto.builder()
-                            .member(member.getNickname())
                             .title(post.getTitle())
                             .address(post.getAddress())
                             .dDay(post.getDDay())

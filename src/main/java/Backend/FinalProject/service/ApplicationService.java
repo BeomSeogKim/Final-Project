@@ -129,6 +129,7 @@ public class ApplicationService {
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
 
+    // 지원자 보기
     public ResponseDto<?> getApplicationList(Long postId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
@@ -162,6 +163,7 @@ public class ApplicationService {
                             .nickname(application.getMember().getNickname())
                             .imgUrl(application.getMember().getImgUrl())
                             .state(application.getStatus())
+                            .content(application.getContent())
                             .build()
             );
         }
