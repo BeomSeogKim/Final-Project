@@ -27,6 +27,9 @@ public class PostUpdateRequestDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
+    private String dDay;
 
     private MultipartFile imgFile;
 

@@ -64,13 +64,14 @@ public class Post extends Timestamped{
 
 
     public void updateJson(String title, String address, String content, int maxNum,
-                           LocalDate startDate, LocalDate endDate){
+                           LocalDate startDate, LocalDate endDate, LocalDate dDay){
         this.title = title;
         this.address = address;
         this.content = content;
         this.maxNum = maxNum;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.dDay = dDay;
     }
 
     public boolean validateMember(Member member) {

@@ -31,7 +31,7 @@ public class PostController {
     /**
      * 전체 게시글 조회
      */
-    @GetMapping("/post")
+    @GetMapping("/post/all")
     public ResponseDto<?> getAllPost() {
         return postService.getAllPost();
     }
@@ -72,9 +72,15 @@ public class PostController {
     }
 
     // 게시글 찜
-    @PostMapping("/post/wish/{postId}")
-    public ResponseDto<?> wishListPost(@PathVariable Long postId,
+    @PostMapping("/post/add/wish/{postId}")
+    public ResponseDto<?> addWish(@PathVariable Long postId,
                                      HttpServletRequest request){
-        return postService.wishListPost(postId, request);
+        return postService.addWish(postId, request);
+    }
+    // 게시글 찜 삭제
+    @PostMapping("/post/remove/wish/{postId}")
+    public ResponseDto<?> removeWish(@PathVariable Long postId,
+                                  HttpServletRequest request){
+        return postService.removeWish(postId, request);
     }
 }
