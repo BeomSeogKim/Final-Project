@@ -1,9 +1,11 @@
 package Backend.FinalProject.domain;
 
 import Backend.FinalProject.domain.enums.PostState;
-import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -11,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.EnumType.STRING;
-import static javax.persistence.FetchType.*;
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
@@ -61,18 +63,21 @@ public class Post extends Timestamped{
     private List<WishList> wishLists = new ArrayList<>();
 
 
-    public void update(PostUpdateRequestDto PostUpdateRequestDto){
-        this.title = PostUpdateRequestDto.getTitle();
-        this.address = PostUpdateRequestDto.getAddress();
-        this.content = PostUpdateRequestDto.getContent();
-        this.maxNum = PostUpdateRequestDto.getMaxNum();
-    }
-    public void update2(LocalDate startDate, LocalDate endDate) {
+    public void updateJson(String title, String address, String content, int maxNum,
+                           LocalDate startDate, LocalDate endDate){
+        this.title = title;
+        this.address = address;
+        this.content = content;
+        this.maxNum = maxNum;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
     public boolean validateMember(Member member) {
         return !this.member.equals(member);
+    }
+
+    public void updateImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 }

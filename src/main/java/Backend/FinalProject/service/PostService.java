@@ -10,6 +10,7 @@ import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
+import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
@@ -40,6 +41,8 @@ public class PostService {
     private final CommentRepository commentRepository;
 
     private final WishListRepository wishListRepository;
+
+    private final FilesRepository filesRepository;
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -192,44 +195,69 @@ public class PostService {
     }
 
     @Transactional  // 게시글 업데이트
-    public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto PostUpdateRequestDto, HttpServletRequest httpServletRequest){
+    public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto postUpdateRequestDto, HttpServletRequest request){
 
-        if (null == httpServletRequest.getHeader("RefreshToken")) {
-            return ResponseDto.fail("MEMBER_NOT_FOUND",
-                    "로그인이 필요합니다.");
-        }
+        ResponseDto<?> responseDto = validateCheck(request);
+        if (!responseDto.isSuccess()){
+            return responseDto; }
+        Member member = (Member) responseDto.getData();
 
-        if (null == httpServletRequest.getHeader("Authorization")) {
-            return ResponseDto.fail("MEMBER_NOT_FOUND",
-                    "로그인이 필요합니다.");
-        }
-
-        Member member = validateMember(httpServletRequest);
-        if (null == member) {
-            return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
-        }
 
         Post post = isPresentPost(id);
         if (null == post) {
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
-        if (post.validateMember(member)) {
-            return ResponseDto.fail("BAD_REQUEST", "작성자만 수정할 수 있습니다.");
-        }
+        String title = postUpdateRequestDto.getTitle();
+        String address = postUpdateRequestDto.getAddress();
+        String content = postUpdateRequestDto.getContent();
+        int maxNum = postUpdateRequestDto.getMaxNum();
+        MultipartFile imgFile = postUpdateRequestDto.getImgFile();
+        String imgUrl;
+
+        // 날짜 String 을 LocalDate 로 변경
         LocalDate startDate, endDate;
         try {
-            startDate = time.stringToLocalDate(PostUpdateRequestDto.getStartDate());
-            endDate = time.stringToLocalDate(PostUpdateRequestDto.getEndDate());
+            startDate = time.stringToLocalDate(postUpdateRequestDto.getStartDate());
+            endDate = time.stringToLocalDate(postUpdateRequestDto.getEndDate());
         } catch (Exception e) {
             return ResponseDto.fail("INVALID TYPE", "날짜 형식을 확인해주세요");
         }
 
-        post.update(PostUpdateRequestDto);
+        // 모집 시작 날짜가 현재보다 이전일 경우 에러 처리
+        if (startDate.isBefore(now()) || endDate.isBefore(now())) {
+            return ResponseDto.fail("WRONG DATE", "현재보다 이전 날짜를 택할 수 없습니다.");
+        }
 
-        post.update2(startDate,endDate);
+        // 모집 마감일자, 모집일이 모집 시작일자보다 이전일 경우 에러처리
+        if (endDate.isBefore(startDate)) {
+            return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
+        }
 
-        return ResponseDto.success(post);
+        if (imgFile.isEmpty()) {
+            imgUrl = post.getImgUrl();
+            post.updateImgUrl(imgUrl);
+        }
+
+        if (!imgFile.isEmpty()) {
+            if (post.getImgUrl().equals(baseImage)) {
+                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+                ImageFile imageFile = (ImageFile) image.getData();
+                imgUrl = imageFile.getUrl();
+                post.updateImgUrl(imgUrl);
+            } else {
+                ImageFile findImageFile = filesRepository.findByUrl(post.getImgUrl());
+                amazonS3Service.removeFile(findImageFile.getImageName(), folderName);
+                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+                ImageFile imageFile = (ImageFile) image.getData();
+                imgUrl = imageFile.getUrl();
+                post.updateImgUrl(imgUrl);
+            }
+        }
+        post.updateJson(title, address, content, maxNum, startDate, endDate);
+
+
+        return ResponseDto.success("업데이트가 완료되었습니다.");
     }
     // 게시글 삭제
     @Transactional
