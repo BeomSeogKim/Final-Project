@@ -22,8 +22,8 @@ public class PostResponseDto {
     private int maxNum;
     private String restDay;
     private LocalDate dDay;
-    private String imgUrl;
-    private String imgUrl2;
+    private String postimgUrl;
+    private String memberimgUrl;
     private List<CommentResponseDto> commentResponseDtoList;
 
 }
