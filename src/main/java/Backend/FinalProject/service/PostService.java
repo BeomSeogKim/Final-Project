@@ -9,6 +9,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
+import Backend.FinalProject.dto.response.WishPeopleDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -174,6 +175,18 @@ public class PostService {
                             .build()
             );
         }
+
+        List<WishList> peopleList = wishListRepository.findAllByPostId(postId).orElse(null);
+        List<WishPeopleDto> peoples = new ArrayList<>();
+        for (WishList wishList : peopleList) {
+            peoples.add(
+                    WishPeopleDto.builder()
+                            .nickname(wishList.getMember().getNickname())
+                            .build()
+            );
+        }
+
+
         return ResponseDto.success(PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -189,6 +202,7 @@ public class PostService {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .commentList(commentResponseDtoList)
+                .wishPeople(peoples)
                 .build()
         );
 
@@ -316,7 +330,8 @@ public class PostService {
                 .post(post)
                 .build();
         wishListRepository.save(wishList);
-        return ResponseDto.success("찜하기가 완료 되었습니다."); }
+        return ResponseDto.success(true);
+    }
 
     // 찜 삭제
     @Transactional public ResponseDto<?>  removeWish(Long postId, HttpServletRequest request) {
@@ -338,7 +353,8 @@ public class PostService {
         wishListRepository.deleteByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
 
 
-        return ResponseDto.success("찜이 취소되었습니다."); }
+        return ResponseDto.success(false);
+    }
 
 
 
