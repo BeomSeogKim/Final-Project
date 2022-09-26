@@ -72,9 +72,9 @@ public class PostController {
     }
 
     // 게시글 찜
-    @PostMapping("/post/wish/{postId}")
-    public ResponseDto<?> wishListPost(@PathVariable Long postId,
+    @PostMapping("/post/add/wish/{postId}")
+    public ResponseDto<?> addWish(@PathVariable Long postId,
                                      HttpServletRequest request){
-        return postService.wishListPost(postId, request);
+        return postService.addWish(postId, request);
     }
 }

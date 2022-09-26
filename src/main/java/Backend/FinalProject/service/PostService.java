@@ -293,7 +293,7 @@ public class PostService {
     }
 
 
-    @Transactional public ResponseDto<?> wishListPost(Long postId, HttpServletRequest request) {
+    @Transactional public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validateCheck(request);
         if (!responseDto.isSuccess()){
             return responseDto; }
@@ -304,6 +304,12 @@ public class PostService {
         if (null == post) {
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
+        // 검증 로직 -- 이미 좋아요를 누를 경우 중복 좋아요 불가.
+        WishList isPresentWish = wishListRepository.findByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
+        if (isPresentWish != null) {
+            return ResponseDto.fail("ALREADY LIKE", "이미 좋아요를 누르셨습니다.");
+        }
+
 
         WishList wishList = WishList.builder()
                 .member(member)
