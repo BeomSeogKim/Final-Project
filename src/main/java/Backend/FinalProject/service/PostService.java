@@ -216,21 +216,27 @@ public class PostService {
         String imgUrl;
 
         // 날짜 String 을 LocalDate 로 변경
-        LocalDate startDate, endDate;
+        LocalDate startDate, endDate, dDay;
         try {
             startDate = time.stringToLocalDate(postUpdateRequestDto.getStartDate());
             endDate = time.stringToLocalDate(postUpdateRequestDto.getEndDate());
+            dDay = time.stringToLocalDate(postUpdateRequestDto.getDDay());
         } catch (Exception e) {
             return ResponseDto.fail("INVALID TYPE", "날짜 형식을 확인해주세요");
         }
 
         // 모집 시작 날짜가 현재보다 이전일 경우 에러 처리
-        if (startDate.isBefore(now()) || endDate.isBefore(now())) {
+        if (startDate.isBefore(now()) || endDate.isBefore(now()) || dDay.isBefore(now())) {
             return ResponseDto.fail("WRONG DATE", "현재보다 이전 날짜를 택할 수 없습니다.");
         }
 
         // 모집 마감일자, 모집일이 모집 시작일자보다 이전일 경우 에러처리
-        if (endDate.isBefore(startDate)) {
+        if (endDate.isBefore(startDate) || dDay.isBefore(startDate)) {
+            return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
+        }
+
+        // 모집 일자가 모집 마감일보다 이전일 경우 에러처리
+        if (dDay.isBefore(endDate)) {
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
@@ -254,7 +260,7 @@ public class PostService {
                 post.updateImgUrl(imgUrl);
             }
         }
-        post.updateJson(title, address, content, maxNum, startDate, endDate);
+        post.updateJson(title, address, content, maxNum, startDate, endDate, dDay);
 
 
         return ResponseDto.success("업데이트가 완료되었습니다.");
