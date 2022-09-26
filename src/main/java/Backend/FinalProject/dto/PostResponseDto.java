@@ -23,6 +23,7 @@ public class PostResponseDto {
     private String restDay;
     private LocalDate dDay;
     private String imgUrl;
+    private String imgUrl2;
     private List<CommentResponseDto> commentResponseDtoList;
 
 }

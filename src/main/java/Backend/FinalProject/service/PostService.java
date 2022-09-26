@@ -147,9 +147,9 @@ public class PostService {
     }
 
     // 게시글 상세 조회
-    public ResponseDto<?> getPost(Long id){
+    public ResponseDto<?> getPost(Long postId){
 
-        Post post = isPresentPost(id);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
+        Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
         if (null == post) {
       return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
     }
@@ -177,6 +177,7 @@ public class PostService {
                 .restDay(time.convertLocalDateToTime(post.getEndDate()))
                 .dDay(post.getDDay())
                 .imgUrl(post.getImgUrl())
+                .imgUrl2(post.getMember().getImgUrl())
                 .commentResponseDtoList(commentResponseDtoList)
                 .build()
         );
