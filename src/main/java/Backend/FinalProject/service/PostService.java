@@ -240,9 +240,10 @@ public class PostService {
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
-        if (imgFile.isEmpty()) {
-            imgUrl = post.getImgUrl();
-            post.updateImgUrl(imgUrl);
+        post.updateJson(title, address, content, maxNum, startDate, endDate, dDay);
+
+        if (imgFile == null || imgFile.isEmpty()) {
+            return ResponseDto.success("업데이트가 완료되었습니다.");
         }
 
         if (!imgFile.isEmpty()) {
@@ -260,7 +261,7 @@ public class PostService {
                 post.updateImgUrl(imgUrl);
             }
         }
-        post.updateJson(title, address, content, maxNum, startDate, endDate, dDay);
+
 
 
         return ResponseDto.success("업데이트가 완료되었습니다.");
