@@ -181,7 +181,7 @@ public class PostService {
         for (WishList wishList : peopleList) {
             peoples.add(
                     WishPeopleDto.builder()
-                            .nickname(wishList.getMember().getNickname())
+                            .userId(wishList.getMember().getUserId())
                             .build()
             );
         }
