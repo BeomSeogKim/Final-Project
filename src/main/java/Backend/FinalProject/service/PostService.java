@@ -292,7 +292,7 @@ public class PostService {
         return ResponseDto.success("게시글이 삭제되었습니다.");
     }
 
-
+    // 찜 추가
     @Transactional public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validateCheck(request);
         if (!responseDto.isSuccess()){
@@ -317,6 +317,28 @@ public class PostService {
                 .build();
         wishListRepository.save(wishList);
         return ResponseDto.success("찜하기가 완료 되었습니다."); }
+
+    // 찜 삭제
+    @Transactional public ResponseDto<?>  removeWish(Long postId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validateCheck(request);
+        if (!responseDto.isSuccess()){
+            return responseDto; }
+        Member member = (Member) responseDto.getData();
+
+        Post post = isPresentPost(postId);
+
+        if (null == post) {
+            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+
+        WishList isPresentWish = wishListRepository.findByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
+        if (isPresentWish == null) {
+            return ResponseDto.fail("NOT FOUND", "찜 목록에 해당 게시글이 없습니다.");
+        }
+        wishListRepository.deleteByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
+
+
+        return ResponseDto.success("찜이 취소되었습니다."); }
 
 
 

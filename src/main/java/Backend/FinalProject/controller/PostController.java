@@ -77,4 +77,10 @@ public class PostController {
                                      HttpServletRequest request){
         return postService.addWish(postId, request);
     }
+    // 게시글 찜 삭제
+    @PostMapping("/post/remove/wish/{postId}")
+    public ResponseDto<?> removeWish(@PathVariable Long postId,
+                                  HttpServletRequest request){
+        return postService.removeWish(postId, request);
+    }
 }
