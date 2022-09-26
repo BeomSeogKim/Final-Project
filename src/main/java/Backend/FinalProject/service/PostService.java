@@ -176,8 +176,10 @@ public class PostService {
                 .maxNum(post.getMaxNum())
                 .restDay(time.convertLocalDateToTime(post.getEndDate()))
                 .dDay(post.getDDay())
-                .imgUrl(post.getImgUrl())
-                .imgUrl2(post.getMember().getImgUrl())
+                .postimgUrl(post.getImgUrl())
+                .memberimgUrl(post.getMember().getImgUrl())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
                 .commentResponseDtoList(commentResponseDtoList)
                 .build()
         );
