@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyPageDto {
-    private String member;
     private String title;
     private String address;
     private LocalDate dDay;
