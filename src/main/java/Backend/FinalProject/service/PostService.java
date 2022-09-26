@@ -178,8 +178,8 @@ public class PostService {
                 .dDay(post.getDDay())
                 .postimgUrl(post.getImgUrl())
                 .memberimgUrl(post.getMember().getImgUrl())
-                .startDate(post.getStartDate().toString())
-                .endDate(post.getEndDate().toString())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
                 .commentResponseDtoList(commentResponseDtoList)
                 .build()
         );

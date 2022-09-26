@@ -29,12 +29,7 @@ public class PostResponseDto {
     private String postimgUrl;
     private String memberimgUrl;
     private List<CommentResponseDto> commentResponseDtoList;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
-    private String startDate;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
 }
