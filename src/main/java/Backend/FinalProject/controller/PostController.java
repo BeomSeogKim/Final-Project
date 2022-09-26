@@ -40,7 +40,7 @@ public class PostController {
      * 상세 게시글 조회
      * @param postId : 게시글 아이디
      */
-    @GetMapping("/post/{postId}")
+    @GetMapping("/post/detail/{postId}")
     public ResponseDto<?> getPost(@PathVariable Long postId) {
         return postService.getPost(postId);
     }

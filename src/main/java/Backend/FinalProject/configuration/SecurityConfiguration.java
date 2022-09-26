@@ -70,6 +70,7 @@ public class SecurityConfiguration {
                 .antMatchers("/member/**", "/ws/chat", "/api/view/**").permitAll()
                 .antMatchers("/oauth/**").permitAll()
                 .antMatchers("/chat/**","/chat/user","/webjars/**", "/ws-stomp/**").permitAll()
+                .antMatchers("/post", "/post/detail/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
