@@ -154,13 +154,14 @@ public class PostService {
         return ResponseDto.success(PostResponseDtoList);
     }
     // 게시글 상세 조회
-    public ResponseDto<?> getPost(Long postId){
+    public ResponseDto<?> getPost(Long postId) {
+
+        boolean isWish = false;
 
         Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
         if (null == post) {
-      return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
-    }
-
+            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
         List<Comment> commentList = commentRepository.findAllByPost(post);
         List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
 
@@ -175,11 +176,15 @@ public class PostService {
             );
         }
 
+        Member member = tokenProvider.getMemberFromAuthentication();
         List<WishList> peopleList = wishListRepository.findAllByPostId(postId).orElse(null);
-
-        List<String> wishList = new ArrayList<>();
-        for (WishList list : peopleList) {
-            wishList.add(list.getMember().getUserId());
+        if (member != null) {
+            for (WishList wishList : peopleList) {
+                if (wishList.getMember().getUserId()
+                        .equals(member.getUserId())) {
+                    isWish = true;
+                }
+            }
         }
 
 
@@ -199,7 +204,7 @@ public class PostService {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .commentList(commentResponseDtoList)
-                .wishPeople(wishList)
+                .isWish(isWish)
                 .build()
         );
 
