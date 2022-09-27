@@ -95,6 +95,7 @@ public class OAuthService {
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", kakaoUser.getImgUrl());
         response.addHeader("Id", kakaoUser.getUserId());
+        response.addHeader("nickname", kakaoUser.getNickname());
 
 
         return ResponseDto.success(kakaoUser.getNickname() + "님 로그인 성공");

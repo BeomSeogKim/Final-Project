@@ -29,6 +29,6 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private LocalDate startDate;
     private LocalDate endDate;
-    private List<String> wishPeople;
+    private boolean isWish;
 
 }

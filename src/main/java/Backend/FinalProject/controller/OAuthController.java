@@ -4,9 +4,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.service.OAuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,7 +14,7 @@ public class OAuthController {
 
     private final OAuthService oAuthService;
 
-    @GetMapping("oauth/kakao")
+    @RequestMapping(value = "/oauth/kakao/", method = RequestMethod.GET, produces = "application/json; charset=utf8")
     public ResponseDto<?> kakaocallback(@RequestParam String code,
     HttpServletResponse response) throws JsonProcessingException {
         return oAuthService.kakaoLogin(code, response);

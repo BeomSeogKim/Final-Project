@@ -158,15 +158,18 @@ public class MyPageService {
         Member member = (Member) responseDto.getData();
 
         List<WishList> wishLists = wishListRepository.findAllByMemberId(member.getId()).orElse(null);
-        List<WishListDto> wishListDto = new ArrayList<>();
+        List<MyPageDto> wishListDto = new ArrayList<>();
 
         for (WishList wishList : wishLists) {
             wishListDto.add(
-                    WishListDto.builder()
+                    MyPageDto.builder()
+                            .postId(wishList.getPost().getId())
                             .title(wishList.getPost().getTitle())
-                            .imgUrl(wishList.getPost().getImgUrl())
                             .address(wishList.getPost().getAddress())
                             .dDay(wishList.getPost().getDDay())
+                            .restDay(time.convertLocalDateToTime(wishList.getPost().getEndDate()))
+                            .imgUrl(wishList.getPost().getImgUrl())
+                            .nickname(wishList.getPost().getMember().getNickname())
                             .build()
             );
         }
