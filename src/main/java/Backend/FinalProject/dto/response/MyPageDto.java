@@ -12,7 +12,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyPageDto {
+    private Long postId;
     private String title;
     private String address;
     private LocalDate dDay;
+    private String  restDay;
+    private String imgUrl;
+    private String nickname;
 }
