@@ -160,12 +160,15 @@ public class ApplicationService {
         for (Application application : applicationList) {
             applicationListResponseDtoList.add(
                     ApplicationListResponseDto.builder()
+                            .applicationId(application.getId())
                             .nickname(application.getMember().getNickname())
                             .imgUrl(application.getMember().getImgUrl())
                             .state(application.getStatus())
+                            .postId(application.getPost().getId())
                             .content(application.getContent())
                             .build()
             );
+
         }
 
         return ResponseDto.success(
