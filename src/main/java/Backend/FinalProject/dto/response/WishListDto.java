@@ -1,5 +1,7 @@
 package Backend.FinalProject.dto.response;
 
+import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.WishList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +14,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WishListDto {
-    private String title;
-    private String imgUrl;
+    private Long member;
+    private Long post;
     private String address;
     private LocalDate dDay;
 }

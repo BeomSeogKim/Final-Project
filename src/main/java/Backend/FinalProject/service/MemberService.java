@@ -8,6 +8,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
 import Backend.FinalProject.dto.request.MemberEditRequestDto;
+import Backend.FinalProject.dto.request.MemberUpdateDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.MemberRepository;
@@ -115,8 +116,13 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> updateMember(MemberEditRequestDto request, MultipartFile imgFile, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest) {
         String imgUrl;
+
+        String userId = request.getNickname();
+        String password = request.getPassword();
+        MultipartFile imgFile = request.getImgFile();
+
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validateCheck(httpServletRequest);
@@ -129,10 +135,10 @@ public class MemberService {
 
 
         if(request.getPassword() != null)
-            findMember.updatePassword(passwordEncoder.encode(request.getPassword()));
+            findMember.updatePassword(passwordEncoder.encode(password));
 
         if (request.getNickname() != null)
-            findMember.updateNickname(request.getNickname());
+            findMember.updateNickname(userId);
 
         if (!imgFile.isEmpty()){
             if (member.getImgUrl().equals(baseImage)) {
