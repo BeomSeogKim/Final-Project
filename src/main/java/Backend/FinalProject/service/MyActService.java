@@ -41,7 +41,6 @@ public class MyActService {
             return ResponseDto.fail("NO POSTS", "아직 주최한 모임이 없습니다.");
         }
         for (Post post : postList) {
-            System.out.println(post.getTitle());
             List<Application> allApplicants = applicationRepository.findAllByPostId(post.getId()).orElse(null);
             if (allApplicants == null) {
                 continue;
@@ -51,6 +50,7 @@ public class MyActService {
                         ApplicantResponseDto.builder()
                                 .postId(post.getId())
                                 .nickname(applicant.getMember().getNickname())
+                                .imgUrl(applicant.getMember().getImgUrl())
                                 .title(post.getTitle())
                                 .state(applicant.getStatus())
                                 .build()
