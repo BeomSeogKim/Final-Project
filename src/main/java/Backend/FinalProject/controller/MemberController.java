@@ -1,6 +1,5 @@
 package Backend.FinalProject.controller;
 
-import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.CheckDuplicateDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
@@ -13,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 
 @RestController
@@ -37,7 +38,7 @@ public class MemberController {
      * @param loginRequestDto : 로그인에 필요한 정보들을 담은 Dto
      * @param response        : Header에 Token을 담아주는 역할
      */
-    @PostMapping("/member/login")
+    @RequestMapping(value = "/member/login", method = POST, produces = "application/json; charset=utf8")
     public ResponseDto<String> login(
             @RequestBody LoginRequestDto loginRequestDto,
             HttpServletResponse response) {
