@@ -7,13 +7,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
+
+    /**
+     * 댓글 조회
+     */
+
+    @GetMapping("/comment/{postId}")
+    public ResponseDto<?> getComments(
+            @PathVariable Long postId
+    ) {
+        return commentService.getComments(postId);
+    }
+
+
 
     /**
      * 댓글 작성
