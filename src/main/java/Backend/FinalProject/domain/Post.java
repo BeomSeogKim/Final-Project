@@ -81,4 +81,12 @@ public class Post extends Timestamped{
     public void updateImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
+
+    public void updateStatus() {
+        this.status = PostState.DONE;
+    }
+
+    public void closeStatus() {
+        this.status = PostState.CLOSURE;
+    }
 }
