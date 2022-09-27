@@ -108,7 +108,7 @@ public class MemberService {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", member.getImgUrl());
-        response.addHeader("nickname", member.getNickname());
+        response.addHeader("Id", member.getUserId());
 
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");

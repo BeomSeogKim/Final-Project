@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishPeopleDto {
-    private String userId;
+public class AllCommentResponseDto {
+    private Long commentId;
+    private String memberImage;
+    private String memberNickname;
+    private String content;
 }

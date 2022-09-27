@@ -5,6 +5,7 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.CommentRequestDto;
+import Backend.FinalProject.dto.response.AllCommentResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,6 +26,25 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
 
+
+    public ResponseDto<?> getComments(Long postId) {
+        List<Comment> commentList = commentRepository.findAllByPostId(postId);
+        if (commentList.isEmpty() || commentList == null) {
+            return ResponseDto.fail("NO CONTENT", "댓글이 존재하지 않습니다.");
+        }
+        List<AllCommentResponseDto> commentResponseDto = new ArrayList<>();
+        for (Comment comment : commentList) {
+            commentResponseDto.add(
+                    AllCommentResponseDto.builder()
+                            .commentId(comment.getId())
+                            .memberImage(comment.getMember().getImgUrl())
+                            .memberNickname(comment.getMember().getNickname())
+                            .content(comment.getContent())
+                            .build()
+            );
+        }
+        return ResponseDto.success(commentResponseDto);
+    }
 
 
     // 댓글 작성
@@ -138,6 +160,7 @@ public class CommentService {
         }
         return ResponseDto.success(member);
     }
+
 
 
 }

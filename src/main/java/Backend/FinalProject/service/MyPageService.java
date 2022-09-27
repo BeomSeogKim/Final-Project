@@ -1,5 +1,6 @@
 package Backend.FinalProject.service;
 
+import Backend.FinalProject.Tool.Time;
 import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
@@ -7,7 +8,6 @@ import Backend.FinalProject.domain.WishList;
 import Backend.FinalProject.domain.enums.ApplicationState;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.response.MyPageDto;
-import Backend.FinalProject.dto.response.MypageListDto;
 import Backend.FinalProject.dto.response.WishListDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -31,6 +31,8 @@ public class MyPageService {
     private final PostRepository postRepository;
 
     private final WishListRepository wishListRepository;
+
+    Time time = new Time();
 
     // 신청한 모임 조회
     public ResponseDto<?> application(HttpServletRequest request) {
@@ -68,7 +70,7 @@ public class MyPageService {
             return ResponseDto.fail("NOT FOUND", "신청한 모임이 없습니다.");
         }
 
-        List<MypageListDto> mypageListDto = new ArrayList<>();
+        List<MyPageDto> mypageListDto = new ArrayList<>();
 
         for (Application application : applicationList) {
             if (application.getStatus() == null) {
@@ -76,11 +78,14 @@ public class MyPageService {
             }
             if (application.getStatus().equals(ApplicationState.APPROVED)) {
                 mypageListDto.add(
-                        MypageListDto.builder()
+                        MyPageDto.builder()
+                                .postId(application.getPost().getId())
                                 .title(application.getPost().getTitle())
-                                .imgUrl(application.getPost().getImgUrl())
                                 .address(application.getPost().getAddress())
                                 .dDay(application.getPost().getDDay())
+                                .restDay(time.convertLocalDateToTime(application.getPost().getEndDate()))
+                                .imgUrl(application.getPost().getImgUrl())
+                                .nickname(application.getMember().getNickname())
                                 .build());
             }
         }
@@ -88,11 +93,14 @@ public class MyPageService {
         List<Post> postList = postRepository.findAllByMemberId(member.getId());
         for (Post post : postList) {
             mypageListDto.add(
-                    MypageListDto.builder()
+                    MyPageDto.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
-                            .imgUrl(post.getImgUrl())
                             .address(post.getAddress())
                             .dDay(post.getDDay())
+                            .restDay(time.convertLocalDateToTime(post.getEndDate()))
+                            .imgUrl(post.getImgUrl())
+                            .nickname(post.getMember().getNickname())
                             .build()
             );
         }
@@ -126,9 +134,13 @@ public class MyPageService {
             }
             postList.add(
                     MyPageDto.builder()
+                            .postId(post.getId())
                             .title(post.getTitle())
                             .address(post.getAddress())
                             .dDay(post.getDDay())
+                            .restDay(time.convertLocalDateToTime(post.getEndDate()))
+                            .imgUrl(post.getImgUrl())
+                            .nickname(post.getMember().getNickname())
                             .build()
             );
 

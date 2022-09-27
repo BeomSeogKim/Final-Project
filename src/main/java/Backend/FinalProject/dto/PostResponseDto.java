@@ -1,6 +1,5 @@
 package Backend.FinalProject.dto;
 
-import Backend.FinalProject.dto.response.WishPeopleDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +16,8 @@ public class PostResponseDto {
 
     private Long id;
     private String title;
-    private String author;
+    private String authorId;
+    private String authorNickname;
     private String memberImgUrl;
     private String address;
     private String content;
@@ -29,6 +29,6 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private LocalDate startDate;
     private LocalDate endDate;
-    private List<WishPeopleDto> wishPeople;
+    private List<String> wishPeople;
 
 }

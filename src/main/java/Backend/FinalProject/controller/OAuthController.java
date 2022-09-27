@@ -19,7 +19,6 @@ public class OAuthController {
     @GetMapping("oauth/kakao")
     public ResponseDto<?> kakaocallback(@RequestParam String code,
     HttpServletResponse response) throws JsonProcessingException {
-        System.out.println("code = " + code);
         return oAuthService.kakaoLogin(code, response);
     }
 }
