@@ -2,10 +2,7 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.CheckDuplicateDto;
-import Backend.FinalProject.dto.request.LoginRequestDto;
-import Backend.FinalProject.dto.request.MemberEditRequestDto;
-import Backend.FinalProject.dto.request.SignupRequestDto;
+import Backend.FinalProject.dto.request.*;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -47,16 +44,14 @@ public class MemberController {
     /**
      * 회원정보 수정
      * @param request            : 회원 수정에 필요한 목록
-     * @param imgFile            : 회원 이미지 수정에 필요한 목록
+     * @param request            : 회원 이미지 수정에 필요한 목록
      * @param httpServletRequest : Member 검증을 위한 param
      */
     @PutMapping("/member")
     public ResponseDto<?> editProfile(
-            @RequestPart MemberEditRequestDto request,
-            @RequestPart(required = false) MultipartFile imgFile,
-            HttpServletRequest httpServletRequest
-    ) {
-        return memberService.updateMember(request, imgFile, httpServletRequest);
+            @ModelAttribute MemberUpdateDto request,
+            HttpServletRequest httpServletRequest) {
+        return memberService.updateMember(request, httpServletRequest);
     }
 
     /**
