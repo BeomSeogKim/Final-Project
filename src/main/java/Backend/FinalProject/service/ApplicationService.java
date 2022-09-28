@@ -139,11 +139,12 @@ public class ApplicationService {
         if (application == null) {
             return ResponseDto.fail("NOT FOUND", "해당 신청 내역이 없습니다");
         }
-
         // 모임 주최자만 권한 부여
         if (application.getPost().getMember().getId() != member.getId()) {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
+
+
         application.disapprove();
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
