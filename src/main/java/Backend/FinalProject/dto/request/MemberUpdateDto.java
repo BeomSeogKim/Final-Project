@@ -14,5 +14,6 @@ public class MemberUpdateDto {
 
     private String nickname;
     private String password;
+    private String passwordCheck;
     private MultipartFile imgFile;
 }

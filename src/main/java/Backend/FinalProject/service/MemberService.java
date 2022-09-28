@@ -58,8 +58,6 @@ public class MemberService {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (userId.trim().isEmpty() || password.trim().isEmpty() || nickname.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
-
-
         }
         // 비밀번호 및 비밀번호 확인 일치 검사
         if (!password.equals(passwordCheck))
@@ -121,8 +119,8 @@ public class MemberService {
 
         String userId = request.getNickname();
         String password = request.getPassword();
+        String passwordCheck = request.getPasswordCheck();
         MultipartFile imgFile = request.getImgFile();
-
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validateCheck(httpServletRequest);
@@ -133,12 +131,21 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
+        if (userId == null || password == null || passwordCheck == null) {
 
-        if(request.getPassword() != null)
-            findMember.updatePassword(passwordEncoder.encode(password));
+            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
+        } else if (userId.trim().isEmpty() || password.trim().isEmpty() || passwordCheck.trim().isEmpty()) {
+            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+        }
+
+        if (!password.equals(passwordCheck))
+            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
 
         if (request.getNickname() != null)
             findMember.updateNickname(userId);
+
+        if(request.getPassword() != null)
+            findMember.updatePassword(passwordEncoder.encode(password));
 
         if (!imgFile.isEmpty()){
             if (member.getImgUrl().equals(baseImage)) {
