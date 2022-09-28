@@ -45,6 +45,9 @@ public class Application extends Timestamped{
 
     public void disapprove() {
         this.status = ApplicationState.DENIED;
-        this.post.minusCurrentNum();
+        if (this.post.getCurrentNum() != 0) {
+            this.post.minusCurrentNum();
+        }
+
     }
 }

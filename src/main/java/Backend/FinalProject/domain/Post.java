@@ -100,12 +100,8 @@ public class Post extends Timestamped{
 
     public void minusCurrentNum() {
         if (this.status != CLOSURE) {
-            int tmp = this.currentNum - 1;
-            if (tmp < 0) {
-                this.currentNum = 0;
-            }
-            this.currentNum = tmp;
-            if (this.currentNum < 5) {
+            this.currentNum--;
+            if (this.currentNum < this.maxNum) {
                 this.status = RECRUIT;
             }
         }

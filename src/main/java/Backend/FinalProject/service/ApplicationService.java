@@ -144,9 +144,6 @@ public class ApplicationService {
         if (application.getPost().getMember().getId() != member.getId()) {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
-        if (application.getPost().getCurrentNum() == 0) {
-            return ResponseDto.fail("NO APPLICATIOn", "참여 신청한 회원이 없습니다.");
-        }
         application.disapprove();
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
