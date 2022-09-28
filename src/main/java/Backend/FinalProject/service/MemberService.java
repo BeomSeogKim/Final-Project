@@ -7,7 +7,6 @@ import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
-import Backend.FinalProject.dto.request.MemberEditRequestDto;
 import Backend.FinalProject.dto.request.MemberUpdateDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
 import Backend.FinalProject.repository.FilesRepository;
@@ -39,7 +38,6 @@ public class MemberService {
     String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
     String baseAwsImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
     String folderName = "/memberImage";
-
 
 
     @Transactional
@@ -142,13 +140,11 @@ public class MemberService {
         if (!password.equals(passwordCheck))
             return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
 
-        if (request.getNickname() != null)
-            findMember.updateNickname(userId);
+        findMember.updateNickname(userId);
 
-        if(request.getPassword() != null)
-            findMember.updatePassword(passwordEncoder.encode(password));
+        findMember.updatePassword(passwordEncoder.encode(password));
 
-        if (!imgFile.isEmpty()){
+        if (!imgFile.isEmpty()) {
             if (member.getImgUrl().equals(baseImage)) {
                 ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
                 ImageFile imageFile = (ImageFile) image.getData();
@@ -164,7 +160,7 @@ public class MemberService {
             }
         }
 
-       return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
+        return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
 
     @Transactional
@@ -177,8 +173,8 @@ public class MemberService {
             return ResponseDto.fail("ALREADY LOGOUT", "이미 로그아웃 하셨습니다.");
         }
 
-        if(!tokenProvider.validateToken(request.getHeader("RefreshToken")))
-            return ResponseDto.fail("INVALID TOKEN","토큰 값이 올바르지 않습니다.");
+        if (!tokenProvider.validateToken(request.getHeader("RefreshToken")))
+            return ResponseDto.fail("INVALID TOKEN", "토큰 값이 올바르지 않습니다.");
 
         // 맴버객체 찾아오기
         Member member = tokenProvider.getMemberFromAuthentication();
@@ -210,7 +206,6 @@ public class MemberService {
 
         return ResponseDto.success("회원 탈퇴가 성공적으로 수행되었습니다.");
     }
-
 
 
     // 회원 아이디 중복 검사 method
@@ -260,7 +255,6 @@ public class MemberService {
         }
         return ResponseDto.success(member);
     }
-
 
 
 }
