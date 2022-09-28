@@ -8,7 +8,6 @@ import Backend.FinalProject.domain.WishList;
 import Backend.FinalProject.domain.enums.ApplicationState;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.response.MyPageDto;
-import Backend.FinalProject.dto.response.WishListDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
