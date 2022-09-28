@@ -40,9 +40,11 @@ public class Application extends Timestamped{
 
     public void approve() {
         this.status = ApplicationState.APPROVED;
+        this.post.plusCurrentNum();
     }
 
     public void disapprove() {
         this.status = ApplicationState.DENIED;
+        this.post.minusCurrentNum();
     }
 }

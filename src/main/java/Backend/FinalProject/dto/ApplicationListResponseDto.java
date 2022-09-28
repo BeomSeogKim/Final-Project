@@ -15,4 +15,6 @@ public class ApplicationListResponseDto {
     private String imgUrl;
     private ApplicationState state;
     private String content;
+    private Long applicationId;
+    private Long postId;
 }

@@ -17,7 +17,6 @@ public class CommentController {
     /**
      * 댓글 조회
      */
-
     @GetMapping("/comment/{postId}")
     public ResponseDto<?> getComments(
             @PathVariable Long postId

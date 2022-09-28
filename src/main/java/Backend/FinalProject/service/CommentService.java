@@ -1,5 +1,6 @@
 package Backend.FinalProject.service;
 
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Comment;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
@@ -25,6 +26,7 @@ public class CommentService {
     private final TokenProvider tokenProvider;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final Validation validation;
 
 
     public ResponseDto<?> getComments(Long postId) {
@@ -50,7 +52,7 @@ public class CommentService {
     // 댓글 작성
     public ResponseDto<?> writeComment(Long postId, CommentRequestDto commentRequestDto, HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -82,7 +84,7 @@ public class CommentService {
     // 댓글 수정
     public ResponseDto<?> editComment(Long commentId, CommentRequestDto commentRequestDto, HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -114,7 +116,7 @@ public class CommentService {
     public ResponseDto<?> deleteComment(Long commentId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -134,33 +136,4 @@ public class CommentService {
         commentRepository.delete(comment);
         return ResponseDto.success("댓글 삭제가 완료되었습니다.");
     }
-
-
-    // RefreshToken 유효성 검사
-    @Transactional
-    public Member validateMember(HttpServletRequest request) {
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
-            return null;
-        }
-        return tokenProvider.getMemberFromAuthentication();
-    }
-
-    // T
-    private ResponseDto<?> validateCheck(HttpServletRequest request) {
-
-        // RefreshToken 및 Authorization 유효성 검사
-        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
-            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
-        }
-        Member member = validateMember(request);
-
-        // 토큰 유효성 검사
-        if (member == null) {
-            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
-        }
-        return ResponseDto.success(member);
-    }
-
-
-
 }

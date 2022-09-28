@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class ApplicantResponseDto {
     private Long postId;
     private String nickname;
+    private String imgUrl;
     private String title;
     private ApplicationState state;
 }

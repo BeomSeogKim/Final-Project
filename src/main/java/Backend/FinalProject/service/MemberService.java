@@ -1,5 +1,6 @@
 package Backend.FinalProject.service;
 
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
@@ -35,8 +36,11 @@ public class MemberService {
     private final FilesRepository fileRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private final Validation validation;
+
+    // 회원가입 시 기본 이미지 설정이 없을 경우 기본 이미지 설정
     String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
-    String baseAwsImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
+    // S3에 회원 이미지 파일 저장 경로
     String folderName = "/memberImage";
 
 
@@ -106,8 +110,6 @@ public class MemberService {
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", member.getImgUrl());
         response.addHeader("Id", member.getUserId());
-        response.addHeader("nickname", member.getNickname());
-
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");
     }
@@ -122,7 +124,7 @@ public class MemberService {
         MultipartFile imgFile = request.getImgFile();
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(httpServletRequest);
+        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -187,16 +189,16 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> signout(HttpServletRequest request) {
+    public ResponseDto<?> signOut(HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
         Member member = (Member) responseDto.getData();
 
-        if (!member.getImgUrl().equals(baseAwsImage)) {
+        if (!member.getImgUrl().equals(baseImage)) {
             ImageFile deleteImage = fileRepository.findByUrl(member.getImgUrl());
             amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
         }
@@ -230,31 +232,5 @@ public class MemberService {
         Optional<Member> findMember = memberRepository.findByUserId(userId);
         return findMember.orElse(null);
     }
-
-    // RefreshToken 유효성 검사
-    @Transactional
-    public Member validateMember(HttpServletRequest request) {
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
-            return null;
-        }
-        return tokenProvider.getMemberFromAuthentication();
-    }
-
-    // T
-    private ResponseDto<?> validateCheck(HttpServletRequest request) {
-
-        // RefreshToken 및 Authorization 유효성 검사
-        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
-            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
-        }
-        Member member = validateMember(request);
-
-        // 토큰 유효성 검사
-        if (member == null) {
-            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
-        }
-        return ResponseDto.success(member);
-    }
-
 
 }

@@ -1,12 +1,13 @@
 package Backend.FinalProject.controller;
 
-import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.*;
+import Backend.FinalProject.dto.request.CheckDuplicateDto;
+import Backend.FinalProject.dto.request.LoginRequestDto;
+import Backend.FinalProject.dto.request.MemberUpdateDto;
+import Backend.FinalProject.dto.request.SignupRequestDto;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +45,6 @@ public class MemberController {
     /**
      * 회원정보 수정
      * @param request            : 회원 수정에 필요한 목록
-     * @param request            : 회원 이미지 수정에 필요한 목록
      * @param httpServletRequest : Member 검증을 위한 param
      */
     @PutMapping("/member")
@@ -67,9 +67,9 @@ public class MemberController {
      * 회원탈퇴
      */
     @DeleteMapping("/member")
-    public ResponseDto<?> signout(
+    public ResponseDto<?> signOut(
             HttpServletRequest request) {
-        return memberService.signout(request);
+        return memberService.signOut(request);
     }
 
     /**

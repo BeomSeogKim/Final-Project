@@ -1,6 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Time;
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
@@ -43,6 +44,7 @@ public class PostService {
     private final WishListRepository wishListRepository;
 
     private final FilesRepository filesRepository;
+    private final Validation validation;
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -53,7 +55,7 @@ public class PostService {
     public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(httpServletRequest);
+        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -72,6 +74,10 @@ public class PostService {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+        }
+        // 최대 정원의 수는 최소 3명에서 최대 5명
+        if (maxNum <= 2 || maxNum >= 6) {
+            return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
         }
 
         // 날짜 String 을 LocalDate 로 변경
@@ -153,6 +159,7 @@ public class PostService {
         }
         return ResponseDto.success(PostResponseDtoList);
     }
+
     // 게시글 상세 조회
     public ResponseDto<?> getPost(Long postId) {
 
@@ -211,11 +218,12 @@ public class PostService {
     }
 
     @Transactional  // 게시글 업데이트
-    public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto postUpdateRequestDto, HttpServletRequest request){
+    public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto postUpdateRequestDto, HttpServletRequest request) {
 
-        ResponseDto<?> responseDto = validateCheck(request);
-        if (!responseDto.isSuccess()){
-            return responseDto; }
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
         Member member = (Member) responseDto.getData();
 
 
@@ -230,6 +238,11 @@ public class PostService {
         int maxNum = postUpdateRequestDto.getMaxNum();
         MultipartFile imgFile = postUpdateRequestDto.getImgFile();
         String imgUrl;
+
+        // 최대 정원은 3명에서 5명
+        if (maxNum <= 2 || maxNum >= 6) {
+            return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
+        }
 
         // 날짜 String 을 LocalDate 로 변경
         LocalDate startDate, endDate, dDay;
@@ -279,15 +292,15 @@ public class PostService {
         }
 
 
-
         return ResponseDto.success("업데이트가 완료되었습니다.");
     }
+
     // 게시글 삭제
     @Transactional
     public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -309,10 +322,12 @@ public class PostService {
     }
 
     // 찜 추가
-    @Transactional public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validateCheck(request);
-        if (!responseDto.isSuccess()){
-            return responseDto; }
+    @Transactional
+    public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
         Member member = (Member) responseDto.getData();
 
         Post post = isPresentPost(postId);
@@ -336,10 +351,12 @@ public class PostService {
     }
 
     // 찜 삭제
-    @Transactional public ResponseDto<?>  removeWish(Long postId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validateCheck(request);
-        if (!responseDto.isSuccess()){
-            return responseDto; }
+    @Transactional
+    public ResponseDto<?> removeWish(Long postId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
         Member member = (Member) responseDto.getData();
 
         Post post = isPresentPost(postId);
@@ -356,30 +373,6 @@ public class PostService {
 
 
         return ResponseDto.success(false);
-    }
-
-
-
-    public Member validateMember(HttpServletRequest httpServletRequest) {
-        if (!tokenProvider.validateToken(httpServletRequest.getHeader("RefreshToken"))) {
-            return null;
-        }
-        return tokenProvider.getMemberFromAuthentication();
-    }
-
-    private ResponseDto<?> validateCheck(HttpServletRequest httpServletRequest) {
-
-        // RefreshToken 및 Authorization 유효성 검사
-        if (httpServletRequest.getHeader("Authorization") == null || httpServletRequest.getHeader("RefreshToken") == null) {
-            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
-        }
-        Member member = validateMember(httpServletRequest);
-
-        // 토큰 유효성 검사
-        if (member == null) {
-            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
-        }
-        return ResponseDto.success(member);
     }
 
     @Transactional(readOnly = true)
