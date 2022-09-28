@@ -18,12 +18,12 @@ public class SchedulerService {
 
 
     /**
-     * 매일 오전 0시 기준으로 게시글들 상태 업데이트
+     * 매일 오전 1시 기준으로 게시글들 상태 업데이트
      * 모집 마감일이 지난 경우 ==> DONE 상태로 바뀜
      * 모임 일이 지난 경우 ==> CLOSURE 상태로 바뀜
      */
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     public void run() {
         LocalDate now = LocalDate.now();
