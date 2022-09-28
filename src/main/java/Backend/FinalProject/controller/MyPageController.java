@@ -34,5 +34,10 @@ public class MyPageController {
     public ResponseDto<?> leader(HttpServletRequest request) {
         return myPageService.leader(request);
     }
+
+    @GetMapping("/mypage/info")
+    public ResponseDto<?> getInfo(HttpServletRequest request) {
+        return myPageService.getInfo(request);
+    }
 }
 
