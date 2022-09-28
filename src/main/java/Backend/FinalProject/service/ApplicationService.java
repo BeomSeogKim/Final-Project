@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -101,7 +102,19 @@ public class ApplicationService {
         if (application.getPost().getMember().getId() != member.getId()) {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
-        application.approve();
+        if (LocalDate.now().isAfter(application.getPost().getEndDate()) || LocalDate.now().isAfter(application.getPost().getDDay())) {
+            return ResponseDto.fail("PAST DUE", "이미 마감된 모임입니다.");
+        }
+
+        if (application.getStatus() == ApplicationState.APPROVED) {
+            return ResponseDto.fail("ALREADY APPROVED", "이미 수락을 하셨습니다.");
+        }
+        if (application.getPost().getCurrentNum() <= application.getPost().getMaxNum()) {
+            application.approve();
+        }
+        if (application.getPost().getCurrentNum() > application.getPost().getMaxNum()) {
+            return ResponseDto.fail("OVER MAX_NUM", "정원을 초과하였습니다.");
+        }
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
 
@@ -130,6 +143,7 @@ public class ApplicationService {
     }
 
     // 지원자 보기
+    @Transactional(readOnly = true)
     public ResponseDto<?> getApplicationList(Long postId, HttpServletRequest request) {
 
         // 토큰 유효성 검사

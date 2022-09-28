@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static Backend.FinalProject.domain.enums.PostState.*;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -83,10 +84,31 @@ public class Post extends Timestamped{
     }
 
     public void updateStatus() {
-        this.status = PostState.DONE;
+        this.status = DONE;
     }
 
     public void closeStatus() {
-        this.status = PostState.CLOSURE;
+        this.status = CLOSURE;
+    }
+
+    public void plusCurrentNum() {
+        this.currentNum++;
+        if (currentNum == this.maxNum) {
+            this.status = DONE;
+        }
+    }
+
+    public void minusCurrentNum() {
+        if (this.status != CLOSURE) {
+            int tmp = this.currentNum - 1;
+            if (tmp < 0) {
+                this.currentNum = 0;
+            }
+            this.currentNum = tmp;
+            if (this.currentNum < 5) {
+                this.status = RECRUIT;
+            }
+        }
+
     }
 }
