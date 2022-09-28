@@ -1,6 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Time;
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
@@ -43,6 +44,7 @@ public class PostService {
     private final WishListRepository wishListRepository;
 
     private final FilesRepository filesRepository;
+    private final Validation validation;
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -53,7 +55,7 @@ public class PostService {
     public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(httpServletRequest);
+        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -218,7 +220,7 @@ public class PostService {
     @Transactional  // 게시글 업데이트
     public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto postUpdateRequestDto, HttpServletRequest request) {
 
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -298,7 +300,7 @@ public class PostService {
     public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -322,7 +324,7 @@ public class PostService {
     // 찜 추가
     @Transactional
     public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -351,7 +353,7 @@ public class PostService {
     // 찜 삭제
     @Transactional
     public ResponseDto<?> removeWish(Long postId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -371,29 +373,6 @@ public class PostService {
 
 
         return ResponseDto.success(false);
-    }
-
-
-    public Member validateMember(HttpServletRequest httpServletRequest) {
-        if (!tokenProvider.validateToken(httpServletRequest.getHeader("RefreshToken"))) {
-            return null;
-        }
-        return tokenProvider.getMemberFromAuthentication();
-    }
-
-    private ResponseDto<?> validateCheck(HttpServletRequest httpServletRequest) {
-
-        // RefreshToken 및 Authorization 유효성 검사
-        if (httpServletRequest.getHeader("Authorization") == null || httpServletRequest.getHeader("RefreshToken") == null) {
-            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
-        }
-        Member member = validateMember(httpServletRequest);
-
-        // 토큰 유효성 검사
-        if (member == null) {
-            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
-        }
-        return ResponseDto.success(member);
     }
 
     @Transactional(readOnly = true)

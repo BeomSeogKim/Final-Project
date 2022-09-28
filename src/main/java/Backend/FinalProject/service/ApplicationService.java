@@ -1,5 +1,6 @@
 package Backend.FinalProject.service;
 
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class ApplicationService {
 
     private final TokenProvider tokenProvider;
-
+    private final Validation validation;
     private final ApplicationRepository applicationRepository;
     private final PostRepository postRepository;
 
@@ -38,7 +39,7 @@ public class ApplicationService {
     public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationRequestDto, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -85,7 +86,7 @@ public class ApplicationService {
     // 게시글 참여 수락
     public ResponseDto<?> approveApplication(Long applicationId, HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -121,7 +122,7 @@ public class ApplicationService {
     public ResponseDto<?> disapproveApplication(Long applicationId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -147,7 +148,7 @@ public class ApplicationService {
     public ResponseDto<?> getApplicationList(Long postId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -184,45 +185,11 @@ public class ApplicationService {
             );
 
         }
-
         return ResponseDto.success(
                 ApplicationResponseDto.builder()
                         .title(post.getTitle())
                         .applicants(applicationListResponseDtoList)
                         .build()
         );
-
     }
-
-
-
-
-
-    // RefreshToken 유효성 검사
-    @Transactional
-    public Member validateMember(HttpServletRequest request) {
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
-            return null;
-        }
-        return tokenProvider.getMemberFromAuthentication();
-    }
-
-    // T
-    private ResponseDto<?> validateCheck(HttpServletRequest request) {
-
-        // RefreshToken 및 Authorization 유효성 검사
-        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
-            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
-        }
-        Member member = validateMember(request);
-
-        // 토큰 유효성 검사
-        if (member == null) {
-            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
-        }
-        return ResponseDto.success(member);
-    }
-
-
-
 }
