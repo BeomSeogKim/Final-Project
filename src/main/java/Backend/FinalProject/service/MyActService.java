@@ -1,6 +1,7 @@
 package Backend.FinalProject.service;
 
 
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
@@ -24,10 +25,11 @@ public class MyActService {
     private final TokenProvider tokenProvider;
     private final ApplicationRepository applicationRepository;
     private final PostRepository postRepository;
+    private final Validation validation;
 
 
     public ResponseDto<?> applicantList(HttpServletRequest request) {
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -63,7 +65,7 @@ public class MyActService {
 
     public ResponseDto<?> postList(HttpServletRequest request) {
 
-        ResponseDto<?> responseDto = validateCheck(request);
+        ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -86,31 +88,4 @@ public class MyActService {
         }
         return ResponseDto.success(list);
     }
-
-
-
-    // 토큰
-    public Member validateMember (HttpServletRequest request){
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
-            return null;
-        }
-        return tokenProvider.getMemberFromAuthentication();
-    }
-    // 토큰이 있는지 보고 로그인 여부를 판단하는 메소드
-    private ResponseDto<?> validateCheck (HttpServletRequest request){
-
-        // RefreshToken 및 Authorization 유효성 검사
-        if (request.getHeader("Authorization") == null || request.getHeader("RefreshToken") == null) {
-            return ResponseDto.fail("NEED_LOGIN", "로그인이 필요합니다.");
-        }
-        Member member = validateMember(request);
-
-        // 토큰 유효성 검사
-        if (member == null) {
-            return ResponseDto.fail("INVALID TOKEN", "Token이 유효하지 않습니다.");
-        }
-        return ResponseDto.success(member);
-    }
-
-
 }

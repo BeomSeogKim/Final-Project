@@ -51,6 +51,7 @@ public class TokenProvider {
     }
 
     // 토큰 생성
+    @Transactional
     public TokenDto generateTokenDto(Member member) {
         long now = (new Date().getTime());
 
