@@ -47,9 +47,14 @@ public class ApplicationService {
         Member member = (Member) responseDto.getData();
 
         Optional<Post> optionalPost = postRepository.findById(postId);
+
         Post post = optionalPost.orElse(null);
+
         if (post == null) {
             return ResponseDto.fail("NOT FOUND", "해당 게시글을 찾을 수 없습니다.");
+        }
+        if (post.getMaxNum() == post.getCurrentNum()) {
+            return ResponseDto.fail("MAX NUM", "이미 정원이 다 찼습니다");
         }
 
         String content = applicationRequestDto.getContent();
@@ -139,6 +144,9 @@ public class ApplicationService {
         if (application.getPost().getMember().getId() != member.getId()) {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
+        if (application.getPost().getCurrentNum() == 0) {
+            return ResponseDto.fail("NO APPLICATIOn", "참여 신청한 회원이 없습니다.");
+        }
         application.disapprove();
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
@@ -188,6 +196,8 @@ public class ApplicationService {
         return ResponseDto.success(
                 ApplicationResponseDto.builder()
                         .title(post.getTitle())
+                        .currentNum(post.getCurrentNum())
+                        .maxNum(post.getMaxNum())
                         .applicants(applicationListResponseDtoList)
                         .build()
         );

@@ -13,5 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ApplicationResponseDto {
     private String title;
+    private int currentNum;
+    private int maxNum;
     private List<ApplicationListResponseDto> applicants;
 }
