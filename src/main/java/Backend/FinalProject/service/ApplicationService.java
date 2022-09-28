@@ -115,12 +115,13 @@ public class ApplicationService {
         if (application.getStatus() == ApplicationState.APPROVED) {
             return ResponseDto.fail("ALREADY APPROVED", "이미 수락을 하셨습니다.");
         }
-        if (application.getPost().getCurrentNum() < application.getPost().getMaxNum()) {
-            application.approve();
-        }
         if (application.getPost().getCurrentNum() >= application.getPost().getMaxNum()) {
             return ResponseDto.fail("OVER MAX_NUM", "정원을 초과하였습니다.");
         }
+        if (application.getPost().getCurrentNum() < application.getPost().getMaxNum()) {
+            application.approve();
+        }
+
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
 
