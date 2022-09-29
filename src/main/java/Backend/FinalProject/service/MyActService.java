@@ -82,6 +82,7 @@ public class MyActService {
                     MyActPostResponseDto.builder()
                             .postId(application.getPost().getId())
                             .title(application.getPost().getTitle())
+                            .imgUrl(application.getPost().getImgUrl())
                             .state(application.getStatus())
                             .build()
             );
