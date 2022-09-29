@@ -15,6 +15,7 @@ import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.RefreshTokenRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,9 +108,18 @@ public class MemberService {
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         // 헤더에 토큰 담기
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
-        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+        response.addHeader("RefreshToken", "httponly");
         response.addHeader("ImgUrl", member.getImgUrl());
         response.addHeader("Id", member.getUserId());
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenDto.getRefreshToken())
+                .maxAge(7 * 24 * 60 * 60)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");
     }
