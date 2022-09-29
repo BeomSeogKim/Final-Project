@@ -64,8 +64,8 @@ public class PostService {
 
         String title = request.getTitle();
         String address = request.getAddress();
-        Long placeX = request.getPlaceX();
-        Long placeY = request.getPlaceY();
+        String placeX = request.getPlaceX();
+        String placeY = request.getPlaceY();
         String placeUrl = request.getPlaceUrl();
         String placeName = request.getPlaceName();
         String detailAddress = request.getDetailAddress();
@@ -249,8 +249,8 @@ public class PostService {
         String title = postUpdateRequestDto.getTitle();
         String content = postUpdateRequestDto.getContent();
         String address = postUpdateRequestDto.getAddress();
-        Long placeX = postUpdateRequestDto.getPlaceX();
-        Long placeY = postUpdateRequestDto.getPlaceY();
+        String placeX = postUpdateRequestDto.getPlaceX();
+        String placeY = postUpdateRequestDto.getPlaceY();
         String placeUrl = postUpdateRequestDto.getPlaceUrl();
         String placeName = postUpdateRequestDto.getPlaceName();
         String detailAddress = postUpdateRequestDto.getDetailAddress();

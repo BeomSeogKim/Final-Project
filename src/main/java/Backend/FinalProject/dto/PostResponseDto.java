@@ -20,8 +20,8 @@ public class PostResponseDto {
     private String authorNickname;
     private String memberImgUrl;
     private String address;
-    private long placeX;
-    private long placeY;
+    private String placeX;
+    private String placeY;
     private String placeUrl;
     private String placeName;
     private String detailAddress;

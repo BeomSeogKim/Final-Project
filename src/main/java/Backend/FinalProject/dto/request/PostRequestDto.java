@@ -34,8 +34,8 @@ public class PostRequestDto {
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String dDay;
     private String address;
-    private long placeX;
-    private long placeY;
+    private String placeX;
+    private String placeY;
     private String placeUrl;
     private String placeName;
     private String detailAddress;
