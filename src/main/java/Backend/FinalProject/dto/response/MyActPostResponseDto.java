@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class MyActPostResponseDto {
     private Long postId;
     private String title;
+    private String imgUrl;
     private ApplicationState state;
 }
