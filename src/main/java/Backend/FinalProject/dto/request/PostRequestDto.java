@@ -20,7 +20,6 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @AllArgsConstructor
 public class PostRequestDto {
     private String title;
-    private String address;
     private String content;
     private int maxNum;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -34,6 +33,12 @@ public class PostRequestDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String dDay;
+    private String address;
+    private Long placeX;
+    private Long placeY;
+    private String placeUrl;
+    private String placeName;
+    private String detailAddress;
 
     private MultipartFile imgFile;
 }
