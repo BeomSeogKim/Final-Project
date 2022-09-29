@@ -64,15 +64,24 @@ public class PostService {
 
         String title = request.getTitle();
         String address = request.getAddress();
+        Long placeX = request.getPlaceX();
+        Long placeY = request.getPlaceY();
+        String placeUrl = request.getPlaceUrl();
+        String placeName = request.getPlaceName();
+        String detailAddress = request.getDetailAddress();
         String content = request.getContent();
         int maxNum = request.getMaxNum();
+
         MultipartFile imgFile = request.getImgFile();
         String imgUrl;
 
         if (title == null || address == null || content == null || maxNum == 0 ||
-                request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null) {
+                request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null ||
+                placeX == null || placeY == null || placeName == null
+        ) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty()) {
+        } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty() ||
+                placeName.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
         // 최대 정원의 수는 최소 3명에서 최대 5명
@@ -126,6 +135,11 @@ public class PostService {
                 .status(PostState.RECRUIT)      // 현재 모집 중
                 .member(member)
                 .address(address)
+                .placeX(placeX)
+                .placeY(placeY)
+                .placeUrl(placeUrl)
+                .placeName(placeName)
+                .detailAddress(detailAddress)
                 .dDay(dDay)                      // 남은 모집일자
                 .build();
 
@@ -197,11 +211,11 @@ public class PostService {
 
         return ResponseDto.success(PostResponseDto.builder()
                 .id(post.getId())
-                .title(post.getTitle())
-                .authorId(post.getMember().getUserId())
-                .authorNickname(post.getMember().getNickname())
+                .title(post.getTitle()).authorId(post.getMember().getUserId()).authorNickname(post.getMember().getNickname())
                 .memberImgUrl(post.getMember().getImgUrl())
-                .address(post.getAddress())
+                .address(post.getAddress()).placeX(post.getPlaceX()).placeY(post.getPlaceY()).placeName(post.getPlaceName())
+                .placeUrl(post.getPlaceUrl())
+                .detailAddress(post.getDetailAddress())
                 .content(post.getContent())
                 .maxNum(post.getMaxNum())
                 .currentNum(post.getCurrentNum())
@@ -233,8 +247,13 @@ public class PostService {
         }
 
         String title = postUpdateRequestDto.getTitle();
-        String address = postUpdateRequestDto.getAddress();
         String content = postUpdateRequestDto.getContent();
+        String address = postUpdateRequestDto.getAddress();
+        Long placeX = postUpdateRequestDto.getPlaceX();
+        Long placeY = postUpdateRequestDto.getPlaceY();
+        String placeUrl = postUpdateRequestDto.getPlaceUrl();
+        String placeName = postUpdateRequestDto.getPlaceName();
+        String detailAddress = postUpdateRequestDto.getDetailAddress();
         int maxNum = postUpdateRequestDto.getMaxNum();
         MultipartFile imgFile = postUpdateRequestDto.getImgFile();
         String imgUrl;
@@ -269,7 +288,7 @@ public class PostService {
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
-        post.updateJson(title, address, content, maxNum, startDate, endDate, dDay);
+        post.updateJson(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
 
         if (imgFile == null || imgFile.isEmpty()) {
             return ResponseDto.success("업데이트가 완료되었습니다.");

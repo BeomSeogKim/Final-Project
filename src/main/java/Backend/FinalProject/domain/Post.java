@@ -52,7 +52,18 @@ public class Post extends Timestamped{
     @JoinColumn(name = "member_id")
     private Member member;
 
+    // 지번 주소
     private String address;
+    // x 위치
+    private Long placeX;
+    // y 위치
+    private Long placeY;
+    // kakaMap 링크
+    private String placeUrl;
+    // 장소 이름
+    private String placeName;
+    // 상세 주소
+    private String detailAddress;
 
     private int numOfWish;
 
@@ -67,6 +78,7 @@ public class Post extends Timestamped{
 
 
     public void updateJson(String title, String address, String content, int maxNum,
+                           Long placeX, Long placeY, String placeUrl, String placeName, String detailAddress,
                            LocalDate startDate, LocalDate endDate, LocalDate dDay){
         this.title = title;
         this.address = address;
@@ -75,6 +87,11 @@ public class Post extends Timestamped{
         this.startDate = startDate;
         this.endDate = endDate;
         this.dDay = dDay;
+        this.placeX = placeX;
+        this.placeY = placeY;
+        this.placeUrl = placeUrl;
+        this.placeName = placeName;
+        this.detailAddress = detailAddress;
     }
 
     public boolean validateMember(Member member) {

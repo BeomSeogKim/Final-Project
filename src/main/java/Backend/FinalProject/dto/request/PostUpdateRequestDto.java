@@ -17,9 +17,14 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @AllArgsConstructor
 public class PostUpdateRequestDto {
     private String title;
-    private String address;
     private String content;
     private int maxNum;
+    private String address;
+    private Long placeX;
+    private Long placeY;
+    private String placeUrl;
+    private String placeName;
+    private String detailAddress;
 
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String startDate;
