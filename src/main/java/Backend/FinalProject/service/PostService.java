@@ -326,12 +326,13 @@ public class PostService {
             return ResponseDto.fail("ALREADY LIKE", "이미 좋아요를 누르셨습니다.");
         }
 
-
         WishList wishList = WishList.builder()
                 .member(member)
                 .post(post)
                 .build();
         wishListRepository.save(wishList);
+        // 게시글의 numOfWish에 새로 적용
+        post.addWish();
         return ResponseDto.success(true);
     }
 
@@ -353,7 +354,7 @@ public class PostService {
             return ResponseDto.fail("NOT FOUND", "찜 목록에 해당 게시글이 없습니다.");
         }
         wishListRepository.deleteByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
-
+        post.removeWish();
 
         return ResponseDto.success(false);
     }

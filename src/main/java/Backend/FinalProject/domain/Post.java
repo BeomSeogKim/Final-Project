@@ -53,6 +53,8 @@ public class Post extends Timestamped{
 
     private String address;
 
+    private int numOfWish;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> commentList = new ArrayList<>();
 
@@ -88,5 +90,13 @@ public class Post extends Timestamped{
 
     public void closeStatus() {
         this.status = PostState.CLOSURE;
+    }
+
+    public void addWish() {
+        numOfWish++;
+    }
+
+    public void removeWish() {
+        numOfWish--;
     }
 }
