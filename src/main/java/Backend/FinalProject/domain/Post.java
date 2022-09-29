@@ -55,9 +55,9 @@ public class Post extends Timestamped{
     // 지번 주소
     private String address;
     // x 위치
-    private Long placeX;
+    private long placeX;
     // y 위치
-    private Long placeY;
+    private long placeY;
     // kakaMap 링크
     private String placeUrl;
     // 장소 이름
