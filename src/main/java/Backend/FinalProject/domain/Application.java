@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import static Backend.FinalProject.domain.enums.ApplicationState.*;
+import static Backend.FinalProject.domain.enums.ApplicationState.APPROVED;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.*;
 import static javax.persistence.GenerationType.*;
@@ -39,12 +41,14 @@ public class Application extends Timestamped{
 
 
     public void approve() {
-        this.status = ApplicationState.APPROVED;
+        this.status = APPROVED;
         this.post.plusCurrentNum();
     }
 
     public void disapprove() {
-        this.status = ApplicationState.DENIED;
-        this.post.minusCurrentNum();
+        if (this.status.equals(APPROVED)) {
+            this.post.minusCurrentNum();
+        }
+        this.status = DENIED;
     }
 }
