@@ -115,12 +115,13 @@ public class ApplicationService {
         if (application.getStatus() == ApplicationState.APPROVED) {
             return ResponseDto.fail("ALREADY APPROVED", "이미 수락을 하셨습니다.");
         }
-        if (application.getPost().getCurrentNum() <= application.getPost().getMaxNum()) {
-            application.approve();
-        }
-        if (application.getPost().getCurrentNum() > application.getPost().getMaxNum()) {
+        if (application.getPost().getCurrentNum() >= application.getPost().getMaxNum()) {
             return ResponseDto.fail("OVER MAX_NUM", "정원을 초과하였습니다.");
         }
+        if (application.getPost().getCurrentNum() < application.getPost().getMaxNum()) {
+            application.approve();
+        }
+
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
 
@@ -139,14 +140,12 @@ public class ApplicationService {
         if (application == null) {
             return ResponseDto.fail("NOT FOUND", "해당 신청 내역이 없습니다");
         }
-
         // 모임 주최자만 권한 부여
         if (application.getPost().getMember().getId() != member.getId()) {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
-        if (application.getPost().getCurrentNum() == 0) {
-            return ResponseDto.fail("NO APPLICATIOn", "참여 신청한 회원이 없습니다.");
-        }
+
+
         application.disapprove();
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }

@@ -8,6 +8,7 @@ import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.WishList;
 import Backend.FinalProject.domain.enums.ApplicationState;
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.dto.response.MemberInfoDto;
 import Backend.FinalProject.dto.response.MyPageDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -176,5 +177,20 @@ public class MyPageService {
         }
         return ResponseDto.success(wishListDto);
 
+    }
+
+    public ResponseDto<?> getInfo(HttpServletRequest request) {
+
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        return ResponseDto.success(MemberInfoDto.builder()
+                .nickname(member.getNickname())
+                .userId(member.getUserId())
+                .build());
     }
 }
