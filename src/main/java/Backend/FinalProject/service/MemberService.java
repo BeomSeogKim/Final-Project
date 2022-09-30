@@ -167,6 +167,37 @@ public class MemberService {
 
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
+    public ResponseDto<?> updateMemberPassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
+        String password = request.getPassword();
+        String updatePassword = request.getUpdatePassword();
+        String updatePasswordCheck = request.getUpdatePasswordCheck();
+
+
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+        Member findMember = memberRepository.findById(member.getId()).get();
+
+        if (!password.equals(member.getPassword()))
+            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "기존 비밀번호가 틀립니다.");
+
+        if (password == null || updatePassword == null || updatePasswordCheck == null) {
+            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
+        } else if (password.trim().isEmpty() || updatePassword.trim().isEmpty() || updatePasswordCheck.trim().isEmpty()) {
+            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+        }
+
+        if (!updatePassword.equals(updatePasswordCheck))
+            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
+
+        findMember.updatePassword(passwordEncoder.encode(password));
+
+        return ResponseDto.success("성공적으로 비밀번호가 수정되었습니다");
+    }
 
     @Transactional
     public ResponseDto<?> logout(HttpServletRequest request) {
