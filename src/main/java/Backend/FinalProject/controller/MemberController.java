@@ -1,10 +1,7 @@
 package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.CheckDuplicateDto;
-import Backend.FinalProject.dto.request.LoginRequestDto;
-import Backend.FinalProject.dto.request.MemberUpdateDto;
-import Backend.FinalProject.dto.request.SignupRequestDto;
+import Backend.FinalProject.dto.request.*;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +49,13 @@ public class MemberController {
             @ModelAttribute MemberUpdateDto request,
             HttpServletRequest httpServletRequest) {
         return memberService.updateMember(request, httpServletRequest);
+    }
+
+    @PutMapping("/member/password")
+    public ResponseDto<?> editProfile(
+            @ModelAttribute MemberPasswordUpdateDto request,
+            HttpServletRequest httpServletRequest) {
+        return memberService.updateMemberPassword(request, httpServletRequest);
     }
 
     /**

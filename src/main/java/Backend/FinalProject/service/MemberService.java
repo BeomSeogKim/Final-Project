@@ -8,6 +8,7 @@ import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
+import Backend.FinalProject.dto.request.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.request.MemberUpdateDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
 import Backend.FinalProject.repository.FilesRepository;
@@ -129,8 +130,6 @@ public class MemberService {
         String imgUrl;
 
         String userId = request.getNickname();
-        String password = request.getPassword();
-        String passwordCheck = request.getPasswordCheck();
         MultipartFile imgFile = request.getImgFile();
 
         // 토큰 유효성 검사
@@ -142,19 +141,13 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
-        if (userId == null || password == null || passwordCheck == null) {
-
+        if (userId == null) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (userId.trim().isEmpty() || password.trim().isEmpty() || passwordCheck.trim().isEmpty()) {
+        } else if (userId.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
-        if (!password.equals(passwordCheck))
-            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
-
         findMember.updateNickname(userId);
-
-        findMember.updatePassword(passwordEncoder.encode(password));
 
         if (!imgFile.isEmpty()) {
             if (member.getImgUrl().equals(baseImage)) {

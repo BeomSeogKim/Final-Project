@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberUpdateDto {
+public class MemberPasswordUpdateDto {
 
-    private String nickname;
-    private MultipartFile imgFile;
+    private String password;
+    private String updatePassword;
+    private String updatePasswordCheck;
 }
