@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
-import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -40,6 +39,9 @@ public class Member extends Timestamped{
 
     @Enumerated(value = STRING)
     private Authority userRole;
+
+    @Enumerated(value = STRING)
+    private SignUpRoot root;
 
     @OneToMany(mappedBy = "member")
     private List<Post> postList = new ArrayList<>();
