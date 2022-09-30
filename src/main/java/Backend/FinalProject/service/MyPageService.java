@@ -192,6 +192,7 @@ public class MyPageService {
                 .nickname(member.getNickname())
                 .userId(member.getUserId())
                 .imgUrl(member.getImgUrl())
+                .root(member.getRoot())
                 .build());
     }
 }

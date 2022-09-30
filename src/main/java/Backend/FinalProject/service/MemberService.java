@@ -4,7 +4,6 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
-import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
@@ -23,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
+
+import static Backend.FinalProject.domain.SignUpRoot.normal;
+import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 
 @Service
 @RequiredArgsConstructor
@@ -85,7 +87,8 @@ public class MemberService {
                 .password(passwordEncoder.encode(password))
                 .nickname(nickname)
                 .imgUrl(imgUrl)
-                .userRole(Authority.ROLE_MEMBER)
+                .userRole(ROLE_MEMBER)
+                .root(normal)
                 .build();
 
         memberRepository.save(member);

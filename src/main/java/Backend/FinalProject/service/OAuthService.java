@@ -2,7 +2,6 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.UserDetailsImpl;
-import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.dto.KakaoUserInfoDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -29,6 +28,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
+
+import static Backend.FinalProject.domain.SignUpRoot.kakao;
+import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +78,8 @@ public class OAuthService {
                     .nickname(nickname)
                     .password(encodedPassword)
                     .imgUrl(imgUrl)
-                    .userRole(Authority.ROLE_MEMBER)
+                    .userRole(ROLE_MEMBER)
+                    .root(kakao)
                     .build();
 
             memberRepository.save(kakaoUser);
