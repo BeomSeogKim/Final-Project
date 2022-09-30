@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class MemberInfoDto {
     private String nickname;
     private String userId;
+    private String imgUrl;
 }

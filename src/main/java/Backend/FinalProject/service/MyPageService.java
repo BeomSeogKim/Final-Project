@@ -191,6 +191,7 @@ public class MyPageService {
         return ResponseDto.success(MemberInfoDto.builder()
                 .nickname(member.getNickname())
                 .userId(member.getUserId())
+                .imgUrl(member.getImgUrl())
                 .build());
     }
 }
