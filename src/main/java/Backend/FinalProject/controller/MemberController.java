@@ -47,8 +47,10 @@ public class MemberController {
     @PutMapping("/member")
     public ResponseDto<?> editProfile(
             @ModelAttribute MemberUpdateDto request,
-            HttpServletRequest httpServletRequest) {
-        return memberService.updateMember(request, httpServletRequest);
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse
+    ) {
+        return memberService.updateMember(request, httpServletRequest, httpServletResponse);
     }
 
     /**

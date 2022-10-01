@@ -118,12 +118,11 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest,
+                                       HttpServletResponse response) {
         String imgUrl;
 
-        String userId = request.getNickname();
-        String password = request.getPassword();
-        String passwordCheck = request.getPasswordCheck();
+        String nickname = request.getNickname();
         MultipartFile imgFile = request.getImgFile();
 
         // 토큰 유효성 검사
@@ -135,19 +134,25 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
-        if (userId == null || password == null || passwordCheck == null) {
-
+        if (nickname == null) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (userId.trim().isEmpty() || password.trim().isEmpty() || passwordCheck.trim().isEmpty()) {
+        } else if (nickname.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
-        if (!password.equals(passwordCheck))
-            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
+        findMember.updateNickname(nickname);
 
-        findMember.updateNickname(userId);
+        // 토큰 생성
+        TokenDto tokenDto = tokenProvider.generateTokenDto(findMember);
+        // 헤더에 토큰 담기
+        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+        response.addHeader("ImgUrl", findMember.getImgUrl());
+        response.addHeader("Id",findMember.getUserId());
 
-        findMember.updatePassword(passwordEncoder.encode(password));
+        if (imgFile == null || imgFile.isEmpty()) {
+            return ResponseDto.success("업데이트가 완료되었습니다.");
+        }
 
         if (!imgFile.isEmpty()) {
             if (member.getImgUrl().equals(baseImage)) {
@@ -164,6 +169,7 @@ public class MemberService {
                 findMember.updateImage(imgUrl);
             }
         }
+
 
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
