@@ -2,9 +2,6 @@
 
 #!/bin/bash
 
-CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
-TARGET_PORT=0
-
 PROJECT_ROOT="/home/ubuntu/app2"
 JAR_FILE="$PROJECT_ROOT/spring-app.jar"
 
@@ -13,6 +10,9 @@ ERROR_LOG="$PROJECT_ROOT/error.log"
 DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
 
 TIME_NOW=$(date +%c)
+
+CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
+TARGET_PORT=0
 
 # build 파일 복사
 echo "$TIME_NOW > $JAR_FILE 파일 복사" >> $DEPLOY_LOG
@@ -43,3 +43,5 @@ nohup java -jar \
                 $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
 echo "> Now new WAS runs at ${TARGET_PORT}."
 exit 0
+
+nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=8081 /home/ubuntu/app2/spring-app.jar > /home/ubuntu/app2application.log 2> /home/ubuntu/app2/error.log &
