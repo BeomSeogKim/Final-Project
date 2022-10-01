@@ -1,5 +1,6 @@
 package Backend.FinalProject.controller;
 
+import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.*;
 import Backend.FinalProject.service.MemberService;
@@ -51,6 +52,14 @@ public class MemberController {
             HttpServletResponse httpServletResponse
     ) {
         return memberService.updateMember(request, httpServletRequest, httpServletResponse);
+    }
+
+    @PutMapping("/member/password")
+    public ResponseDto<?> updateMemberPassword(
+            @ModelAttribute MemberPasswordUpdateDto request,
+            HttpServletRequest httpServletRequest
+            ) {
+        return memberService.updateMemberPassword(request, httpServletRequest);
     }
 
     /**
