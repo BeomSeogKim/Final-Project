@@ -1,22 +1,10 @@
-#! run_new_was.sh
+# run_new_was.sh
 
 #!/bin/bash
-
-PROJECT_ROOT="/home/ubuntu/app2"
-JAR_FILE="$PROJECT_ROOT/spring-app.jar"
-
-APP_LOG="$PROJECT_ROOT/application.log"
-ERROR_LOG="$PROJECT_ROOT/error.log"
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
-
-TIME_NOW=$(date +%c)
 
 CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
-# build 파일 복사
-echo "$TIME_NOW > $JAR_FILE 파일 복사" >> $DEPLOY_LOG
-cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
 
 echo "> Current port of running WAS is ${CURRENT_PORT}."
 
@@ -34,14 +22,7 @@ if [ ! -z ${TARGET_PID} ]; then
   echo "> Kill WAS running at ${TARGET_PORT}."
   sudo kill ${TARGET_PID}
 fi
-# jar 파일 실행
-echo "$TIME_NOW > $JAR_FILE 파일 실행" >> $DEPLOY_LOG
 
-nohup java -jar \
-                -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties \
-                -Dserver.port=${TARGET_PORT} \
-                $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
+nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=${TARGET_PORT} /home/ubuntu/app2/build/libs/* > /home/ubuntu/app2/nohup.out 2>&1 &
 echo "> Now new WAS runs at ${TARGET_PORT}."
 exit 0
-
-nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=8081 /home/ubuntu/app2/spring-app.jar > /home/ubuntu/app2application.log 2> /home/ubuntu/app2/error.log &
