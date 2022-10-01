@@ -70,12 +70,12 @@ public class OAuthService {
         if (kakaoUser == null) {
             // 회원가입
             String nickname = kakaoUserInfo.getNickname();
-            System.out.println("nickname = " + nickname);
             String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
             String imgUrl = kakaoUserInfo.getImgUrl();
+            String dbName = nickname.substring(1, nickname.length() - 1);
             kakaoUser = Member.builder()
                     .userId(kakaoId)
-                    .nickname(nickname)
+                    .nickname(dbName)
                     .password(encodedPassword)
                     .imgUrl(imgUrl)
                     .userRole(ROLE_MEMBER)
@@ -98,9 +98,9 @@ public class OAuthService {
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", kakaoUser.getImgUrl());
         response.addHeader("Id", kakaoUser.getUserId());
+        char[] chars = kakaoUser.getNickname().toCharArray();
 
-
-        return ResponseDto.success(kakaoUser.getNickname() + "님 로그인 성공");
+        return ResponseDto.success( kakaoUser.getNickname()+ "님 로그인 성공");
     }
 
 
@@ -158,7 +158,6 @@ public class OAuthService {
                 .get("nickname").toString();
         String imgUrl = jsonNode.get("properties")
                 .get("profile_image").asText();
-        System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl);
         return new KakaoUserInfoDto(id.toString(), nickname, imgUrl);
     }
 }
