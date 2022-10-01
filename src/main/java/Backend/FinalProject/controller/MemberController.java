@@ -1,10 +1,8 @@
 package Backend.FinalProject.controller;
 
+import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.CheckDuplicateDto;
-import Backend.FinalProject.dto.request.LoginRequestDto;
-import Backend.FinalProject.dto.request.MemberUpdateDto;
-import Backend.FinalProject.dto.request.SignupRequestDto;
+import Backend.FinalProject.dto.request.*;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -50,8 +48,18 @@ public class MemberController {
     @PutMapping("/member")
     public ResponseDto<?> editProfile(
             @ModelAttribute MemberUpdateDto request,
-            HttpServletRequest httpServletRequest) {
-        return memberService.updateMember(request, httpServletRequest);
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse
+    ) {
+        return memberService.updateMember(request, httpServletRequest, httpServletResponse);
+    }
+
+    @PutMapping("/member/password")
+    public ResponseDto<?> updateMemberPassword(
+            @ModelAttribute MemberPasswordUpdateDto request,
+            HttpServletRequest httpServletRequest
+            ) {
+        return memberService.updateMemberPassword(request, httpServletRequest);
     }
 
     /**
@@ -76,15 +84,15 @@ public class MemberController {
      * 아이디 중복검사
      */
     @PostMapping("member/id")
-    public ResponseDto<?> duplicateID(@RequestBody CheckDuplicateDto userId) {
-        return memberService.isPresentId(userId.getValue());
+    public ResponseDto<?> duplicateID(@RequestBody IdCheckDuplicateDto userId) {
+        return memberService.isPresentId(userId.getIdCheck());
     }
 
     /**
      * 닉네임 중복검사
      */
     @PostMapping("member/nickname")
-    public ResponseDto<?> duplicateNickname(@RequestBody CheckDuplicateDto nickname) {
-        return memberService.isPresentNickname(nickname.getValue());
+    public ResponseDto<?> duplicateNickname(@RequestBody NickCheckDuplicateDto nickname) {
+        return memberService.isPresentNickname(nickname.getNickCheck());
     }
 }

@@ -4,6 +4,7 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
+import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
@@ -112,18 +113,17 @@ public class MemberService {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", member.getImgUrl());
-        response.addHeader("Id", member.getUserId());
+        response.addHeader("Id",member.getUserId());
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");
     }
 
     @Transactional
-    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest,
+                                       HttpServletResponse response) {
         String imgUrl;
 
-        String userId = request.getNickname();
-        String password = request.getPassword();
-        String passwordCheck = request.getPasswordCheck();
+        String nickname = request.getNickname();
         MultipartFile imgFile = request.getImgFile();
 
         // 토큰 유효성 검사
@@ -135,19 +135,25 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
-        if (userId == null || password == null || passwordCheck == null) {
-
+        if (nickname == null) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (userId.trim().isEmpty() || password.trim().isEmpty() || passwordCheck.trim().isEmpty()) {
+        } else if (nickname.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
-        if (!password.equals(passwordCheck))
-            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
+        findMember.updateNickname(nickname);
 
-        findMember.updateNickname(userId);
+        // 토큰 생성
+        TokenDto tokenDto = tokenProvider.generateTokenDto(findMember);
+        // 헤더에 토큰 담기
+        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+        response.addHeader("ImgUrl", findMember.getImgUrl());
+        response.addHeader("Id",findMember.getUserId());
 
-        findMember.updatePassword(passwordEncoder.encode(password));
+        if (imgFile == null || imgFile.isEmpty()) {
+            return ResponseDto.success("업데이트가 완료되었습니다.");
+        }
 
         if (!imgFile.isEmpty()) {
             if (member.getImgUrl().equals(baseImage)) {
@@ -165,7 +171,40 @@ public class MemberService {
             }
         }
 
+
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
+    }
+    @Transactional
+    public ResponseDto<?> updateMemberPassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
+        String password = request.getPassword();
+        String updatePassword = request.getUpdatePassword();
+        String UpdatePasswordCheck = request.getUpdatePasswordCheck();
+
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+        Member findMember = memberRepository.findById(member.getId()).get();
+
+        if (!passwordEncoder.matches(password, member.getPassword()))
+            return ResponseDto.fail("PASSWORD_ERROR", "기존 비밀번호가 일치하지 않습니다");
+
+        if (password == null || updatePassword == null || UpdatePasswordCheck == null) {
+
+            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
+        } else if (password.trim().isEmpty() || updatePassword.trim().isEmpty() || UpdatePasswordCheck.trim().isEmpty()) {
+            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+        }
+
+        if (!updatePassword.equals(UpdatePasswordCheck))
+            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
+
+        findMember.updatePassword(passwordEncoder.encode(updatePassword));
+
+        return ResponseDto.success("비밀번호 수정이 완료되었습니다");
     }
 
     @Transactional

@@ -24,10 +24,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ApplicationService {
 
-    private final TokenProvider tokenProvider;
+//    private final TokenProvider tokenProvider;
     private final Validation validation;
     private final ApplicationRepository applicationRepository;
     private final PostRepository postRepository;
@@ -86,6 +85,32 @@ public class ApplicationService {
 
         applicationRepository.save(application);
         return ResponseDto.success("성공적으로 참여신청을 완료했습니다.");
+    }
+
+    // 지원 취소
+    @Transactional
+    public ResponseDto<?> cancelApplication(Long postId, HttpServletRequest request) {
+
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        Post post = optionalPost.orElse(null);
+        if (post == null) {
+            return ResponseDto.fail("EMPTY", "해당 게시글이 존재하지 않습니다.");
+        }
+
+        if (applicationRepository.findByPostIdAndMemberId(postId, member.getId()).isEmpty()) {
+            return ResponseDto.fail("NOT FOUND", "해당 게시글에 참여신청한 이력이 없습니다.");
+        }
+
+        applicationRepository.deleteByPostIdAndMemberId(postId, member.getId());
+
+        return ResponseDto.success("참여 신청이 취소 되었습니다.");
     }
 
     // 게시글 참여 수락

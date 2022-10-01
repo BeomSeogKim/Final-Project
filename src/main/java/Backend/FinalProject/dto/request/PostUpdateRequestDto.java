@@ -20,8 +20,8 @@ public class PostUpdateRequestDto {
     private String content;
     private int maxNum;
     private String address;
-    private Long placeX;
-    private Long placeY;
+    private String placeX;
+    private String placeY;
     private String placeUrl;
     private String placeName;
     private String detailAddress;

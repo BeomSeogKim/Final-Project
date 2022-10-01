@@ -55,9 +55,9 @@ public class Post extends Timestamped{
     // 지번 주소
     private String address;
     // x 위치
-    private Long placeX;
+    private String placeX;
     // y 위치
-    private Long placeY;
+    private String placeY;
     // kakaMap 링크
     private String placeUrl;
     // 장소 이름
@@ -78,7 +78,7 @@ public class Post extends Timestamped{
 
 
     public void updateJson(String title, String address, String content, int maxNum,
-                           Long placeX, Long placeY, String placeUrl, String placeName, String detailAddress,
+                           String placeX, String placeY, String placeUrl, String placeName, String detailAddress,
                            LocalDate startDate, LocalDate endDate, LocalDate dDay){
         this.title = title;
         this.address = address;
