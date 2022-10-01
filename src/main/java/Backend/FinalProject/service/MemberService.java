@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static Backend.FinalProject.domain.SignUpRoot.normal;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
