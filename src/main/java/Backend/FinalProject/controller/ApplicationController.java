@@ -26,6 +26,13 @@ public class ApplicationController {
         return applicationService.submitApplication(postId, applicationRequestDto, request);
     }
 
+    @PostMapping("/post/application/cancel/{postId}")
+    public ResponseDto<?> cancelApplication(
+            @PathVariable Long postId,
+            HttpServletRequest request) {
+        return applicationService.cancelApplication(postId, request);
+    }
+
     /**
      * 게시글 참여 수락
      */
