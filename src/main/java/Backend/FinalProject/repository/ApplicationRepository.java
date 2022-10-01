@@ -15,5 +15,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     Optional<List<Application>> findAllByMemberId(Long memberId);
 
+    Optional<Application> deleteByPostIdAndMemberId(Long postId, Long memberId);
+
 
 }

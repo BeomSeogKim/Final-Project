@@ -109,18 +109,18 @@ public class MemberService {
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         // 헤더에 토큰 담기
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
-        response.addHeader("RefreshToken", "httponly");
+        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", member.getImgUrl());
         response.addHeader("Id", member.getUserId());
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenDto.getRefreshToken())
-                .maxAge(7 * 24 * 60 * 60)
-                .path("/")
-                .secure(true)
-                .sameSite("None")
-                .httpOnly(true)
-                .build();
-        response.setHeader("Set-Cookie", cookie.toString());
+//        ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenDto.getRefreshToken())
+//                .maxAge(7 * 24 * 60 * 60)
+//                .path("/")
+//                .secure(true)
+//                .sameSite("None")
+//                .httpOnly(true)
+//                .build();
+//        response.setHeader("Set-Cookie", cookie.toString());
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공");
     }
@@ -128,7 +128,6 @@ public class MemberService {
     @Transactional
     public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest) {
         String imgUrl;
-
         String userId = request.getNickname();
         MultipartFile imgFile = request.getImgFile();
 
@@ -167,6 +166,7 @@ public class MemberService {
 
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
+    @Transactional
     public ResponseDto<?> updateMemberPassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
         String password = request.getPassword();
         String updatePassword = request.getUpdatePassword();
@@ -182,19 +182,24 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
-        if (!password.equals(member.getPassword()))
-            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "기존 비밀번호가 틀립니다.");
-
         if (password == null || updatePassword == null || updatePasswordCheck == null) {
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (password.trim().isEmpty() || updatePassword.trim().isEmpty() || updatePasswordCheck.trim().isEmpty()) {
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
+        if (!passwordEncoder.matches(password, member.getPassword()))
+            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "기존 비밀번호가 틀립니다.");
+
         if (!updatePassword.equals(updatePasswordCheck))
             return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
 
-        findMember.updatePassword(passwordEncoder.encode(password));
+        System.out.println(password);
+        System.out.println(updatePassword);
+
+        findMember.updatePassword(passwordEncoder.encode(updatePassword));
+
+        System.out.println(updatePassword);
 
         return ResponseDto.success("성공적으로 비밀번호가 수정되었습니다");
     }

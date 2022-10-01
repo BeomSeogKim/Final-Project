@@ -27,6 +27,16 @@ public class ApplicationController {
     }
 
     /**
+     * 게시글 참여신청 취소
+     */
+    @PostMapping("/post/applicationCencel/{postId}")
+    public ResponseDto<?> CencelApplication(
+            @PathVariable Long postId,
+            HttpServletRequest request) {
+        return applicationService.cencelApplication(postId,request);
+    }
+
+    /**
      * 게시글 참여 수락
      */
     @PostMapping("/post/application/approve/{applicationId}")

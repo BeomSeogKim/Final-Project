@@ -201,4 +201,30 @@ public class ApplicationService {
                         .build()
         );
     }
+    // 지원 취소
+    @Transactional
+    public ResponseDto<?> cencelApplication(Long postId, HttpServletRequest request) {
+
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        Optional<Post> optionalPost = postRepository.findById(postId);
+        Post post = optionalPost.orElse(null);
+        if (post == null) {
+            return ResponseDto.fail("EMPTY", "해당 게시글이 존재하지 않습니다.");
+        }
+
+        if (applicationRepository.findByPostIdAndMemberId(postId, member.getId()).isEmpty()) {
+            return ResponseDto.fail("NOT FOUND", "해당 게시글에 참여신청한 이력이 없습니다.");
+        }
+
+        applicationRepository.deleteByPostIdAndMemberId(postId, member.getId());
+
+        return ResponseDto.success("참여 신청이 취소 되었습니다.");
+    }
+
 }
