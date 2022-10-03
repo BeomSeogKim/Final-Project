@@ -70,14 +70,17 @@ public class OAuthService {
         if (kakaoUser == null) {
             // 회원가입
             String nickname = kakaoUserInfo.getNickname();
+            String gender = kakaoUserInfo.getGender();
+            Integer minAge = kakaoUserInfo.getMinAge();
             String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
             String imgUrl = kakaoUserInfo.getImgUrl();
-            String dbName = nickname.substring(1, nickname.length() - 1);
             kakaoUser = Member.builder()
                     .userId(kakaoId)
-                    .nickname(dbName)
+                    .nickname(nickname)
                     .password(encodedPassword)
                     .imgUrl(imgUrl)
+                    .gender(gender)
+                    .minAge(minAge)
                     .userRole(ROLE_MEMBER)
                     .root(kakao)
                     .build();
@@ -153,11 +156,22 @@ public class OAuthService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
+        System.out.println(jsonNode.toString());
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
                 .get("nickname").toString();
         String imgUrl = jsonNode.get("properties")
                 .get("profile_image").asText();
-        return new KakaoUserInfoDto(id.toString(), nickname, imgUrl);
+        String tempGender = jsonNode.get("kakao_account")
+                .get("gender").toString();
+        String age = jsonNode.get("kakao_account")
+                .get("age_range").toString();
+        String[] representAge = age.split("~");
+        String temp = representAge[0];
+        Integer minAge = Integer.valueOf(temp.substring(1,temp.length()));
+        String gender = tempGender.substring(1,tempGender.length()-1);
+        System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl + " gender" + gender + " minAge" + minAge);
+        return new KakaoUserInfoDto(id.toString(), nickname, imgUrl, gender, minAge);
+
     }
 }
