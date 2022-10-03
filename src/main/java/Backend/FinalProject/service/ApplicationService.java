@@ -69,8 +69,6 @@ public class ApplicationService {
 
         // 게시글 작성자가 신청을 할 경우 거절
         if (post.getMember().getId() == member.getId()) {
-            System.out.println("post = " + post.getMember().getId());
-            System.out.println("member = " + member.getId());
             return ResponseDto.fail("INVALID ACCESS", "모임 주최자는 신청할 수 없습니다.");
         }
 
