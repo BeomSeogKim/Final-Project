@@ -1,4 +1,4 @@
-package Backend.FinalProject.domain;
+package Backend.FinalProject.WebSocket.domain;
 
 import Backend.FinalProject.domain.enums.MessageType;
 import lombok.*;
