@@ -2,6 +2,7 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.UserDetailsImpl;
+import Backend.FinalProject.domain.enums.Gender;
 import Backend.FinalProject.dto.KakaoUserInfoDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -74,12 +75,18 @@ public class OAuthService {
             Integer minAge = kakaoUserInfo.getMinAge();
             String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
             String imgUrl = kakaoUserInfo.getImgUrl();
+            Gender genderSet = Gender.NEUTRAL;
+            if (gender.equals("male")) {
+                genderSet = Gender.MALE;
+            } else if (gender.equals("female")) {
+                genderSet = Gender.FEMALE;
+            }
             kakaoUser = Member.builder()
                     .userId(kakaoId)
                     .nickname(nickname)
                     .password(encodedPassword)
                     .imgUrl(imgUrl)
-                    .gender(gender)
+                    .gender(genderSet)
                     .minAge(minAge)
                     .userRole(ROLE_MEMBER)
                     .root(kakao)
