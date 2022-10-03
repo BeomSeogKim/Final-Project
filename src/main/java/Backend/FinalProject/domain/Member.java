@@ -34,6 +34,12 @@ public class Member extends Timestamped{
 
     @Column(unique = true)
     private String nickname;
+//
+//    @Column
+//    private String gender;
+//
+//    @Column
+//    private Integer minAge;
 
     @Column(length = 1000)
     private String imgUrl;
