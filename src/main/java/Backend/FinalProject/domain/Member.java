@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -90,5 +88,17 @@ public class Member extends Timestamped{
         }
         Member member = (Member) o;
         return id != null && Objects.equals(id, member.id);
+    }
+
+    public void deleteMember() {
+        this.userId = UUID.randomUUID().toString();
+        this.password = UUID.randomUUID().toString();
+        this.nickname = "탈퇴한 회원입니다.";
+        this.minAge = 0;
+        this.imgUrl = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
+        this.userRole = Authority.ROLE_GUEST;
+        this.gender = Gender.NEUTRAL;
+        this.requiredAgreement = false;
+        this.marketingAgreement = false;
     }
 }

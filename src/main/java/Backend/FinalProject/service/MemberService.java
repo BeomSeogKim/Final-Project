@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class MemberService {
     private final AmazonS3Service amazonS3Service;
     private final FilesRepository fileRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EntityManager em;
 
     private final Validation validation;
 
@@ -262,13 +264,18 @@ public class MemberService {
             return responseDto;
         }
         Member member = (Member) responseDto.getData();
+        Member findMember = memberRepository.findById(member.getId()).orElse(null);
+        if (member == null) {
+            return ResponseDto.fail("DO NOT EXIST", "존재하지 않는 회원입니다.");
+        }
 
         if (!member.getImgUrl().equals(baseImage)) {
             ImageFile deleteImage = fileRepository.findByUrl(member.getImgUrl());
             amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
         }
         refreshTokenRepository.deleteById(member.getUserId());
-        memberRepository.delete(member);
+        member.deleteMember();
+        em.merge(member);
 
 
         return ResponseDto.success("회원 탈퇴가 성공적으로 수행되었습니다.");
