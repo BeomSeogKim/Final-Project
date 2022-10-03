@@ -5,6 +5,8 @@ import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
 import Backend.FinalProject.domain.enums.Gender;
+import Backend.FinalProject.domain.enums.MarketingAgreement;
+import Backend.FinalProject.domain.enums.RequiredAgreement;
 import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -21,12 +23,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.SignUpRoot.normal;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
+import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
+import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
+import static Backend.FinalProject.domain.enums.RequiredAgreement.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +45,7 @@ public class MemberService {
     private final AmazonS3Service amazonS3Service;
     private final FilesRepository fileRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EntityManager em;
 
     private final Validation validation;
 
@@ -58,11 +65,13 @@ public class MemberService {
         MultipartFile imgFile = request.getImgFile();
         String gender = request.getGender();
         Integer age = request.getAge();
-        Boolean requiredAgreement = request.isRequiredAgreement();
-        Boolean marketingAgreement = request.isMarketingAgreement();
+        String requiredAgreement = request.getRequiredAgreement();
+        String marketingAgreement = request.getMarketingAgreement();
         String imgUrl;
         Integer minAge;
         Gender genderSet = Gender.NEUTRAL;
+        RequiredAgreement setRequiredAgreement = REQUIRED_DISAGREE;
+        MarketingAgreement setMarketingAgreement = MARKETING_DISAGREE;
 
         // null 값 및 공백이 있는 값 체크하기
         if (userId == null || password == null || nickname == null) {
@@ -89,9 +98,18 @@ public class MemberService {
             ImageFile imageFile = (ImageFile) image.getData();
             imgUrl = imageFile.getUrl();
         }
-        if (requiredAgreement.booleanValue() == false) {
-            return ResponseDto.fail("NEED AGREEMENT", "이용약관을 동의해주세요");
+
+        if (requiredAgreement.equals("false")) {
+            return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
         }
+        if (requiredAgreement.equals("true")) {
+            setRequiredAgreement = REQUIRED_AGREE;
+        }
+        if (marketingAgreement.equals("false")) {
+            setMarketingAgreement = MARKETING_AGREE;
+        }
+
+
         if (age >= 20 || age < 30) { minAge = 20;}
         else if (age >= 30 || age < 40) { minAge = 30;}
         else if (age >= 40 || age < 50) {minAge = 40;}
@@ -111,8 +129,8 @@ public class MemberService {
                 .root(normal)
                 .gender(genderSet)
                 .minAge(minAge)
-                .requiredAgreement(requiredAgreement)
-                .marketingAgreement(marketingAgreement)
+                .requiredAgreement(setRequiredAgreement)
+                .marketingAgreement(setMarketingAgreement)
                 .build();
 
         memberRepository.save(member);
@@ -262,13 +280,18 @@ public class MemberService {
             return responseDto;
         }
         Member member = (Member) responseDto.getData();
+        Member findMember = memberRepository.findById(member.getId()).orElse(null);
+        if (member == null) {
+            return ResponseDto.fail("DO NOT EXIST", "존재하지 않는 회원입니다.");
+        }
 
         if (!member.getImgUrl().equals(baseImage)) {
             ImageFile deleteImage = fileRepository.findByUrl(member.getImgUrl());
             amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
         }
         refreshTokenRepository.deleteById(member.getUserId());
-        memberRepository.delete(member);
+        member.deleteMember();
+        em.merge(member);
 
 
         return ResponseDto.success("회원 탈퇴가 성공적으로 수행되었습니다.");

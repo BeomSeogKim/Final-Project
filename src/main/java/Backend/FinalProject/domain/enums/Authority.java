@@ -1,5 +1,5 @@
 package Backend.FinalProject.domain.enums;
 
 public enum Authority {
-    ROLE_MEMBER, ROLE_GUEST
+    ROLE_MEMBER, ROLE_GUEST, ROLE_ADMIN
 }

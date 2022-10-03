@@ -74,7 +74,7 @@ public class MemberController {
     /**
      * 회원탈퇴
      */
-    @DeleteMapping("/member")
+    @PutMapping("/member/signout")
     public ResponseDto<?> signOut(
             HttpServletRequest request) {
         return memberService.signOut(request);
