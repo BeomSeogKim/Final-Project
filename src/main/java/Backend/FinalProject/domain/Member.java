@@ -1,6 +1,7 @@
 package Backend.FinalProject.domain;
 
 import Backend.FinalProject.domain.enums.Authority;
+import Backend.FinalProject.domain.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,11 +38,20 @@ public class Member extends Timestamped{
     @Column(length = 1000)
     private String imgUrl;
 
+    private Integer minAge;
+
     @Enumerated(value = STRING)
     private Authority userRole;
 
     @Enumerated(value = STRING)
     private SignUpRoot root;
+
+    @Enumerated(value = STRING)
+    private Gender gender;
+
+    private boolean requiredAgreement;
+
+    private boolean marketingAgreement;
 
     @OneToMany(mappedBy = "member")
     private List<Post> postList = new ArrayList<>();

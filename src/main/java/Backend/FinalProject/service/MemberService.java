@@ -4,6 +4,7 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
+import Backend.FinalProject.domain.enums.Gender;
 import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -55,7 +56,13 @@ public class MemberService {
         String passwordCheck = request.getPasswordCheck();
         String nickname = request.getNickname();
         MultipartFile imgFile = request.getImgFile();
+        String gender = request.getGender();
+        Integer age = request.getAge();
+        Boolean requiredAgreement = request.isRequiredAgreement();
+        Boolean marketingAgreement = request.isMarketingAgreement();
         String imgUrl;
+        Integer minAge;
+        Gender genderSet = Gender.NEUTRAL;
 
         // null 값 및 공백이 있는 값 체크하기
         if (userId == null || password == null || nickname == null) {
@@ -82,6 +89,18 @@ public class MemberService {
             ImageFile imageFile = (ImageFile) image.getData();
             imgUrl = imageFile.getUrl();
         }
+        if (requiredAgreement.booleanValue() == false) {
+            return ResponseDto.fail("NEED AGREEMENT", "이용약관을 동의해주세요");
+        }
+        if (age >= 20 || age < 30) { minAge = 20;}
+        else if (age >= 30 || age < 40) { minAge = 30;}
+        else if (age >= 40 || age < 50) {minAge = 40;}
+        else { minAge = 50;}
+        if (gender.equals("male")) {
+            genderSet = Gender.MALE;
+        } else if (gender.equals("female")) {
+            genderSet = Gender.FEMALE;
+        }
 
         Member member = Member.builder()
                 .userId(userId)
@@ -90,6 +109,10 @@ public class MemberService {
                 .imgUrl(imgUrl)
                 .userRole(ROLE_MEMBER)
                 .root(normal)
+                .gender(genderSet)
+                .minAge(minAge)
+                .requiredAgreement(requiredAgreement)
+                .marketingAgreement(marketingAgreement)
                 .build();
 
         memberRepository.save(member);
