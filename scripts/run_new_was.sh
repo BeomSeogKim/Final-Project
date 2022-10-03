@@ -5,7 +5,7 @@
 CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
-cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
+cp $PROJECT_ROOT/build/libs/*.jar /home/ubuntu/app2/spring-app.jar
 
 echo "> Current port of running WAS is ${CURRENT_PORT}."
 
