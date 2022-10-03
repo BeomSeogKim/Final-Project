@@ -115,7 +115,7 @@ public class MemberService {
         response.addHeader("ImgUrl", member.getImgUrl());
         response.addHeader("Id",member.getUserId());
 
-        return ResponseDto.success(member.getUserId() + "님 로그인 성공");
+        return ResponseDto.success(member.getUserId() + "님 로그인 성공!");
     }
 
     @Transactional
