@@ -5,6 +5,7 @@
 CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
+cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
 
 echo "> Current port of running WAS is ${CURRENT_PORT}."
 
@@ -23,6 +24,7 @@ if [ ! -z ${TARGET_PID} ]; then
   sudo kill ${TARGET_PID}
 fi
 
-nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=${TARGET_PORT} /home/ubuntu/app2/build/libs/* > /home/ubuntu/app2/application.log > /home/ubuntu/app2/nohup.out 2>&1 &
+nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=${TARGET_PORT} /home/ubuntu/app2/spring-app.jar > /home/ubuntu/app2/application.log 2> \
+                /home/ubuntu/app2/error.log &
 echo "> Now new WAS runs at ${TARGET_PORT}."
 exit 0
