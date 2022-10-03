@@ -2,6 +2,7 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.UserDetailsImpl;
+import Backend.FinalProject.domain.enums.Gender;
 import Backend.FinalProject.dto.KakaoUserInfoDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -70,16 +71,27 @@ public class OAuthService {
         if (kakaoUser == null) {
             // 회원가입
             String nickname = kakaoUserInfo.getNickname();
+            String gender = kakaoUserInfo.getGender();
+            Integer minAge = kakaoUserInfo.getMinAge();
             String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
             String imgUrl = kakaoUserInfo.getImgUrl();
-            String dbName = nickname.substring(1, nickname.length() - 1);
+            Gender genderSet = Gender.NEUTRAL;
+            if (gender.equals("male")) {
+                genderSet = Gender.MALE;
+            } else if (gender.equals("female")) {
+                genderSet = Gender.FEMALE;
+            }
             kakaoUser = Member.builder()
                     .userId(kakaoId)
-                    .nickname(dbName)
+                    .nickname(nickname)
                     .password(encodedPassword)
                     .imgUrl(imgUrl)
+                    .gender(genderSet)
+                    .minAge(minAge)
                     .userRole(ROLE_MEMBER)
                     .root(kakao)
+                    .marketingAgreement(true)
+                    .requiredAgreement(true)
                     .build();
 
             memberRepository.save(kakaoUser);
@@ -153,11 +165,23 @@ public class OAuthService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
+        System.out.println(jsonNode.toString());
         Long id = jsonNode.get("id").asLong();
-        String nickname = jsonNode.get("properties")
+        String tempNick = jsonNode.get("properties")
                 .get("nickname").toString();
         String imgUrl = jsonNode.get("properties")
                 .get("profile_image").asText();
-        return new KakaoUserInfoDto(id.toString(), nickname, imgUrl);
+        String tempGender = jsonNode.get("kakao_account")
+                .get("gender").toString();
+        String age = jsonNode.get("kakao_account")
+                .get("age_range").toString();
+        String[] representAge = age.split("~");
+        String temp = representAge[0];
+        String nickname = tempNick.substring(1, tempNick.length() - 1);
+        Integer minAge = Integer.valueOf(temp.substring(1,temp.length()));
+        String gender = tempGender.substring(1,tempGender.length()-1);
+        System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl + " gender" + gender + " minAge" + minAge);
+        return new KakaoUserInfoDto(id.toString(), nickname, imgUrl, gender, minAge);
+
     }
 }
