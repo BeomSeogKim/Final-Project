@@ -90,6 +90,8 @@ public class OAuthService {
                     .minAge(minAge)
                     .userRole(ROLE_MEMBER)
                     .root(kakao)
+                    .marketingAgreement(true)
+                    .requiredAgreement(true)
                     .build();
 
             memberRepository.save(kakaoUser);
