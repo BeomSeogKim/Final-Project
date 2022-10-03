@@ -11,7 +11,6 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.ApplicationRequestDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
-import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +113,7 @@ public class ApplicationService {
     }
 
     // 게시글 참여 수락
+    @Transactional
     public ResponseDto<?> approveApplication(Long applicationId, HttpServletRequest request) {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.validateCheck(request);
@@ -150,6 +150,7 @@ public class ApplicationService {
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
 
+    @Transactional
     public ResponseDto<?> disapproveApplication(Long applicationId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
