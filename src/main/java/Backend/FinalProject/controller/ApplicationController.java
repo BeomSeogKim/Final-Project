@@ -26,6 +26,7 @@ public class ApplicationController {
         return applicationService.submitApplication(postId, applicationRequestDto, request);
     }
 
+//     게시글 참여 신청 취소
     @PostMapping("/post/application/cancel/{postId}")
     public ResponseDto<?> cancelApplication(
             @PathVariable Long postId,

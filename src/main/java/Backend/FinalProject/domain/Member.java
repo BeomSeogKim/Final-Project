@@ -21,6 +21,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="members")
 public class Member extends Timestamped{
 
     @Id

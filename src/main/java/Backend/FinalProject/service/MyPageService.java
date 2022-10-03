@@ -7,10 +7,14 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.WishList;
 import Backend.FinalProject.domain.enums.ApplicationState;
+import Backend.FinalProject.dto.ApplicationListResponseDto;
+import Backend.FinalProject.dto.ApplicationResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.response.MemberInfoDto;
 import Backend.FinalProject.dto.response.MyPageDto;
+import Backend.FinalProject.dto.response.getMyPageDto;
 import Backend.FinalProject.repository.ApplicationRepository;
+import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +38,8 @@ public class MyPageService {
 
     private final WishListRepository wishListRepository;
     private final Validation validation;
+
+    private final MemberRepository memberRepository;
 
     Time time = new Time();
 
@@ -195,4 +202,84 @@ public class MyPageService {
                 .root(member.getRoot())
                 .build());
     }
+    // 회원정보 조회
+    public ResponseDto<?> getMemberMypage(Long memberId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        Member member = optionalMember.orElse(null);
+        if (member == null) {
+            return ResponseDto.fail("NOT FOUND", "해당 고객은 존재하지 않습니다.");
+        }
+        List<Application> memberAplicationInfo = applicationRepository.findAllByMemberIdAndStatus(memberId,ApplicationState.APPROVED);
+        if (memberAplicationInfo == null) {
+            return ResponseDto.fail("NOT FOUND", "참가했던 모임이 없습니다.");
+        }
+        int aplicationCount=0;
+        for(int i =0; i<memberAplicationInfo.size();i++){
+            aplicationCount++;
+        }
+
+        List<Post> PostHostInfo  = postRepository.findAllByMemberId(memberId);
+        if (PostHostInfo == null) {
+            return ResponseDto.fail("NOT FOUND", "주최했던 모임이 없습니다.");
+        }
+            int hostCount=0;
+            for(int i =0; i<PostHostInfo.size();i++) {
+                hostCount++;
+            }
+        return ResponseDto.success(
+                    getMyPageDto.builder()
+                            .nickname(member.getNickname())
+                            .imgUrl(member.getImgUrl())
+                            .root(member.getRoot())
+                            .gender(member.getGender())
+                            .minAge(member.getMinAge())
+                            .aplicationCount(aplicationCount)
+                            .leaderCount(hostCount)
+                            .build()
+            );
+        }
+
+        // 해당 회원이 게시한 게시글 조회
+    public ResponseDto<?> getMemberPost(Long memberId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        Member member = optionalMember.orElse(null);
+        if (member == null) {
+            return ResponseDto.fail("NOT FOUND", "해당 고객은 존재하지 않습니다.");
+        }
+        List<Post> postListById = postRepository.findAllByMemberId(member.getId());
+        if (postListById.isEmpty()) {
+            return ResponseDto.fail("NOT FOUND", "주최한 모임이 없습니다");
+        }
+
+        List<MyPageDto> postList = new ArrayList<>();
+        for (Post post : postListById) {
+            if (post.getMember().equals(member.getId())) {
+
+            }
+            postList.add(
+                    MyPageDto.builder()
+                            .postId(post.getId())
+                            .title(post.getTitle())
+                            .address(post.getAddress())
+                            .dDay(post.getDDay())
+                            .restDay(time.convertLocalDateToTime(post.getEndDate()))
+                            .imgUrl(post.getImgUrl())
+                            .nickname(post.getMember().getNickname())
+                            .build()
+            );
+
+        }
+        return ResponseDto.success(postList);
+    }
 }
+
