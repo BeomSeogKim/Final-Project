@@ -2,6 +2,8 @@ package Backend.FinalProject.domain;
 
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.domain.enums.Gender;
+import Backend.FinalProject.domain.enums.MarketingAgreement;
+import Backend.FinalProject.domain.enums.RequiredAgreement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,8 +11,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
+import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
+import static Backend.FinalProject.domain.enums.RequiredAgreement.*;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -19,7 +26,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="members")
 public class Member extends Timestamped{
 
     @Id
@@ -49,9 +55,11 @@ public class Member extends Timestamped{
     @Enumerated(value = STRING)
     private Gender gender;
 
-    private boolean requiredAgreement;
+    @Enumerated(value = STRING)
+    private RequiredAgreement requiredAgreement;
 
-    private boolean marketingAgreement;
+    @Enumerated(value = STRING)
+    private MarketingAgreement marketingAgreement;
 
     @OneToMany(mappedBy = "member")
     private List<Post> postList = new ArrayList<>();
@@ -98,7 +106,7 @@ public class Member extends Timestamped{
         this.imgUrl = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
         this.userRole = Authority.ROLE_GUEST;
         this.gender = Gender.NEUTRAL;
-        this.requiredAgreement = false;
-        this.marketingAgreement = false;
+        this.requiredAgreement = REQUIRED_DISAGREE;
+        this.marketingAgreement = MARKETING_DISAGREE;
     }
 }

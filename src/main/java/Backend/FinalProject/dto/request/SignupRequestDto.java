@@ -18,7 +18,7 @@ public class SignupRequestDto {
     private String nickname;
     private String gender;
     private Integer age;
-    private boolean requiredAgreement;
-    private boolean marketingAgreement;
+    private String requiredAgreement;
+    private String marketingAgreement;
     private MultipartFile imgFile;
 }
