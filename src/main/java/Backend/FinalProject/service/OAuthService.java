@@ -165,7 +165,7 @@ public class OAuthService {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
         System.out.println(jsonNode.toString());
         Long id = jsonNode.get("id").asLong();
-        String nickname = jsonNode.get("properties")
+        String tempNick = jsonNode.get("properties")
                 .get("nickname").toString();
         String imgUrl = jsonNode.get("properties")
                 .get("profile_image").asText();
@@ -175,6 +175,7 @@ public class OAuthService {
                 .get("age_range").toString();
         String[] representAge = age.split("~");
         String temp = representAge[0];
+        String nickname = tempNick.substring(1, tempNick.length() - 1);
         Integer minAge = Integer.valueOf(temp.substring(1,temp.length()));
         String gender = tempGender.substring(1,tempGender.length()-1);
         System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl + " gender" + gender + " minAge" + minAge);
