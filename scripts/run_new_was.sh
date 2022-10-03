@@ -23,6 +23,6 @@ if [ ! -z ${TARGET_PID} ]; then
   sudo kill ${TARGET_PID}
 fi
 
-nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=${TARGET_PORT} /home/ubuntu/app2/build/libs/* > /home/ubuntu/app2/nohup.out 2>&1 &
+nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties -Dserver.port=${TARGET_PORT} /home/ubuntu/app2/build/libs/* > /home/ubuntu/app2/application.log > /home/ubuntu/app2/nohup.out 2>&1 &
 echo "> Now new WAS runs at ${TARGET_PORT}."
 exit 0
