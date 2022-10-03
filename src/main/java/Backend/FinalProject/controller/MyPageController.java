@@ -4,6 +4,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,12 @@ public class MyPageController {
     @GetMapping("/mypage/info")
     public ResponseDto<?> getInfo(HttpServletRequest request) {
         return myPageService.getInfo(request);
+    }
+
+    @GetMapping("/mypage/{memberId}")
+    public ResponseDto<?> getMemberMypage(@PathVariable Long memberId,
+                                        HttpServletRequest request) {
+        return myPageService.getMemberMypage(memberId,request);
     }
 }
 
