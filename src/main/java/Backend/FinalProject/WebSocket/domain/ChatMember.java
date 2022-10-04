@@ -1,6 +1,7 @@
 package Backend.FinalProject.WebSocket.domain;
 
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.Timestamped;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @Builder
 @Getter
-public class ChatMember {
+public class ChatMember extends Timestamped {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;

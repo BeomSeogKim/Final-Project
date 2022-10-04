@@ -14,6 +14,7 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,7 +88,7 @@ public class ChatRoomService {
     }
 
 
-    public ResponseDto<?> getMessage(Long roomId, HttpServletRequest request) {
+    public ResponseDto<?> getMessage(Long roomId, Pageable pageable, HttpServletRequest request) {
         ResponseDto<?> chkResponse = validation.validateCheck(request);
         if (!chkResponse.isSuccess())
             return chkResponse;
@@ -104,7 +105,7 @@ public class ChatRoomService {
             return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
         }
 
-        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(chatRoom.getId());
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageable);
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
         for (ChatMessage chatMessage : chatMessageList) {
