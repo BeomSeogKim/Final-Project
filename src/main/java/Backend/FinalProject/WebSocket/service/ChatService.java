@@ -44,10 +44,6 @@ public class ChatService {
         }
 
         ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId()).orElse(null);
-        if (chatRoom == null) {
-            log.info("Invalid RoomNumber");
-            return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
-        }
 
         // 해당 채팅방에 있는 회원인지 검증
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
@@ -55,6 +51,13 @@ public class ChatService {
             log.info("Invalid Member");
             return ResponseDto.fail("NO AUTHORIZATION", "해당 권한이 없습니다.");
         }
+
+        if (chatRoom == null) {
+            log.info("Invalid RoomNumber");
+            return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
+        }
+
+
 
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
 
