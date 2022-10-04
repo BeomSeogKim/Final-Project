@@ -49,6 +49,7 @@ public class ApplicationService {
                 .chatRoom(chatRoom)
                 .build();
         chatMemberRepository.save(chatMember);
+        chatRoom.addMember();
         return chatMember;
     }
 

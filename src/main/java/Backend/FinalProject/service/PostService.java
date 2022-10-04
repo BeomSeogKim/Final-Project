@@ -81,6 +81,9 @@ public class PostService {
                 .chatRoom(chatRoom)
                 .build();
         chatMemberRepository.save(chatMember);
+        ChatRoom updateChatRoom = chatRoomRepository.findById(chatRoom.getId()).get();
+        assert updateChatRoom != null;
+        updateChatRoom.addMember();
         return chatMember;
     }
 
@@ -178,7 +181,7 @@ public class PostService {
                 .title(title)
                 .content(content)
                 .maxNum(maxNum)
-                .currentNum(0)              // 현재 모집된 정원의 수
+                .currentNum(1)              // 현재 모집된 정원의 수
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)

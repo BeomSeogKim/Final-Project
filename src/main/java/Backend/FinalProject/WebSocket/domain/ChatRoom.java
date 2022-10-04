@@ -22,8 +22,11 @@ public class ChatRoom extends Timestamped {
 
     @Id
     private Long id;
+
     @Column(nullable = false)
     private String name;
+
+    private int numOfMember;
 
     @OneToOne(fetch = LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -32,4 +35,7 @@ public class ChatRoom extends Timestamped {
     @OneToMany(mappedBy ="chatRoom", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMemberList;
 
+    public void addMember() {
+        this.numOfMember++;
+    }
 }
