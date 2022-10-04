@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatController {
 
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ChatMessageRepository chatMessageRepository;
+    private final Backend.FinalProject.WebSocket.ChatMessageRepository chatMessageRepository;
 
     @MessageMapping("/chat/message")
     @Transactional
