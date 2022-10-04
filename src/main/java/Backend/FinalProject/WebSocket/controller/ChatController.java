@@ -24,9 +24,4 @@ public class ChatController {
     public ResponseDto<?> message(ChatRequestDto message, @Header("Authorization") String token) {
         return chatService.sendMessage(message, token);
     }
-
-    @MessageMapping("/chat/enter")
-    public ResponseDto<?> enterChatRoom(ChatRequestDto message, @Header("Authorization") String token) {
-        return chatService.enterChatRoom(message, token);
-    }
 }

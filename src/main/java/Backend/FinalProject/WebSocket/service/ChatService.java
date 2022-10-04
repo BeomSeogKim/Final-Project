@@ -33,12 +33,11 @@ public class ChatService {
 
 
 
-
-
+    // 채팅방으로 메세지 보내기
     public ResponseDto<?> sendMessage(ChatRequestDto message, String token) {
         // 토큰으로 유저 찾기
-        Long id = Long.parseLong(tokenProvider.getMemberIdByToken(token));
-        Member member = memberRepository.findById(id).orElse(null);
+        String id = tokenProvider.getMemberIdByToken(token);
+        Member member = memberRepository.findByUserId(id).orElse(null);
         if (member == null) {
             log.info("Invalid Token");
             return ResponseDto.fail("INVALID TOKEN", "유효하지 않은 토큰입니다.");
@@ -49,6 +48,14 @@ public class ChatService {
             log.info("Invalid RoomNumber");
             return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
         }
+
+        // 해당 채팅방에 있는 회원인지 검증
+        ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
+        if (chatMember == null) {
+            log.info("Invalid Member");
+            return ResponseDto.fail("NO AUTHORIZATION", "해당 권한이 없습니다.");
+        }
+
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
 
         ChatMessageDto chatMessageDto = ChatMessageDto.builder()
@@ -69,38 +76,4 @@ public class ChatService {
         chatMessageRepository.save(chatMessage);
         return ResponseDto.success("메세지 보내기 성공");
     }
-
-    public ResponseDto<?> enterChatRoom(ChatRequestDto message, String token) {
-        // 토큰으로 유저 찾기
-        Long id = Long.parseLong(tokenProvider.getMemberIdByToken(token));
-        Member member = memberRepository.findById(id).orElse(null);
-        if (member == null) {
-            log.info("Invalid Token");
-            return ResponseDto.fail("INVALID TOKEN", "유효하지 않은 토큰입니다.");
-        }
-
-        ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId()).orElse(null);
-        if (chatRoom == null) {
-            log.info("Invalid RoomNumber");
-            return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
-        }
-        if (chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).isPresent()) {
-            return ResponseDto.fail("ALREADY EXIST", "이미 존재하는 회원입니다.");
-        }
-
-        chatMemberRepository.save(ChatMember.builder()
-                .chatRoom(chatRoom)
-                .member(member)
-                .build());
-
-        ChatMessageDto chatMessageDto = ChatMessageDto.builder()
-                .sender("알림")
-                .message(member.getNickname() + "님이 입장하셨습니다.")
-                .sendTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm ")))
-                .build();
-        // 메세지 송신
-        messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
-        return ResponseDto.success("입장되었습니다.");
-    }
-
 }
