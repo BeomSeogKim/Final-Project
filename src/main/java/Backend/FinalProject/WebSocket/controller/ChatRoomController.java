@@ -1,5 +1,6 @@
-package Backend.FinalProject.WebSocket;
+package Backend.FinalProject.WebSocket.controller;
 
+import Backend.FinalProject.WebSocket.service.ChatRoomService;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
