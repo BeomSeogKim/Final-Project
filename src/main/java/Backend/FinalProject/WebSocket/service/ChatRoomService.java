@@ -6,6 +6,7 @@ import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageResponse;
+import Backend.FinalProject.WebSocket.domain.dtos.ChatRoomListDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
@@ -129,12 +130,23 @@ public class ChatRoomService {
         if (chatList.isEmpty() || chatList == null) {
             return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
         }
-        List<ChatRoomDto> chatRoomDtoList = new ArrayList<>();
+        List<ChatRoomListDto> chatRoomDtoList = new ArrayList<>();
         for (ChatMember chat : chatList) {
+            String address;
+            if (chat.getChatRoom().getPost().getDetailAddress().equals("undefined") ||
+                    chat.getChatRoom().getPost().getDetailAddress().isEmpty()) {
+                address = chat.getChatRoom().getPost().getAddress();
+            } else {
+                address = chat.getChatRoom().getPost().getAddress() + " "
+                        + chat.getChatRoom().getPost().getDetailAddress();
+            }
             chatRoomDtoList.add(
-                    ChatRoomDto.builder()
+                    ChatRoomListDto.builder()
                             .roomId(chat.getChatRoom().getId())
                             .name(chat.getChatRoom().getName())
+                            .numOfMember(chat.getChatRoom().getNumOfMember())
+                            .dDay(chat.getChatRoom().getPost().getDDay())
+                            .address(address)
                             .build()
             );
         }

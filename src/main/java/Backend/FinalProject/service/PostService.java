@@ -200,7 +200,6 @@ public class PostService {
 
         // 채팅방 생성
         ChatRoom chatRoom = createChatRoom(post);
-        System.out.println(chatRoom.getName());
         // 방장 채팅방 자동 입장
         ChatMember chatMember = createChatMember(member, chatRoom);
         // 방장 알림 메세지 자동 기입
