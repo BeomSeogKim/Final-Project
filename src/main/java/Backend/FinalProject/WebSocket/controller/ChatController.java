@@ -10,6 +10,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 
+
 @RequiredArgsConstructor
 @Controller
 public class ChatController {
@@ -28,5 +29,4 @@ public class ChatController {
     public ResponseDto<?> enterChatRoom(ChatRequestDto message, @Header("Authorization") String token) {
         return chatService.enterChatRoom(message, token);
     }
-
 }

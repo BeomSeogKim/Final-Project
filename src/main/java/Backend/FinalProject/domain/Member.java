@@ -39,7 +39,6 @@ public class Member extends Timestamped{
 
     private String password;
 
-    @Column(unique = true)
     private String nickname;
 
     @Column
