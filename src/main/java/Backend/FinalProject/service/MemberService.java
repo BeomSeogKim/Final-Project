@@ -105,7 +105,8 @@ public class MemberService {
         if (requiredAgreement.equals("true")) {
             setRequiredAgreement = REQUIRED_AGREE;
         }
-        if (marketingAgreement.equals("false")) {
+        if (marketingAgreement.equals("true")) {
+
             setMarketingAgreement = MARKETING_AGREE;
         }
 

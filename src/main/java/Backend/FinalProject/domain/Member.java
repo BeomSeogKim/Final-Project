@@ -1,5 +1,6 @@
 package Backend.FinalProject.domain;
 
+import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.domain.enums.Gender;
 import Backend.FinalProject.domain.enums.MarketingAgreement;
@@ -72,6 +73,9 @@ public class Member extends Timestamped{
 
     @OneToMany(mappedBy = "member")
     private List<Application> applicationList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<ChatRoom> chatRoomList = new ArrayList<>();
 
     public void updatePassword(String password) {
 

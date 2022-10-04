@@ -1,8 +1,7 @@
 package Backend.FinalProject.WebSocket;
 
-import Backend.FinalProject.domain.ChatMessage;
+import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.domain.enums.MessageType;
-import Backend.FinalProject.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;

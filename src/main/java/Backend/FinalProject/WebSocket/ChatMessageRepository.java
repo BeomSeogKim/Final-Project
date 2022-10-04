@@ -1,6 +1,6 @@
-package Backend.FinalProject.repository;
+package Backend.FinalProject.WebSocket;
 
-import Backend.FinalProject.domain.ChatMessage;
+import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {

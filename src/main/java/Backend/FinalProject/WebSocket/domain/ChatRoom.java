@@ -1,12 +1,12 @@
-package Backend.FinalProject.domain;
+package Backend.FinalProject.WebSocket.domain;
 
+import Backend.FinalProject.domain.Member;
 import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Getter
@@ -18,6 +18,10 @@ public class ChatRoom {
     private Long id;
     private String roomId;
     private String name;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     public static ChatRoom create(String name) {
         ChatRoom chatRoom = new ChatRoom();
