@@ -160,4 +160,21 @@ public class TokenProvider {
 
         return null;
     }
+
+    public String getMemberIdByToken(String accessToken) {
+        String token = "";
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+            token = accessToken.substring(7);
+        } else {
+            return null;
+        }
+        Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
 }

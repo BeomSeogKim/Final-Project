@@ -1,34 +1,32 @@
-package Backend.FinalProject.WebSocket;
+package Backend.FinalProject.WebSocket.controller;
 
-import Backend.FinalProject.WebSocket.domain.ChatMessage;
-import Backend.FinalProject.domain.enums.MessageType;
+import Backend.FinalProject.WebSocket.domain.dtos.ChatRequestDto;
+import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
+import Backend.FinalProject.WebSocket.service.ChatService;
+import Backend.FinalProject.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @RequiredArgsConstructor
 @Controller
 public class ChatController {
 
     private final SimpMessageSendingOperations messagingTemplate;
-    private final Backend.FinalProject.WebSocket.ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatService chatService;
+
 
     @MessageMapping("/chat/message")
-    @Transactional
-    public void message(ChatMessage message) {
-        if (MessageType.ENTER.equals(message.getType()))
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+    public ResponseDto<?> message(ChatRequestDto message, @Header("Authorization") String token) {
+        return chatService.sendMessage(message, token);
+    }
 
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
-
-        ChatMessage chat = ChatMessage.builder()
-                .type(message.getType())
-                .roomId(message.getRoomId())
-                .sender(message.getSender())
-                .message(message.getMessage())
-                .build();
-        chatMessageRepository.save(chat);
+    @MessageMapping("/chat/enter")
+    public ResponseDto<?> enterChatRoom(ChatRequestDto message, @Header("Authorization") String token) {
+        return chatService.enterChatRoom(message, token);
     }
 }

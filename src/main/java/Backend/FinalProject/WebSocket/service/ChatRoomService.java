@@ -1,7 +1,9 @@
-package Backend.FinalProject.WebSocket;
+package Backend.FinalProject.WebSocket.service;
 
 import Backend.FinalProject.Tool.Validation;
+import Backend.FinalProject.WebSocket.ChatRoomDto;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,7 +25,14 @@ public class ChatRoomService {
 
     @Transactional
     public ChatRoom createChatRoom(String name) {
-        ChatRoom chatRoom = ChatRoom.create(name);
+//        ChatRoom chatRoom = ChatRoom.create(name);
+//
+//        chatRoomRepository.save(chatRoom);
+//        return chatRoom;
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomId(UUID.randomUUID().toString())
+                .name(name)
+                .build();
         chatRoomRepository.save(chatRoom);
         return chatRoom;
     }
@@ -33,7 +43,7 @@ public class ChatRoomService {
             return responseDto;
         }
         Member member = (Member) responseDto.getData();
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllByMemberId(member.getId());
+        List<ChatRoom> chatRooms = chatRoomRepository.findAll();
         if (chatRooms.isEmpty()) {
             return ResponseDto.fail("NO CHATROOMS", "현재 활성화된 채팅방이 존재하지 않습니다.");
         }
@@ -51,7 +61,6 @@ public class ChatRoomService {
     }
 
     public ResponseDto<?> findById(String roomId, HttpServletRequest request) {
-//        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElse(null);
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
         // 방 정보 내어주자

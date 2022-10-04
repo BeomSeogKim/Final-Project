@@ -1,6 +1,6 @@
 package Backend.FinalProject.domain;
 
-import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.domain.enums.Authority;
 import Backend.FinalProject.domain.enums.Gender;
 import Backend.FinalProject.domain.enums.MarketingAgreement;
@@ -18,7 +18,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
-import static Backend.FinalProject.domain.enums.RequiredAgreement.*;
+import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
+import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -61,6 +62,9 @@ public class Member extends Timestamped{
     @Enumerated(value = STRING)
     private MarketingAgreement marketingAgreement;
 
+    @OneToMany(mappedBy = "member", cascade = ALL, orphanRemoval = true)
+    private List<ChatMember> chatMember;
+
     @OneToMany(mappedBy = "member")
     private List<Post> postList = new ArrayList<>();
 
@@ -73,8 +77,6 @@ public class Member extends Timestamped{
     @OneToMany(mappedBy = "member")
     private List<Application> applicationList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<ChatRoom> chatRoomList = new ArrayList<>();
 
     public void updatePassword(String password) {
 
