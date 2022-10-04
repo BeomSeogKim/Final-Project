@@ -59,7 +59,7 @@ public class PostService {
     Time time = new Time();
 
     String folderName = "/postImage";
-    String baseImage = "https://s3.ap-northeast-2.amazonaws.com/tommy-bucket-final/postImage/948c5814-3746-4873-95ce-6743aeeec07bbaseImage.jpeg";
+    String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
 
     // 채팅방 생성
     @Transactional
