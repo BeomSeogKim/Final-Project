@@ -118,4 +118,26 @@ public class ChatRoomService {
         }
         return ResponseDto.success(chatMessageResponses);
     }
+
+    public ResponseDto<?> getRooms(HttpServletRequest request) {
+        ResponseDto<?> chkResponse = validation.validateCheck(request);
+        if (!chkResponse.isSuccess())
+            return chkResponse;
+        Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
+        assert member != null;
+        List<ChatMember> chatList = chatMemberRepository.findAllByMember(member);
+        if (chatList.isEmpty() || chatList == null) {
+            return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
+        }
+        List<ChatRoomDto> chatRoomDtoList = new ArrayList<>();
+        for (ChatMember chat : chatList) {
+            chatRoomDtoList.add(
+                    ChatRoomDto.builder()
+                            .roomId(chat.getChatRoom().getId())
+                            .name(chat.getChatRoom().getName())
+                            .build()
+            );
+        }
+        return ResponseDto.success(chatRoomDtoList);
+    }
 }

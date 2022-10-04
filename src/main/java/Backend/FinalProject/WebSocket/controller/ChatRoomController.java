@@ -39,4 +39,10 @@ public class ChatRoomController {
     public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId, HttpServletRequest request) {
         return chatRoomService.getMessage(roomId, request);
     }
+
+    // 회원이 참여중인 채팅방 목록 조회
+    @GetMapping("/rooms")
+    public ResponseDto<?> getRooms(HttpServletRequest request) {
+        return chatRoomService.getRooms(request);
+    }
 }
