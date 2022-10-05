@@ -1,10 +1,7 @@
 package Backend.FinalProject.domain;
 
 import Backend.FinalProject.WebSocket.domain.ChatMember;
-import Backend.FinalProject.domain.enums.Authority;
-import Backend.FinalProject.domain.enums.Gender;
-import Backend.FinalProject.domain.enums.MarketingAgreement;
-import Backend.FinalProject.domain.enums.RequiredAgreement;
+import Backend.FinalProject.domain.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,6 +58,9 @@ public class Member extends Timestamped{
 
     @Enumerated(value = STRING)
     private MarketingAgreement marketingAgreement;
+
+    @Enumerated(value = STRING)
+    private AgeCheck ageCheck;
 
     @OneToMany(mappedBy = "member", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMember;

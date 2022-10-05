@@ -4,6 +4,7 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
+import Backend.FinalProject.domain.enums.AgeCheck;
 import Backend.FinalProject.domain.enums.Gender;
 import Backend.FinalProject.domain.enums.MarketingAgreement;
 import Backend.FinalProject.domain.enums.RequiredAgreement;
@@ -30,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.SignUpRoot.normal;
+import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
+import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
@@ -67,11 +70,13 @@ public class MemberService {
         MultipartFile imgFile = request.getImgFile();
         String gender = request.getGender();
         Integer age = request.getAge();
+        String ageCheck = request.getAgeCheck();
         String requiredAgreement = request.getRequiredAgreement();
         String marketingAgreement = request.getMarketingAgreement();
         String imgUrl;
         Integer minAge;
         Gender genderSet = Gender.NEUTRAL;
+        AgeCheck setAgeCheck = UNCHECKED;
         RequiredAgreement setRequiredAgreement = REQUIRED_DISAGREE;
         MarketingAgreement setMarketingAgreement = MARKETING_DISAGREE;
 
@@ -108,15 +113,25 @@ public class MemberService {
             imgUrl = imageFile.getUrl();
         }
 
-        if (requiredAgreement.equals("false")) {
+        if (requiredAgreement ==null || requiredAgreement.equals("false")) {
+            log.info("MemberService createMember NOT ALLOWED");
+            return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
+        }
+        System.out.println(ageCheck);
+        if (ageCheck == null || ageCheck.equals("false")) {
             log.info("MemberService createMember NOT ALLOWED");
             return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
         }
         if (requiredAgreement.equals("true")) {
             setRequiredAgreement = REQUIRED_AGREE;
         }
-        if (marketingAgreement.equals("true")) {
+        if (marketingAgreement == null) {
+            setMarketingAgreement = MARKETING_DISAGREE;
+        } else if (marketingAgreement.equals("true")) {
             setMarketingAgreement = MARKETING_AGREE;
+        }
+        if (ageCheck.equals("true")) {
+            setAgeCheck = CHECKED;
         }
 
 
@@ -139,6 +154,7 @@ public class MemberService {
                 .root(normal)
                 .gender(genderSet)
                 .minAge(minAge)
+                .ageCheck(setAgeCheck)
                 .requiredAgreement(setRequiredAgreement)
                 .marketingAgreement(setMarketingAgreement)
                 .build();
