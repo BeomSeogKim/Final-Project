@@ -161,7 +161,7 @@ public class TokenProvider {
         return null;
     }
 
-    public String getMemberIdByToken(String accessToken) {
+    public String getUserIdByToken(String accessToken) {
         String token = "";
         if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
             token = accessToken.substring(7);
