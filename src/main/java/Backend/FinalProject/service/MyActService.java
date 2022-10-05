@@ -12,12 +12,13 @@ import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MyActService {
@@ -40,6 +41,7 @@ public class MyActService {
 
         List<Post> postList = postRepository.findAllByMemberId(member.getId());
         if (postList == null) {
+            log.info("MyActService applicantList NO POSTS");
             return ResponseDto.fail("NO POSTS", "아직 주최한 모임이 없습니다.");
         }
         for (Post post : postList) {
@@ -75,6 +77,7 @@ public class MyActService {
         List<MyActPostResponseDto> list = new ArrayList<>();
         List<Application> postList = applicationRepository.findAllByMemberId(member.getId()).orElse(null);
         if (postList == null) {
+            log.info("MyActService postList NO APPLICATION");
             return ResponseDto.fail("NO APPLICATION", "신청 내역이 존재하지 않습니다.");
         }
         for (Application application : postList) {
