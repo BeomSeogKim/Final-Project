@@ -69,7 +69,6 @@ public class OAuthService {
         String kakaoId = kakaoUserInfo.getId();
         Member kakaoUser = memberRepository.findByUserId(kakaoId)
                 .orElse(null);
-
         if (kakaoUser == null) {
             // 회원가입
             String nickname = kakaoUserInfo.getNickname();

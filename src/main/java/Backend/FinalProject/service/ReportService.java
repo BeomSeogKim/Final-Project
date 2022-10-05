@@ -8,6 +8,7 @@ import Backend.FinalProject.dto.request.ReportDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ReportService {
 
     private final MemberRepository memberRepository;
@@ -25,11 +27,13 @@ public class ReportService {
     @Transactional
     public  ResponseDto<?> reportUser(Long memberId, ReportDto reportDto, HttpServletRequest request) {
         // 토큰 유효성 검사
+        // todo
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
         // 신고할 회원 찾기
         Member reportMember = memberRepository.findById(memberId).orElse(null);
         if (reportMember == null) {
+            log.info("ReportService reportUser NOT_FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 회원을 찾을 수 없습니다.");
         }
 
