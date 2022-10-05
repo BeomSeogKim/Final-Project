@@ -18,6 +18,7 @@ import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.RefreshTokenRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGR
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -75,20 +77,27 @@ public class MemberService {
 
         // null 값 및 공백이 있는 값 체크하기
         if (userId == null || password == null || nickname == null) {
-
+            log.info("MemberService createMember NULL_DATA");
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (userId.trim().isEmpty() || password.trim().isEmpty() || nickname.trim().isEmpty()) {
+            log.info("MemberService createMember EMPTY_DATA");
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
         // 비밀번호 및 비밀번호 확인 일치 검사
-        if (!password.equals(passwordCheck))
+        if (!password.equals(passwordCheck)) {
+            log.info("MemberService createMember DOUBLE-CHECK_ERROR");
             return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
+        }
         // 아이디 중복검사
-        if (!isPresentId(userId).isSuccess())
+        if (!isPresentId(userId).isSuccess()) {
+            log.info("MemberService createMember ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 아이디 입니다.");
+        }
         // 닉네임 중복검사
-        if (!isPresentNickname(nickname).isSuccess())
+        if (!isPresentNickname(nickname).isSuccess()) {
+            log.info("MemberService createMember ALREADY EXIST-NICKNAME");
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
+        }
         // 이미지를 업로드 하지 않을 시 기본 이미지 설정
         if (imgFile == null || imgFile.isEmpty()) {
             imgUrl = baseImage;
@@ -100,13 +109,13 @@ public class MemberService {
         }
 
         if (requiredAgreement.equals("false")) {
+            log.info("MemberService createMember NOT ALLOWED");
             return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
         }
         if (requiredAgreement.equals("true")) {
             setRequiredAgreement = REQUIRED_AGREE;
         }
         if (marketingAgreement.equals("true")) {
-
             setMarketingAgreement = MARKETING_AGREE;
         }
 
@@ -143,9 +152,11 @@ public class MemberService {
         Member member = isPresentMember(loginRequestDto.getUserId());
 
         if (member == null) {
+            log.info("MemberService login INVALID_ID");
             return ResponseDto.fail("INVALID_ID", "존재하지 않는 아이디입니다.");
         }
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
+            log.info("MemberService login INVALID_PASSWORD");
             return ResponseDto.fail("INVALID_PASSWORD", "잘못된 비밀번호 입니다.");
         }
 
@@ -178,8 +189,10 @@ public class MemberService {
         Member findMember = memberRepository.findById(member.getId()).get();
 
         if (nickname == null) {
+            log.info("MemberService updateMember NULL_DATA");
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (nickname.trim().isEmpty()) {
+            log.info("MemberService updateMember EMPTY_DATA");
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
@@ -231,18 +244,23 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
-        if (!passwordEncoder.matches(password, member.getPassword()))
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            log.info("MemberService updateMemberPassword PASSWORD_ERROR");
             return ResponseDto.fail("PASSWORD_ERROR", "기존 비밀번호가 일치하지 않습니다");
+        }
 
         if (password == null || updatePassword == null || UpdatePasswordCheck == null) {
-
+            log.info("MemberService updateMemberPassword NULL_DATA");
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (password.trim().isEmpty() || updatePassword.trim().isEmpty() || UpdatePasswordCheck.trim().isEmpty()) {
+            log.info("MemberService updateMemberPassword EMPTY_DATA");
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
 
-        if (!updatePassword.equals(UpdatePasswordCheck))
+        if (!updatePassword.equals(UpdatePasswordCheck)) {
+            log.info("MemberService updateMemberPassword DOUBLE-CHECK_ERROR");
             return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
+        }
 
         findMember.updatePassword(passwordEncoder.encode(updatePassword));
 
@@ -256,16 +274,21 @@ public class MemberService {
         RefreshToken validateToken = refreshTokenRepository.findByKeyValue(refreshToken).orElse(null);
 
         if (validateToken == null) {
+            log.info("MemberService logout ALREADY LOGOUT");
             return ResponseDto.fail("ALREADY LOGOUT", "이미 로그아웃 하셨습니다.");
         }
 
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken")))
+        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
+            log.info("MemberService logout INVALID TOKEN");
             return ResponseDto.fail("INVALID TOKEN", "토큰 값이 올바르지 않습니다.");
+        }
 
         // 맴버객체 찾아오기
         Member member = tokenProvider.getMemberFromAuthentication();
-        if (null == member)
+        if (null == member) {
+            log.info("MemberService logout MEMBER_NOT_FOUND");
             return ResponseDto.fail("MEMBER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
+        }
         tokenProvider.deleteRefreshToken(member);
 
 
@@ -283,6 +306,7 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).orElse(null);
         if (member == null) {
+            log.info("MemberService signOut DO NOT EXIST");
             return ResponseDto.fail("DO NOT EXIST", "존재하지 않는 회원입니다.");
         }
 
@@ -303,6 +327,7 @@ public class MemberService {
     public ResponseDto<String> isPresentId(String id) {
         Optional<Member> userId = memberRepository.findByUserId(id);
         if (userId.isPresent()) {
+            log.info("MemberService isPresentId ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 회원 아이디입니다.");
         } else return ResponseDto.success("사용 가능한 아이디입니다.");
     }
@@ -311,6 +336,7 @@ public class MemberService {
     public ResponseDto<String> isPresentNickname(String nickname) {
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
         if (findNickname.isPresent()) {
+            log.info("MemberService isPresentId ALREADY EXIST-NICKNAME");
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임입니다.");
         } else return ResponseDto.success("사용 가능한 닉네임입니다.");
     }
