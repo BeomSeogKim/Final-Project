@@ -105,7 +105,8 @@ public class ChatRoomService {
             return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
         }
 
-        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageable);
+//        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(chatRoom,chatMember.getCreatedAt(),pageable);
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomIdOrderByCreatedAtAsc(roomId);
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
         for (ChatMessage chatMessage : chatMessageList) {
