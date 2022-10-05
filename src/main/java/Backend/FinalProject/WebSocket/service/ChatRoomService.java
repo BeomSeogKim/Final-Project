@@ -5,6 +5,7 @@ import Backend.FinalProject.WebSocket.ChatRoomDto;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageInfoDto;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageResponse;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatRoomListDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
@@ -14,7 +15,10 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,7 +92,7 @@ public class ChatRoomService {
     }
 
 
-    public ResponseDto<?> getMessage(Long roomId, Pageable pageable, HttpServletRequest request) {
+    public ResponseDto<?> getMessage(Long roomId, Integer pageNum, Pageable pageable, HttpServletRequest request) {
         ResponseDto<?> chkResponse = validation.validateCheck(request);
         if (!chkResponse.isSuccess())
             return chkResponse;
@@ -105,8 +109,9 @@ public class ChatRoomService {
             return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
         }
 
+        PageRequest pageRequest = PageRequest.of(pageNum, 50, Sort.by(Sort.Direction.ASC,"createdAt"));
         List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(chatRoom,chatMember.getCreatedAt(),pageable);
-//        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomIdOrderByCreatedAtAsc(roomId);
+        Page<ChatMessage> chatPage = chatMessageRepository.findByChatRoom(chatRoom, pageRequest);
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
         for (ChatMessage chatMessage : chatMessageList) {
@@ -119,7 +124,16 @@ public class ChatRoomService {
                             .build()
             );
         }
-        return ResponseDto.success(chatMessageResponses);
+        ChatMessageInfoDto chatMessageInfoDto = ChatMessageInfoDto.builder()
+                .chatRoomTitle(chatRoom.getName())
+                .chatMessageList(chatMessageResponses)
+                .currentPage(pageNum)
+                .totalPage(chatPage.getTotalPages() - 1)
+                .isFirstPage(chatPage.isFirst())
+                .totalMessage(chatPage.getTotalElements())
+                .hasNextPage(chatPage.hasNext())
+                .build();
+        return ResponseDto.success(chatMessageInfoDto);
     }
 
     public ResponseDto<?> getRooms(HttpServletRequest request) {
