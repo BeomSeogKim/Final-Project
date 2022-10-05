@@ -22,6 +22,8 @@ import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.XSlf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +41,7 @@ import static java.time.LocalDate.now;
 @RestController
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
@@ -132,13 +135,16 @@ public class PostService {
                 request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null ||
                 placeX == null || placeY == null || placeName == null
         ) {
+            log.info("PostService createPost NULL_DATA");
             return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
         } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty() ||
                 placeName.trim().isEmpty()) {
+            log.info("PostService createPost EMPTY_DATA");
             return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
         }
         // 최대 정원의 수는 최소 3명에서 최대 5명
         if (maxNum <= 2 || maxNum >= 6) {
+            log.info("PostService createPost MAXNUM ERROR");
             return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
         }
 
@@ -149,21 +155,25 @@ public class PostService {
             endDate = time.stringToLocalDate(request.getEndDate());
             dDay = time.stringToLocalDate(request.getDDay());
         } catch (Exception e) {
+            log.info("PostService createPost INVALID TYPE");
             return ResponseDto.fail("INVALID TYPE", "날짜 형식을 확인해주세요");
         }
 
         // 모집 시작 날짜가 현재보다 이전일 경우 에러 처리
         if (startDate.isBefore(now()) || endDate.isBefore(now()) || dDay.isBefore(now())) {
+            log.info("PostService createPost WRONG DATE");
             return ResponseDto.fail("WRONG DATE", "현재보다 이전 날짜를 택할 수 없습니다.");
         }
 
         // 모집 마감일자, 모집일이 모집 시작일자보다 이전일 경우 에러처리
         if (endDate.isBefore(startDate) || dDay.isBefore(startDate)) {
+            log.info("PostService createPost WRONG DATE");
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
         // 모집 일자가 모집 마감일보다 이전일 경우 에러처리
         if (dDay.isBefore(endDate)) {
+            log.info("PostService createPost WRONG DATE");
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
@@ -241,6 +251,7 @@ public class PostService {
 
         Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
         if (null == post) {
+            log.info("PostService getPost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
         List<Comment> commentList = commentRepository.findAllByPost(post);
@@ -303,6 +314,7 @@ public class PostService {
 
         Post post = isPresentPost(id);
         if (null == post) {
+            log.info("PostService updatePost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
@@ -320,6 +332,7 @@ public class PostService {
 
         // 최대 정원은 3명에서 5명
         if (maxNum <= 2 || maxNum >= 6) {
+            log.info("PostService updatePost MAXNUM ERROR");
             return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
         }
 
@@ -330,21 +343,25 @@ public class PostService {
             endDate = time.stringToLocalDate(postUpdateRequestDto.getEndDate());
             dDay = time.stringToLocalDate(postUpdateRequestDto.getDDay());
         } catch (Exception e) {
+            log.info("PostService updatePost INVALID TYPE");
             return ResponseDto.fail("INVALID TYPE", "날짜 형식을 확인해주세요");
         }
 
         // 모집 시작 날짜가 현재보다 이전일 경우 에러 처리
         if (startDate.isBefore(now()) || endDate.isBefore(now()) || dDay.isBefore(now())) {
+            log.info("PostService updatePost WRONG DATE");
             return ResponseDto.fail("WRONG DATE", "현재보다 이전 날짜를 택할 수 없습니다.");
         }
 
         // 모집 마감일자, 모집일이 모집 시작일자보다 이전일 경우 에러처리
         if (endDate.isBefore(startDate) || dDay.isBefore(startDate)) {
+            log.info("PostService updatePost WRONG DATE");
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
         // 모집 일자가 모집 마감일보다 이전일 경우 에러처리
         if (dDay.isBefore(endDate)) {
+            log.info("PostService updatePost WRONG DATE");
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
@@ -389,10 +406,12 @@ public class PostService {
         // 개사굴 유효성 검사e
         Post post = isPresentPost(id);
         if (null == post) {
+            log.info("PostService deletePost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
-        if (post.validateMember(member)) {
+        if (!post.validateMember(member)) {
+            log.info("PostService deletePost BAD_REQUEST");
             return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
         }
 
@@ -412,11 +431,13 @@ public class PostService {
         Post post = isPresentPost(postId);
 
         if (null == post) {
+            log.info("PostService addWish NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
         // 검증 로직 -- 이미 좋아요를 누를 경우 중복 좋아요 불가.
         WishList isPresentWish = wishListRepository.findByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
         if (isPresentWish != null) {
+            log.info("PostService addWish ALREADY LIKE");
             return ResponseDto.fail("ALREADY LIKE", "이미 좋아요를 누르셨습니다.");
         }
 
@@ -442,11 +463,13 @@ public class PostService {
         Post post = isPresentPost(postId);
 
         if (null == post) {
+            log.info("PostService removeWish NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
         WishList isPresentWish = wishListRepository.findByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
         if (isPresentWish == null) {
+            log.info("PostService removeWish NOT_FOUND");
             return ResponseDto.fail("NOT FOUND", "찜 목록에 해당 게시글이 없습니다.");
         }
         wishListRepository.deleteByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);

@@ -4,6 +4,7 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.UserDetailsImpl;
 import Backend.FinalProject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -19,6 +19,8 @@ import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.XSlf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +30,9 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class MyPageService {
-
+    // todo
     private final TokenProvider tokenProvider;
 
     private final ApplicationRepository applicationRepository;
@@ -55,6 +58,7 @@ public class MyPageService {
 
         List<Application> applicationList = applicationRepository.findAllByMemberId(member.getId()).orElse(null);
         if (applicationList == null) {
+            log.info("MyPageService application NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "신청한 모임이 없습니다.");
         }
 
@@ -76,15 +80,13 @@ public class MyPageService {
 
         List<Application> applicationList = applicationRepository.findAllByMemberId(member.getId()).orElse(null);
         if (applicationList == null) {
+            log.info("MyPageService applicationList NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "신청한 모임이 없습니다.");
         }
 
         List<MyPageDto> mypageListDto = new ArrayList<>();
 
         for (Application application : applicationList) {
-            if (application.getStatus() == null) {
-                return ResponseDto.fail("NOT FOUND", "참여중인 모임이 없습니다");
-            }
             if (application.getStatus().equals(ApplicationState.APPROVED)) {
                 mypageListDto.add(
                         MyPageDto.builder()
@@ -131,7 +133,8 @@ public class MyPageService {
         Member member = (Member) responseDto.getData();
 
         List<Post> postListById = postRepository.findAllByMemberId(member.getId());
-        if (postListById.isEmpty()) {
+        if (postListById.isEmpty() || equals(null)) {
+            log.info("MyPageService leader NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "주최한 모임이 없습니다");
         }
 
@@ -167,6 +170,10 @@ public class MyPageService {
         Member member = (Member) responseDto.getData();
 
         List<WishList> wishLists = wishListRepository.findAllByMemberId(member.getId()).orElse(null);
+        if (wishLists.isEmpty() || equals(null)) {
+            log.info("MyPageService addWish NOT FOUND");
+            return ResponseDto.fail("NOT FOUND", "찜한 모임이 없습니다");
+        }
         List<MyPageDto> wishListDto = new ArrayList<>();
 
         for (WishList wishList : wishLists) {
@@ -212,10 +219,12 @@ public class MyPageService {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         Member member = optionalMember.orElse(null);
         if (member == null) {
+            log.info("MyPageService getMemberMypage NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 고객은 존재하지 않습니다.");
         }
         List<Application> memberAplicationInfo = applicationRepository.findAllByMemberIdAndStatus(memberId,ApplicationState.APPROVED);
         if (memberAplicationInfo == null) {
+            log.info("MyPageService getMemberMypage NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "참가했던 모임이 없습니다.");
         }
         int aplicationCount=0;
@@ -254,10 +263,12 @@ public class MyPageService {
         Optional<Member> optionalMember = memberRepository.findById(memberId);
         Member member = optionalMember.orElse(null);
         if (member == null) {
+            log.info("MyPageService getMemberPost NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 고객은 존재하지 않습니다.");
         }
         List<Post> postListById = postRepository.findAllByMemberId(member.getId());
-        if (postListById.isEmpty()) {
+        if (postListById.isEmpty() || equals(null)) {
+            log.info("MyPageService getMemberPost NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "주최한 모임이 없습니다");
         }
 
