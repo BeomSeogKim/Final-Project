@@ -1,5 +1,6 @@
 package Backend.FinalProject.WebSocket.domain;
 
+import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.Timestamped;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,10 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.UUID;
 
 import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @Builder
@@ -21,19 +21,21 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class ChatRoom extends Timestamped {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
     private Long id;
-    private String roomId;
+
     @Column(nullable = false)
     private String name;
+
+    private int numOfMember;
+
+    @OneToOne(fetch = LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     @OneToMany(mappedBy ="chatRoom", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMemberList;
 
-    public static ChatRoom create(String name) {
-        ChatRoom chatRoom = new ChatRoom();
-        chatRoom.roomId = UUID.randomUUID().toString();
-        chatRoom.name = name;
-        return chatRoom;
+    public void addMember() {
+        this.numOfMember++;
     }
 }

@@ -49,6 +49,7 @@ public class AmazonS3Service {
             amazonS3Client.putObject(new PutObjectRequest(bucketName + filePath, fileName, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));        // S3에 업로드
         } catch (IOException e) {
+            log.info("AmazonS3Service uploadFile UPLOAD-FAILED");
             return ResponseDto.fail("UPLOAD-FAILED","파일 업로드 실패");
         }
         ImageFile imageMapper = ImageFile.builder()                         // 업로드한 파일들을 관리할 테이블에 파일이름, URL넣기

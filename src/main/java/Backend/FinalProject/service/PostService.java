@@ -2,6 +2,12 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Time;
 import Backend.FinalProject.Tool.Validation;
+import Backend.FinalProject.WebSocket.domain.ChatMember;
+import Backend.FinalProject.WebSocket.domain.ChatMessage;
+import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
+import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
+import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
@@ -22,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +53,55 @@ public class PostService {
 
     private final FilesRepository filesRepository;
     private final Validation validation;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMemberRepository chatMemberRepository;
+    private final ChatMessageRepository chatMessageRepository;
     Time time = new Time();
 
     String folderName = "/postImage";
-    String baseImage = "https://s3.ap-northeast-2.amazonaws.com/tommy-bucket-final/postImage/948c5814-3746-4873-95ce-6743aeeec07bbaseImage.jpeg";
+    String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
+
+    // 채팅방 생성
+    @Transactional
+    public ChatRoom createChatRoom(Post post) {
+        ChatRoom chatRoom = ChatRoom.builder()
+                .id(post.getId())
+                .name(post.getTitle())
+                .post(post)
+                .build();
+        chatRoomRepository.save(chatRoom);
+        return chatRoom;
+    }
+
+    // 채팅방 입장
+    @Transactional
+    public ChatMember createChatMember(Member member, ChatRoom chatRoom) {
+        ChatMember chatMember = ChatMember.builder()
+                .member(member)
+                .chatRoom(chatRoom)
+                .build();
+        chatMemberRepository.save(chatMember);
+        ChatRoom updateChatRoom = chatRoomRepository.findById(chatRoom.getId()).get();
+        assert updateChatRoom != null;
+        updateChatRoom.addMember();
+        return chatMember;
+    }
+
+    // 환영 인사
+    @Transactional
+    public ChatMessage createChatMessage(Member member, ChatRoom chatRoom) {
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
+        ChatMessage chatMessage = ChatMessage.builder()
+                .message(member.getNickname() + "님이 입장하셨습니다.")
+                .member(member)
+                .chatRoom(chatRoom)
+                .sendTime(now)
+                .build();
+        chatMessageRepository.save(chatMessage);
+        return chatMessage;
+    }
+
+
 
     // 게시글 등록
     @Transactional
@@ -128,7 +181,7 @@ public class PostService {
                 .title(title)
                 .content(content)
                 .maxNum(maxNum)
-                .currentNum(0)              // 현재 모집된 정원의 수
+                .currentNum(1)              // 현재 모집된 정원의 수
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)
@@ -145,9 +198,16 @@ public class PostService {
 
         postRepository.save(post);
 
-
+        // 채팅방 생성
+        ChatRoom chatRoom = createChatRoom(post);
+        // 방장 채팅방 자동 입장
+        ChatMember chatMember = createChatMember(member, chatRoom);
+        // 방장 알림 메세지 자동 기입
+        ChatMessage chatMessage = createChatMessage(member, chatRoom);
         return ResponseDto.success("게시글 작성이 완료되었습니다.");
     }
+
+
 
     // 게시글 전체 조회
     public ResponseDto<?> getAllPost() {
