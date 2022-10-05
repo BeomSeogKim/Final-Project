@@ -38,7 +38,7 @@ public class ChatRoomController {
 
     // 전체 채팅 내역 조회
     @GetMapping("/message")
-    public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId, @PageableDefault(size = 30) Pageable pageable, HttpServletRequest request) {
+    public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId, @PageableDefault(size = 10) Pageable pageable, HttpServletRequest request) {
         return chatRoomService.getMessage(roomId, pageable, request);
     }
 
