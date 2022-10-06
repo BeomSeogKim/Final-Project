@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.SignUpRoot.normal;
@@ -36,7 +37,8 @@ import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
-import static Backend.FinalProject.domain.enums.RequiredAgreement.*;
+import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
+import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
 
 @Slf4j
 @Service
@@ -164,7 +166,7 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) throws UnsupportedEncodingException {
         Member member = isPresentMember(loginRequestDto.getUserId());
 
         if (member == null) {
@@ -176,6 +178,7 @@ public class MemberService {
             return ResponseDto.fail("INVALID_PASSWORD", "잘못된 비밀번호 입니다.");
         }
 
+        byte[] bytes = member.getNickname().getBytes();
         // 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         // 헤더에 토큰 담기
@@ -183,6 +186,7 @@ public class MemberService {
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", member.getImgUrl());
         response.addHeader("Id",member.getUserId());
+        response.addHeader("nickname", String.valueOf(bytes));
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공!");
     }

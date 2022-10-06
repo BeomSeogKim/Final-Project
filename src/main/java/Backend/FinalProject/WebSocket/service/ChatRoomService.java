@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -109,15 +111,17 @@ public class ChatRoomService {
             return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
         }
 
-        PageRequest pageRequest = PageRequest.of(pageNum, 50, Sort.by(Sort.Direction.ASC,"createdAt"));
-        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(chatRoom,chatMember.getCreatedAt(),pageable);
-        Page<ChatMessage> chatPage = chatMessageRepository.findByChatRoom(chatRoom, pageRequest);
+        PageRequest pageRequest = PageRequest.of(pageNum, 50, Sort.by(DESC,"createdAt"));
+        List<ChatMessage> chatMessageList =  chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageable);
+        Page<ChatMessage> chatPage =  chatMessageRepository.findAllByChatRoomAndModifiedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getModifiedAt(),pageable);
+//        Page<ChatMessage> chatPage = chatMessageRepository.findByChatRoom(chatRoom, pageRequest);
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
         for (ChatMessage chatMessage : chatMessageList) {
             chatMessageResponses.add(
                     ChatMessageResponse.builder()
                             .sender(chatMessage.getMember().getNickname())
+                            .senderId(chatMessage.getMember().getUserId())
                             .message(chatMessage.getMessage())
                             .sendTime(chatMessage.getSendTime())
                             .img(chatMessage.getMember().getImgUrl())
@@ -132,6 +136,7 @@ public class ChatRoomService {
                 .isFirstPage(chatPage.isFirst())
                 .totalMessage(chatPage.getTotalElements())
                 .hasNextPage(chatPage.hasNext())
+                .hasPreviousPage(chatPage.hasPrevious())
                 .build();
         return ResponseDto.success(chatMessageInfoDto);
     }

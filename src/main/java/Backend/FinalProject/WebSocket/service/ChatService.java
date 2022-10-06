@@ -36,8 +36,8 @@ public class ChatService {
     // 채팅방으로 메세지 보내기
     public ResponseDto<?> sendMessage(ChatRequestDto message, String token) {
         // 토큰으로 유저 찾기
-        String id = tokenProvider.getMemberIdByToken(token);
-        Member member = memberRepository.findByUserId(id).orElse(null);
+        String nickname = tokenProvider.getMemberIdByToken(token);        // 닉네임이 받아와짐
+        Member member = memberRepository.findByNickname(nickname).orElse(null);
         if (member == null) {
             log.info("Invalid Token");
             return ResponseDto.fail("INVALID TOKEN", "유효하지 않은 토큰입니다.");
@@ -63,20 +63,25 @@ public class ChatService {
 
         ChatMessageDto chatMessageDto = ChatMessageDto.builder()
                 .sender(member.getNickname())
+                .senderId(member.getUserId())
+                .imgUrl(member.getImgUrl())
                 .message(message.getMessage())
                 .sendTime(now)
                 .build();
-        // 메세지 송부
-        messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
+        if (message.getMessage() != null) {
+            // 메세지 송부
+            messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
 
-        // 보낸 메세지 저장
-        ChatMessage chatMessage = ChatMessage.builder()
-                .chatRoom(chatRoom)
-                .member(member)
-                .sendTime(now)
-                .message(message.getMessage())
-                .build();
-        chatMessageRepository.save(chatMessage);
+            // 보낸 메세지 저장
+            ChatMessage chatMessage = ChatMessage.builder()
+                    .chatRoom(chatRoom)
+                    .member(member)
+                    .sendTime(now)
+                    .message(message.getMessage())
+                    .build();
+            chatMessageRepository.save(chatMessage);
+
+        }
         return ResponseDto.success("메세지 보내기 성공");
     }
 }

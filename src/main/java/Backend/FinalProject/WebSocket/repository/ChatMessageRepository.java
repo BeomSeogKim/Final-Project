@@ -11,9 +11,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    Page<ChatMessage> findByChatRoom(ChatRoom chatRoom, Pageable pageable);
+//    Page<ChatMessage> findByChatRoom(ChatRoom chatRoom, Pageable pageable);
+    Page<ChatMessage> findAllByChatRoomAndModifiedAtGreaterThanEqualOrderByCreatedAtDesc(ChatRoom chatRoom, LocalDateTime modifiedAt, Pageable pageable);
 
-    List<ChatMessage> findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(ChatRoom chatRoom, LocalDateTime createdAt, Pageable pageable);
+    List<ChatMessage> findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(ChatRoom chatRoom, LocalDateTime createdAt, Pageable pageable);
 
     void deleteAllByChatRoom(ChatRoom chatRoom);
 }

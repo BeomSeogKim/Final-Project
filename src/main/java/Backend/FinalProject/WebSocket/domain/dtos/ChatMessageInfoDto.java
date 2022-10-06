@@ -15,5 +15,6 @@ public class ChatMessageInfoDto {
     private Long totalMessage;
     private boolean isFirstPage;
     private boolean hasNextPage;
+    private boolean hasPreviousPage;
 
 }

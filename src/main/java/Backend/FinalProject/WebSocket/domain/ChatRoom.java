@@ -38,4 +38,8 @@ public class ChatRoom extends Timestamped {
     public void addMember() {
         this.numOfMember++;
     }
+
+    public void updateName(String title) {
+        this.name = title;
+    }
 }

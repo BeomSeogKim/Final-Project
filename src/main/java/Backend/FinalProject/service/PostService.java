@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,6 +59,8 @@ public class PostService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final EntityManager em;
+
     Time time = new Time();
 
     String folderName = "/postImage";
@@ -364,6 +367,9 @@ public class PostService {
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
+        ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
+        chatRoom.updateName(title);
+
         post.updateJson(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
 
         if (imgFile == null || imgFile.isEmpty()) {
@@ -385,7 +391,6 @@ public class PostService {
                 post.updateImgUrl(imgUrl);
             }
         }
-
 
         return ResponseDto.success("업데이트가 완료되었습니다.");
     }
