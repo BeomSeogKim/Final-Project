@@ -1,11 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.WebSocket.domain.ChatMember;
-import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
-import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
-import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
@@ -24,8 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,42 +28,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ApplicationService {
 
-//    private final TokenProvider tokenProvider;
+    // Dependency Injection
     private final Validation validation;
     private final ApplicationRepository applicationRepository;
     private final PostRepository postRepository;
-    private final ChatMemberRepository chatMemberRepository;
-    private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
-
-    // 채팅방 입장
-    @Transactional
-    public ChatMember createChatMember(Member member, ChatRoom chatRoom) {
-        ChatMember chatMember = ChatMember.builder()
-                .member(member)
-                .chatRoom(chatRoom)
-                .build();
-        chatMemberRepository.save(chatMember);
-        chatRoom.addMember();
-        return chatMember;
-    }
-
-    // 환영 인사
-    @Transactional
-    public ChatMessage createChatMessage(Member member, ChatRoom chatRoom) {
-        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
-        ChatMessage chatMessage = ChatMessage.builder()
-                .message(member.getNickname() + "님이 입장하셨습니다.")
-                .member(member)
-                .chatRoom(chatRoom)
-                .sendTime(now)
-                .build();
-        chatMessageRepository.save(chatMessage);
-        return chatMessage;
-    }
-
-
-
+    private final AutomatedChatService automatedChatService;
 
     // 게시글 참여 요청
     public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationRequestDto, HttpServletRequest request) {
@@ -201,9 +165,9 @@ public class ApplicationService {
             return ResponseDto.fail("NO CHAT ROOM", "입장 가능한 채팅방이 존재하지 않습니다.");
         }
         // 채팅방 참여
-        createChatMember(application.getMember(), chatRoom);
+        automatedChatService.createChatMember(application.getMember(), chatRoom);
         // 채팅 메세지
-        createChatMessage(application.getMember(), chatRoom);
+        automatedChatService.createChatMessage(application.getMember(), chatRoom);
 
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }

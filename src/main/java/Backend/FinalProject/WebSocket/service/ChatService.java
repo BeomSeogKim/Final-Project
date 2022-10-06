@@ -34,7 +34,12 @@ public class ChatService {
     private final ChatMemberRepository chatMemberRepository;
 
 
-    // 채팅방으로 메세지 보내기
+    /**
+     * 채팅 메세지 보내기
+     * @param message : 방정보와 메세지 정보가 담겨 있습니다.
+     * @param accessToken : 회원 검증을 위한 AccessToken 입니다.
+     * @return : 메세지 보내기 및 보낸 메세지 저장.
+     */
     public ResponseDto<?> sendMessage(ChatInformationDto message, String accessToken) {
 
         Member member = getMember(accessToken);
