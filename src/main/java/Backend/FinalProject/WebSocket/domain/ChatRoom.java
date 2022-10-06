@@ -28,7 +28,7 @@ public class ChatRoom extends Timestamped {
 
     private int numOfMember;
 
-    @OneToOne(fetch = LAZY)
+    @OneToOne(fetch = LAZY, cascade = ALL)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 

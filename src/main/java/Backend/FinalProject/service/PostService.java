@@ -409,12 +409,16 @@ public class PostService {
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
-        if (!post.validateMember(member)) {
+        if (!post.getMember().getUserId().equals(member.getUserId())) {
             log.info("PostService deletePost BAD_REQUEST");
             return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
         }
 
+        ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
+        chatMessageRepository.deleteAllByChatRoom(chatRoom);
+        chatRoomRepository.delete(chatRoom);
         postRepository.delete(post);
+
         return ResponseDto.success("게시글이 삭제되었습니다.");
     }
 
