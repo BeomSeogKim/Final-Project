@@ -23,7 +23,6 @@ import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.extern.slf4j.XSlf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -191,7 +190,7 @@ public class PostService {
                 .title(title)
                 .content(content)
                 .maxNum(maxNum)
-                .currentNum(1)              // 현재 모집된 정원의 수
+                .currentNum(0)              // 현재 모집된 정원의 수
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)
