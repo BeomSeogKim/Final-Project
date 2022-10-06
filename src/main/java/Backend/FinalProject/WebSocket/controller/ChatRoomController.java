@@ -16,19 +16,6 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
-//    // 모든 채팅방 목록 반환
-//    @GetMapping("/rooms")
-//    @ResponseBody
-//    public ResponseDto<?> getAllRooms(HttpServletRequest request) {
-//        return chatRoomService.findAllRoom(request);
-//    }
-
-//    // 채팅방 생성
-//    @PostMapping("/room")
-//    public ChatRoom createRoom(@RequestParam String name) {
-//        return chatRoomService.createChatRoom(name);
-//    }
-
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
     @ResponseBody
@@ -38,7 +25,7 @@ public class ChatRoomController {
 
     // 전체 채팅 내역 조회
     @GetMapping("/message")
-    public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId, @PageableDefault(size = 30) Pageable pageable, HttpServletRequest request) {
+    public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId, @PageableDefault(size = 50) Pageable pageable, HttpServletRequest request) {
         return chatRoomService.getMessage(roomId, pageable, request);
     }
 
