@@ -111,7 +111,7 @@ public class ChatRoomService {
             return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
         }
 
-        PageRequest pageRequest = PageRequest.of(pageNum, 50, Sort.by(DESC,"createdAt"));
+        PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
         List<ChatMessage> chatMessageList =  chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageable);
         Page<ChatMessage> chatPage =  chatMessageRepository.findAllByChatRoomAndModifiedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getModifiedAt(),pageable);
 //        Page<ChatMessage> chatPage = chatMessageRepository.findByChatRoom(chatRoom, pageRequest);
