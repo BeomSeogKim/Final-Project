@@ -34,7 +34,7 @@ public class PostController {
      * 전체 게시글 조회
      */
     @GetMapping("/post/all")
-    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum, @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum, @PageableDefault(size = 9) Pageable pageable) {
         System.out.println(pageNum);
         return postService.getAllPost(pageNum, pageable);
     }

@@ -231,7 +231,7 @@ public class PostService {
     public ResponseDto<?> getAllPost(Integer pageNum, Pageable pageable) {
 
         List<Post> all = postRepository.findAllByOrderByCreatedAtDesc(pageable);
-        PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
+        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"createdAt"));
         Page<Post> pageAll = postRepository.findAllByOrderByModifiedAtDesc(pageable);
 //        List<Post> page = postRepository.findAllOrderByModifiedAtDesc()
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
