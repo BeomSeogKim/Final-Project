@@ -4,10 +4,7 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
-import Backend.FinalProject.domain.enums.AgeCheck;
-import Backend.FinalProject.domain.enums.Gender;
-import Backend.FinalProject.domain.enums.MarketingAgreement;
-import Backend.FinalProject.domain.enums.RequiredAgreement;
+import Backend.FinalProject.domain.enums.*;
 import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -37,6 +34,7 @@ import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
+import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
 
@@ -159,6 +157,7 @@ public class MemberService {
                 .ageCheck(setAgeCheck)
                 .requiredAgreement(setRequiredAgreement)
                 .marketingAgreement(setMarketingAgreement)
+                .regulation(UNREGULATED)
                 .build();
 
         memberRepository.save(member);
