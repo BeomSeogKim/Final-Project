@@ -9,6 +9,7 @@ import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
+import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
@@ -41,6 +42,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static Backend.FinalProject.domain.enums.Category.*;
+import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static java.time.LocalDate.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -195,6 +198,22 @@ public class PostService {
             imgUrl = imageFile.getUrl();
         }
 
+        Category category = ETC;
+        if (request.getCategory() == null || request.getCategory().equals("etc")) {
+            category = ETC;
+        } else if (request.getCategory().equals("exercise")) {
+            category = EXERCISE;
+        } else if (request.getCategory().equals("travel")) {
+            category = TRAVEL;
+        } else if (request.getCategory().equals("reading")) {
+            category = READING;
+        } else if (request.getCategory().equals("study")) {
+            category = STUDY;
+        } else if (request.getCategory().equals("religion")) {
+            category = RELIGION;
+        } else if (request.getCategory().equals("online")) {
+            category = ONLINE;
+        }
         Post post = Post.builder()
                 .title(title)
                 .content(content)
@@ -212,6 +231,8 @@ public class PostService {
                 .placeName(placeName)
                 .detailAddress(detailAddress)
                 .dDay(dDay)                      // 남은 모집일자
+                .category(category)
+                .regulation(UNREGULATED)
                 .build();
 
         postRepository.save(post);
