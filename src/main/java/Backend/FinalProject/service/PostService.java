@@ -16,6 +16,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
+import Backend.FinalProject.dto.response.PostResponseDtoPage;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -23,6 +24,10 @@ import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.time.LocalDate.now;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequiredArgsConstructor
@@ -222,9 +228,12 @@ public class PostService {
 
 
     // 게시글 전체 조회
-    public ResponseDto<?> getAllPost() {
+    public ResponseDto<?> getAllPost(Integer pageNum, Pageable pageable) {
 
-        List<Post> all = postRepository.findAll();
+        List<Post> all = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
+        Page<Post> pageAll = postRepository.findAllByOrderByModifiedAtDesc(pageable);
+//        List<Post> page = postRepository.findAllOrderByModifiedAtDesc()
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         for (Post post : all) {
@@ -243,7 +252,16 @@ public class PostService {
                 );
             }
         }
-        return ResponseDto.success(PostResponseDtoList);
+        PostResponseDtoPage postList = PostResponseDtoPage.builder()
+                .postList(PostResponseDtoList)
+                .totalPage(pageAll.getTotalPages() - 1)
+                .currentPage(pageNum)
+                .totalPost(pageAll.getTotalElements())
+                .isFirstPage(pageAll.isFirst())
+                .hasNextPage(pageAll.hasNext())
+                .hasPreviousPage(pageAll.hasPrevious())
+                .build();
+        return ResponseDto.success(postList);
     }
 
     // 게시글 상세 조회
