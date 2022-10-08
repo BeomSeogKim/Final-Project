@@ -4,6 +4,7 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.ImageFile;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.RefreshToken;
+import Backend.FinalProject.domain.SignOutMember;
 import Backend.FinalProject.domain.enums.*;
 import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -14,6 +15,7 @@ import Backend.FinalProject.dto.request.SignupRequestDto;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.RefreshTokenRepository;
+import Backend.FinalProject.repository.SignOutRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ public class MemberService {
     private final AmazonS3Service amazonS3Service;
     private final FilesRepository fileRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final SignOutRepository signOutRepository;
     private final EntityManager em;
 
     private final Validation validation;
@@ -334,8 +337,31 @@ public class MemberService {
             amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
         }
         refreshTokenRepository.deleteById(member.getUserId());
+
+        SignOutMember signOutMember = SignOutMember.builder()
+                .userId(member.getUserId())
+                .password(member.getPassword())
+                .nickname(member.getNickname())
+                .minAge(member.getMinAge())
+                .imgUrl(member.getImgUrl())
+                .userRole(member.getUserRole())
+                .root(member.getRoot())
+                .gender(member.getGender())
+                .requiredAgreement(member.getRequiredAgreement())
+                .marketingAgreement(member.getMarketingAgreement())
+                .ageCheck(member.getAgeCheck())
+                .regulation(member.getRegulation())
+//                .chatMember(member.getChatMember())
+//                .postList(member.getPostList())
+//                .commentList(member.getCommentList())
+//                .wishLists(member.getWishLists())
+//                .applicationList(member.getApplicationList())
+                .build();
+        signOutRepository.save(signOutMember);
+
         member.deleteMember();
         em.merge(member);
+
 
 
         return ResponseDto.success("회원 탈퇴가 성공적으로 수행되었습니다.");
