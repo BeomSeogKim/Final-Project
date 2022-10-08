@@ -186,6 +186,7 @@ public class MemberService {
         response.addHeader("ImgUrl", member.getImgUrl());
         response.addHeader("Id",member.getUserId());
         response.addHeader("nickname", String.valueOf(bytes));
+        response.addHeader("role", String.valueOf(member.getUserRole()));
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공!");
     }

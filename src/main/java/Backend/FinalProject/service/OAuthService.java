@@ -113,6 +113,7 @@ public class OAuthService {
         response.addHeader("ImgUrl", kakaoUser.getImgUrl());
         response.addHeader("Id", kakaoUser.getUserId());
         response.addHeader("nickname", String.valueOf(bytes));
+        response.addHeader("role", String.valueOf(kakaoUser.getUserRole()));
         char[] chars = kakaoUser.getNickname().toCharArray();
 
         return ResponseDto.success( kakaoUser.getNickname()+ "님 로그인 성공");
