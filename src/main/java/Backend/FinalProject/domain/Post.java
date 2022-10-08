@@ -142,4 +142,8 @@ public class Post extends Timestamped{
     public void removeWish() {
         numOfWish--;
     }
+
+    public void disclose() {
+        this.status = CLOSURE;
+    }
 }

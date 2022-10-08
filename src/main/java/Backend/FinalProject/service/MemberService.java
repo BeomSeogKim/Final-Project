@@ -1,10 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.domain.ImageFile;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.RefreshToken;
-import Backend.FinalProject.domain.SignOutMember;
+import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.*;
 import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -12,10 +9,7 @@ import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
 import Backend.FinalProject.dto.request.MemberUpdateDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
-import Backend.FinalProject.repository.FilesRepository;
-import Backend.FinalProject.repository.MemberRepository;
-import Backend.FinalProject.repository.RefreshTokenRepository;
-import Backend.FinalProject.repository.SignOutRepository;
+import Backend.FinalProject.repository.*;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.SignUpRoot.normal;
@@ -53,6 +48,7 @@ public class MemberService {
     private final FilesRepository fileRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final SignOutRepository signOutRepository;
+    private final PostRepository postRepository;
     private final EntityManager em;
 
     private final Validation validation;
@@ -336,6 +332,15 @@ public class MemberService {
             ImageFile deleteImage = fileRepository.findByUrl(member.getImgUrl());
             amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
         }
+        // 회원이 주최함 모임들 닫아주기
+        List<Post> AllPost = postRepository.findAllByMemberId(member.getId());
+        for (Post post : AllPost) {
+            if (post.getStatus() == PostState.RECRUIT) {
+                post.disclose();
+            }
+        }
+
+
         refreshTokenRepository.deleteById(member.getUserId());
 
         SignOutMember signOutMember = SignOutMember.builder()
@@ -344,18 +349,7 @@ public class MemberService {
                 .nickname(member.getNickname())
                 .minAge(member.getMinAge())
                 .imgUrl(member.getImgUrl())
-                .userRole(member.getUserRole())
-                .root(member.getRoot())
-                .gender(member.getGender())
-                .requiredAgreement(member.getRequiredAgreement())
-                .marketingAgreement(member.getMarketingAgreement())
-                .ageCheck(member.getAgeCheck())
                 .regulation(member.getRegulation())
-//                .chatMember(member.getChatMember())
-//                .postList(member.getPostList())
-//                .commentList(member.getCommentList())
-//                .wishLists(member.getWishLists())
-//                .applicationList(member.getApplicationList())
                 .build();
         signOutRepository.save(signOutMember);
 
