@@ -35,6 +35,11 @@ public class ChatRoom extends Timestamped {
     @OneToMany(mappedBy ="chatRoom", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMemberList;
 
+    //== 연관관계 메서드 ==//
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
     public void addMember() {
         this.numOfMember++;
     }

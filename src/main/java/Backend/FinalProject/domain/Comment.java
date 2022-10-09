@@ -37,6 +37,17 @@ public class Comment extends Timestamped{
     @Enumerated(value = STRING)
     private Regulation regulation;
 
+    //== 연관관계 메서드 ==//
+    public void setMember(Member member) {
+        this.member = member;
+        member.getCommentList().add(this);
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+        post.getCommentList().add(this);
+    }
+    
     public void update(String commentDto) {
         this.content = commentDto;
     }
