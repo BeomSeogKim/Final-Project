@@ -13,5 +13,4 @@ public class ChatRoomDto {
     private Long id;
     private Long roomId;
     private String name;
-
 }

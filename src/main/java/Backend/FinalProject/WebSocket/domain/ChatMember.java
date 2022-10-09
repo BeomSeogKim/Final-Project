@@ -29,4 +29,15 @@ public class ChatMember extends Timestamped {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
+
+    //== 연관관계 메서드 ==//
+    public void setMember(Member member) {
+        this.member = member;
+        member.getChatMember().add(this);
+    }
+
+    public void setChatRoom(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
+        chatRoom.getChatMemberList().add(this);
+    }
 }

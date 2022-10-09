@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 
 
 @RestController
@@ -36,7 +37,7 @@ public class MemberController {
     @PostMapping("/member/login")
     public ResponseDto<String> login(
             @RequestBody LoginRequestDto loginRequestDto,
-            HttpServletResponse response) {
+            HttpServletResponse response) throws UnsupportedEncodingException {
         return memberService.login(loginRequestDto, response);
     }
 

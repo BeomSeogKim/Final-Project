@@ -19,6 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
+
 @Slf4j
 @Service
 @Transactional
@@ -78,6 +81,7 @@ public class CommentService {
                 .content(commentDto)
                 .member(member)
                 .post(post)
+                .regulation(UNREGULATED)
                 .build();
 
         commentRepository.save(comment);

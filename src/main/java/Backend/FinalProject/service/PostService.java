@@ -6,6 +6,7 @@ import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.domain.*;
+import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
@@ -13,6 +14,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
+import Backend.FinalProject.dto.response.PostResponseDtoPage;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -20,17 +22,25 @@ import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static Backend.FinalProject.domain.enums.Category.*;
+import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static java.time.LocalDate.now;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +55,12 @@ public class PostService{
     private final WishListRepository wishListRepository;
     private final FilesRepository filesRepository;
     private final Validation validation;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMemberRepository chatMemberRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final EntityManager em;
     private final AutomatedChatService automatedChatService;
+
     Time time = new Time();
     // In
     String folderName = "/postImage";
@@ -113,11 +128,28 @@ public class PostService{
             imgUrl = imageFile.getUrl();
         }
 
+        Category category = ETC;
+        if (request.getCategory() == null || request.getCategory().equals("etc")) {
+            category = ETC;
+        } else if (request.getCategory().equals("exercise")) {
+            category = EXERCISE;
+        } else if (request.getCategory().equals("travel")) {
+            category = TRAVEL;
+        } else if (request.getCategory().equals("reading")) {
+            category = READING;
+        } else if (request.getCategory().equals("study")) {
+            category = STUDY;
+        } else if (request.getCategory().equals("religion")) {
+            category = RELIGION;
+        } else if (request.getCategory().equals("online")) {
+            category = ONLINE;
+        }
         Post post = Post.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
                 .maxNum(request.getMaxNum())
                 .currentNum(1)              // 현재 모집된 정원의 수
+
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)
@@ -130,6 +162,8 @@ public class PostService{
                 .placeName(request.getPlaceName())
                 .detailAddress(request.getDetailAddress())
                 .dDay(dDay)                      // 남은 모집일자
+                .category(category)
+                .regulation(UNREGULATED)
                 .build();
 
         postRepository.save(post);
@@ -160,9 +194,12 @@ public class PostService{
 
 
     // 게시글 전체 조회
-    public ResponseDto<?> getAllPost() {
+    public ResponseDto<?> getAllPost(Integer pageNum, Pageable pageable) {
 
-        List<Post> all = postRepository.findAll();
+        List<Post> all = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"createdAt"));
+        Page<Post> pageAll = postRepository.findAllByOrderByModifiedAtDesc(pageable);
+//        List<Post> page = postRepository.findAllOrderByModifiedAtDesc()
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         for (Post post : all) {
@@ -181,7 +218,16 @@ public class PostService{
                 );
             }
         }
-        return ResponseDto.success(PostResponseDtoList);
+        PostResponseDtoPage postList = PostResponseDtoPage.builder()
+                .postList(PostResponseDtoList)
+                .totalPage(pageAll.getTotalPages() - 1)
+                .currentPage(pageNum)
+                .totalPost(pageAll.getTotalElements())
+                .isFirstPage(pageAll.isFirst())
+                .hasNextPage(pageAll.hasNext())
+                .hasPreviousPage(pageAll.hasPrevious())
+                .build();
+        return ResponseDto.success(postList);
     }
 
     // 게시글 상세 조회
@@ -305,6 +351,9 @@ public class PostService{
             return ResponseDto.fail("WRONG DATE", "날짜 선택을 다시 해주세요");
         }
 
+        ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
+        chatRoom.updateName(title);
+
         post.updateJson(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
 
         if (imgFile == null || imgFile.isEmpty()) {
@@ -326,7 +375,6 @@ public class PostService{
                 post.updateImgUrl(imgUrl);
             }
         }
-
 
         return ResponseDto.success("업데이트가 완료되었습니다.");
     }
@@ -350,12 +398,16 @@ public class PostService{
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
 
-        if (!post.validateMember(member)) {
+        if (!post.getMember().getUserId().equals(member.getUserId())) {
             log.info("PostService deletePost BAD_REQUEST");
             return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
         }
 
+        ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
+        chatMessageRepository.deleteAllByChatRoom(chatRoom);
+        chatRoomRepository.delete(chatRoom);
         postRepository.delete(post);
+
         return ResponseDto.success("게시글이 삭제되었습니다.");
     }
 

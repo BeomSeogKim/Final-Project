@@ -103,6 +103,7 @@ public class OAuthService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        byte[] bytes = kakaoUser.getNickname().getBytes();
         // 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(kakaoUser);
         // 헤더에 토큰 담기
@@ -111,6 +112,8 @@ public class OAuthService {
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
         response.addHeader("ImgUrl", kakaoUser.getImgUrl());
         response.addHeader("Id", kakaoUser.getUserId());
+        response.addHeader("nickname", String.valueOf(bytes));
+        response.addHeader("role", String.valueOf(kakaoUser.getUserRole()));
         char[] chars = kakaoUser.getNickname().toCharArray();
 
         return ResponseDto.success( kakaoUser.getNickname()+ "님 로그인 성공");

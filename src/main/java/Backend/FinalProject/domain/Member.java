@@ -62,6 +62,9 @@ public class Member extends Timestamped{
     @Enumerated(value = STRING)
     private AgeCheck ageCheck;
 
+    @Enumerated(value = STRING)
+    private Regulation regulation;
+
     @OneToMany(mappedBy = "member", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMember;
 

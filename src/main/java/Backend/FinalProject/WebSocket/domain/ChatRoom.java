@@ -28,14 +28,23 @@ public class ChatRoom extends Timestamped {
 
     private int numOfMember;
 
-    @OneToOne(fetch = LAZY)
+    @OneToOne(fetch = LAZY, cascade = ALL)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @OneToMany(mappedBy ="chatRoom", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMemberList;
 
+    //== 연관관계 메서드 ==//
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
     public void addMember() {
         this.numOfMember++;
+    }
+
+    public void updateName(String title) {
+        this.name = title;
     }
 }

@@ -67,7 +67,13 @@ public class ChatService {
         return member;
     }
 
-    private static ResponseDto<Object> validateMember(Member member) {
+
+    // 채팅방으로 메세지 보내기
+    public ResponseDto<?> sendMessage(ChatRequestDto message, String token) {
+        // 토큰으로 유저 찾기
+        String nickname = tokenProvider.getMemberIdByToken(token);        // 닉네임이 받아와짐
+        Member member = memberRepository.findByNickname(nickname).orElse(null);
+
         if (member == null) {
             log.info("ChatService sendMessage Invalid Token");
             return ResponseDto.fail("INVALID TOKEN", "유효하지 않은 토큰입니다.");
@@ -109,19 +115,27 @@ public class ChatService {
     private static ChatMessageDto makeChatMessage(ChatInformationDto message, Member member) {
         ChatMessageDto chatMessageDto = ChatMessageDto.builder()
                 .sender(member.getNickname())
+                .senderId(member.getUserId())
+                .imgUrl(member.getImgUrl())
                 .message(message.getMessage())
                 .sendTime(getTimeNow())
                 .build();
-        return chatMessageDto;
-    }
+                
+        if (message.getMessage() != null) {
+            // 메세지 송부
+            messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
 
-    private static ChatMessage makeSaveMessage(ChatInformationDto message, Member member, ChatRoom chatRoom) {
-        ChatMessage chatMessage = ChatMessage.builder()
-                .chatRoom(chatRoom)
-                .member(member)
-                .sendTime(getTimeNow())
-                .message(message.getMessage())
-                .build();
-        return chatMessage;
+            // 보낸 메세지 저장
+            ChatMessage chatMessage = ChatMessage.builder()
+                    .chatRoom(chatRoom)
+                    .member(member)
+                    .sendTime(now)
+                    .message(message.getMessage())
+                    .build();
+            chatMessageRepository.save(chatMessage);
+
+        }
+        return ResponseDto.success("메세지 보내기 성공");
+
     }
 }

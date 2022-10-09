@@ -5,6 +5,8 @@ import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,8 +34,9 @@ public class PostController {
      * 전체 게시글 조회
      */
     @GetMapping("/post/all")
-    public ResponseDto<?> getAllPost() {
-        return postService.getAllPost();
+    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum, @PageableDefault(size = 9) Pageable pageable) {
+        System.out.println(pageNum);
+        return postService.getAllPost(pageNum, pageable);
     }
 
     /**
