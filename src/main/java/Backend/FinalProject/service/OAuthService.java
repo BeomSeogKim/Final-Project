@@ -31,8 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 import static Backend.FinalProject.domain.SignUpRoot.kakao;
+import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
+import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
 
 @Service
@@ -93,6 +95,8 @@ public class OAuthService {
                     .root(kakao)
                     .marketingAgreement(MARKETING_AGREE)
                     .requiredAgreement(REQUIRED_AGREE)
+                    .regulation(UNREGULATED)
+                    .ageCheck(CHECKED)
                     .build();
 
             memberRepository.save(kakaoUser);

@@ -34,93 +34,41 @@ public class ChatService {
     private final ChatMemberRepository chatMemberRepository;
 
 
-    /**
-     * 채팅 메세지 보내기
-     * @param message : 방정보와 메세지 정보가 담겨 있습니다.
-     * @param accessToken : 회원 검증을 위한 AccessToken 입니다.
-     * @return : 메세지 보내기 및 보낸 메세지 저장.
-     */
-    public ResponseDto<?> sendMessage(ChatInformationDto message, String accessToken) {
-
-        Member member = getMember(accessToken);
-        if (validateMember(member) != null) return validateMember(member);
-
-        ChatRoom chatRoom = getChatRoom(message);
-        if (validateChatRoom(chatRoom) != null) return validateChatRoom(chatRoom);
-
-        // 해당 채팅방에 있는 회원인지 검증
-        ChatMember chatMember = getChatMember(member, chatRoom);
-        if (validateChatMember(chatMember) != null) return validateChatMember(chatMember);
-
-        ChatMessageDto chatMessage = makeChatMessage(message, member);
-        // 메세지 송부
-        messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessage);
-
-        // 보낸 메세지 저장
-        chatMessageRepository.save(makeSaveMessage(message, member, chatRoom));
-        return ResponseDto.success("메세지 보내기 성공");
-    }
-
-    private Member getMember(String accessToken) {
-        String userId = tokenProvider.getUserIdByToken(accessToken);
-        Member member = memberRepository.findByUserId(userId).orElse(null);
-        return member;
-    }
-
-
     // 채팅방으로 메세지 보내기
-    public ResponseDto<?> sendMessage(ChatRequestDto message, String token) {
+    public ResponseDto<?> sendMessage(ChatInformationDto message, String token) {
         // 토큰으로 유저 찾기
-        String nickname = tokenProvider.getMemberIdByToken(token);        // 닉네임이 받아와짐
+        String nickname = tokenProvider.getUserIdByToken(token);        // 닉네임이 받아와짐
         Member member = memberRepository.findByNickname(nickname).orElse(null);
-
         if (member == null) {
-            log.info("ChatService sendMessage Invalid Token");
+            log.info("Invalid Token");
             return ResponseDto.fail("INVALID TOKEN", "유효하지 않은 토큰입니다.");
         }
-        return null;
-    }
 
-    private ChatRoom getChatRoom(ChatInformationDto message) {
         ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId()).orElse(null);
-        return chatRoom;
-    }
 
-    private static ResponseDto<Object> validateChatRoom(ChatRoom chatRoom) {
-        if (chatRoom == null) {
-            log.info("Invalid RoomNumber");
-            return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
-        }
-        return null;
-    }
-
-    private ChatMember getChatMember(Member member, ChatRoom chatRoom) {
+        // 해당 채팅방에 있는 회원인지 검증
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
-        return chatMember;
-    }
-
-    private static ResponseDto<Object> validateChatMember(ChatMember chatMember) {
         if (chatMember == null) {
             log.info("Invalid Member");
             return ResponseDto.fail("NO AUTHORIZATION", "해당 권한이 없습니다.");
         }
-        return null;
-    }
 
-    private static String getTimeNow() {
+        if (chatRoom == null) {
+            log.info("Invalid RoomNumber");
+            return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
+        }
+
+
+
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
-        return now;
-    }
 
-    private static ChatMessageDto makeChatMessage(ChatInformationDto message, Member member) {
         ChatMessageDto chatMessageDto = ChatMessageDto.builder()
                 .sender(member.getNickname())
                 .senderId(member.getUserId())
                 .imgUrl(member.getImgUrl())
                 .message(message.getMessage())
-                .sendTime(getTimeNow())
+                .sendTime(now)
                 .build();
-                
         if (message.getMessage() != null) {
             // 메세지 송부
             messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
@@ -136,6 +84,5 @@ public class ChatService {
 
         }
         return ResponseDto.success("메세지 보내기 성공");
-
     }
 }
