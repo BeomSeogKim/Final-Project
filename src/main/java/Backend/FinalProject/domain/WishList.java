@@ -31,4 +31,14 @@ public class WishList extends Timestamped{
     @JoinColumn(name = "post_id")
     private Post post;
 
+    //== 연관관계 메서드 ==//
+    public void setMember(Member member) {
+        this.member = member;
+        member.getWishLists().add(this);
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+        post.getWishLists().add(this);
+    }
 }

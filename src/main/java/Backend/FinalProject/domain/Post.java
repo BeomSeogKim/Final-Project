@@ -102,8 +102,10 @@ public class Post extends Timestamped{
         this.detailAddress = detailAddress;
     }
 
-    public boolean validateMember(Member member) {
-        return !this.member.equals(member);
+    //== 연관관계 메서드 ==//
+    public void setMember(Member member) {
+        this.member = member;
+        member.getPostList().add(this);
     }
 
     public void updateImgUrl(String imgUrl) {

@@ -31,8 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 import static Backend.FinalProject.domain.SignUpRoot.kakao;
+import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
+import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
 
 @Service
@@ -93,6 +95,8 @@ public class OAuthService {
                     .root(kakao)
                     .marketingAgreement(MARKETING_AGREE)
                     .requiredAgreement(REQUIRED_AGREE)
+                    .regulation(UNREGULATED)
+                    .ageCheck(CHECKED)
                     .build();
 
             memberRepository.save(kakaoUser);
@@ -175,15 +179,32 @@ public class OAuthService {
                 .get("nickname").toString();
         String imgUrl = jsonNode.get("properties")
                 .get("profile_image").asText();
-        String tempGender = jsonNode.get("kakao_account")
-                .get("gender").toString();
-        String age = jsonNode.get("kakao_account")
-                .get("age_range").toString();
-        String[] representAge = age.split("~");
-        String temp = representAge[0];
+        String tempGender = null;
+        String gender = null;
+        String age = null;
+        String temp = null;
+        String[] representAge = null;
+        Integer minAge = null;
+        if(null != jsonNode.get("kakao_account")
+                .get("gender")){
+       tempGender = jsonNode.get("kakao_account")
+               .get("gender").toString();
+            gender = tempGender.substring(1,tempGender.length()-1);
+        }else {
+            gender = String.valueOf(Gender.NEUTRAL);
+        }
+
+        if(null != jsonNode.get("kakao_account")
+                .get("age_range")){
+            age = jsonNode.get("kakao_account")
+                    .get("age_range").toString();
+            representAge = age.split("~");
+            temp = representAge[0];
+            minAge = Integer.valueOf(temp.substring(1,temp.length()));}
+        else{
+            minAge = 0;
+        }
         String nickname = tempNick.substring(1, tempNick.length() - 1);
-        Integer minAge = Integer.valueOf(temp.substring(1,temp.length()));
-        String gender = tempGender.substring(1,tempGender.length()-1);
         System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl + " gender" + gender + " minAge" + minAge);
         return new KakaoUserInfoDto(id.toString(), nickname, imgUrl, gender, minAge);
 

@@ -4,7 +4,7 @@ import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageDto;
-import Backend.FinalProject.WebSocket.domain.dtos.ChatRequestDto;
+import Backend.FinalProject.WebSocket.domain.dtos.ChatInformationDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
@@ -24,6 +24,8 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService {
+
+    // Dependency Injection
     private final SimpMessageSendingOperations messageTemplate;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
@@ -32,11 +34,10 @@ public class ChatService {
     private final ChatMemberRepository chatMemberRepository;
 
 
-
     // 채팅방으로 메세지 보내기
-    public ResponseDto<?> sendMessage(ChatRequestDto message, String token) {
+    public ResponseDto<?> sendMessage(ChatInformationDto message, String token) {
         // 토큰으로 유저 찾기
-        String nickname = tokenProvider.getMemberIdByToken(token);        // 닉네임이 받아와짐
+        String nickname = tokenProvider.getUserIdByToken(token);        // 닉네임이 받아와짐
         Member member = memberRepository.findByNickname(nickname).orElse(null);
         if (member == null) {
             log.info("Invalid Token");
