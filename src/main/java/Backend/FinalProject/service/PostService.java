@@ -5,9 +5,6 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
-import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
-import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
-import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
@@ -36,8 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,73 +46,27 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class PostService {
-
+public class PostService{
+    // Dependency Injection
     private final PostRepository postRepository;
-
     private final TokenProvider tokenProvider;
-
     private final AmazonS3Service amazonS3Service;
-
     private final CommentRepository commentRepository;
-
     private final WishListRepository wishListRepository;
-
     private final FilesRepository filesRepository;
     private final Validation validation;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final EntityManager em;
+    private final AutomatedChatService automatedChatService;
 
     Time time = new Time();
-
+    // In
     String folderName = "/postImage";
     String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
 
-    // 채팅방 생성
-    @Transactional
-    public ChatRoom createChatRoom(Post post) {
-        ChatRoom chatRoom = ChatRoom.builder()
-                .id(post.getId())
-                .name(post.getTitle())
-                .post(post)
-                .build();
-        chatRoomRepository.save(chatRoom);
-        return chatRoom;
-    }
-
-    // 채팅방 입장
-    @Transactional
-    public ChatMember createChatMember(Member member, ChatRoom chatRoom) {
-        ChatMember chatMember = ChatMember.builder()
-                .member(member)
-                .chatRoom(chatRoom)
-                .build();
-        chatMemberRepository.save(chatMember);
-        ChatRoom updateChatRoom = chatRoomRepository.findById(chatRoom.getId()).get();
-        assert updateChatRoom != null;
-        updateChatRoom.addMember();
-        return chatMember;
-    }
-
-    // 환영 인사
-    @Transactional
-    public ChatMessage createChatMessage(Member member, ChatRoom chatRoom) {
-        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
-        ChatMessage chatMessage = ChatMessage.builder()
-                .message(member.getNickname() + "님이 입장하셨습니다.")
-                .member(member)
-                .chatRoom(chatRoom)
-                .sendTime(now)
-                .build();
-        chatMessageRepository.save(chatMessage);
-        return chatMessage;
-    }
-
-
-
-    // 게시글 등록
+        // 게시글 등록
     @Transactional
     public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
@@ -129,32 +78,13 @@ public class PostService {
         }
         Member member = (Member) responseDto.getData();
 
-        String title = request.getTitle();
-        String address = request.getAddress();
-        String placeX = request.getPlaceX();
-        String placeY = request.getPlaceY();
-        String placeUrl = request.getPlaceUrl();
-        String placeName = request.getPlaceName();
-        String detailAddress = request.getDetailAddress();
-        String content = request.getContent();
-        int maxNum = request.getMaxNum();
-
         MultipartFile imgFile = request.getImgFile();
         String imgUrl;
 
-        if (title == null || address == null || content == null || maxNum == 0 ||
-                request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null ||
-                placeX == null || placeY == null || placeName == null
-        ) {
-            log.info("PostService createPost NULL_DATA");
-            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (title.trim().isEmpty() || address.trim().isEmpty() || content.trim().isEmpty() ||
-                placeName.trim().isEmpty()) {
-            log.info("PostService createPost EMPTY_DATA");
-            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
-        }
+        ResponseDto<Object> fail = checkNullAndEmpty(request);
+        if (fail != null) return fail;
         // 최대 정원의 수는 최소 3명에서 최대 5명
-        if (maxNum <= 2 || maxNum >= 6) {
+        if (request.getMaxNum() <= 2 || request.getMaxNum() >= 6) {
             log.info("PostService createPost MAXNUM ERROR");
             return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
         }
@@ -215,21 +145,22 @@ public class PostService {
             category = ONLINE;
         }
         Post post = Post.builder()
-                .title(title)
-                .content(content)
-                .maxNum(maxNum)
-                .currentNum(0)              // 현재 모집된 정원의 수
+                .title(request.getTitle())
+                .content(request.getContent())
+                .maxNum(request.getMaxNum())
+                .currentNum(1)              // 현재 모집된 정원의 수
+
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)
                 .status(PostState.RECRUIT)      // 현재 모집 중
                 .member(member)
-                .address(address)
-                .placeX(placeX)
-                .placeY(placeY)
-                .placeUrl(placeUrl)
-                .placeName(placeName)
-                .detailAddress(detailAddress)
+                .address(request.getAddress())
+                .placeX(request.getPlaceX())
+                .placeY(request.getPlaceY())
+                .placeUrl(request.getPlaceUrl())
+                .placeName(request.getPlaceName())
+                .detailAddress(request.getDetailAddress())
                 .dDay(dDay)                      // 남은 모집일자
                 .category(category)
                 .regulation(UNREGULATED)
@@ -238,14 +169,28 @@ public class PostService {
         postRepository.save(post);
 
         // 채팅방 생성
-        ChatRoom chatRoom = createChatRoom(post);
+        ChatRoom chatRoom = automatedChatService.createChatRoom(post);
         // 방장 채팅방 자동 입장
-        ChatMember chatMember = createChatMember(member, chatRoom);
+        ChatMember chatMember = automatedChatService.createChatMember(member, chatRoom);
         // 방장 알림 메세지 자동 기입
-        ChatMessage chatMessage = createChatMessage(member, chatRoom);
+        ChatMessage chatMessage = automatedChatService.createChatMessage(member, chatRoom);
         return ResponseDto.success("게시글 작성이 완료되었습니다.");
     }
 
+    private static ResponseDto<Object> checkNullAndEmpty(PostRequestDto request) {
+        if (request.getTitle() == null || request.getAddress() == null || request.getContent() == null || request.getMaxNum() == 0 ||
+                request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null ||
+                request.getPlaceX() == null || request.getPlaceY() == null || request.getPlaceName() == null
+        ) {
+            log.info("PostService createPost NULL_DATA");
+            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
+        } else if (request.getTitle().trim().isEmpty() || request.getAddress().trim().isEmpty() || request.getContent().trim().isEmpty() ||
+                request.getPlaceName().trim().isEmpty()) {
+            log.info("PostService createPost EMPTY_DATA");
+            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+        }
+        return null;
+    }
 
 
     // 게시글 전체 조회
