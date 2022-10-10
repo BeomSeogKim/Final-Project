@@ -1,7 +1,5 @@
 package Backend.FinalProject.repository;
 
-import Backend.FinalProject.domain.Application;
-import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
