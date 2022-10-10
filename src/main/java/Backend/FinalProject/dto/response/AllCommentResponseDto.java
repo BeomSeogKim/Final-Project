@@ -14,4 +14,5 @@ public class AllCommentResponseDto {
     private String memberImage;
     private String memberNickname;
     private String content;
+    private String memberId;
 }
