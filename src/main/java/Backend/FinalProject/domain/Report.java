@@ -23,7 +23,12 @@ public class Report {
     @Column
     private String content;
 
-    @OneToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member memberId;
+    @Column(name = "member_id")
+    private Long memberId;
+
+    @Column(name = "post_id")
+    private Long postId;
+
+    @Column(name = "comment_id")
+    private Long commentId;
 }
