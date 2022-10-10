@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
@@ -141,10 +142,14 @@ public class CommentService {
             log.info("CommentService deleteComment NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 댓글을 찾을 수 없습니다.");
         }
-        if (comment.getMember().getId() != member.getId()) {
-            log.info("CommentService deleteComment NO AUTHORITY");
-            return ResponseDto.fail("NO AUTHORITY", "작성자만 수정이 가능합니다.");
+        String role = request.getHeader("role");
+        if (!Objects.equals(role, "ROLE_ADMIN")) {
+            if (!Objects.equals(comment.getMember().getId(), member.getId())) {
+                log.info("CommentService deleteComment NO AUTHORITY");
+                return ResponseDto.fail("NO AUTHORITY", "작성자만 수정이 가능합니다.");
+            }
         }
+
 
         commentRepository.delete(comment);
         return ResponseDto.success("댓글 삭제가 완료되었습니다.");
