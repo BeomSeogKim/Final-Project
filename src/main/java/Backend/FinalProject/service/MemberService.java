@@ -117,7 +117,6 @@ public class MemberService {
             log.info("MemberService createMember NOT ALLOWED");
             return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
         }
-        System.out.println(ageCheck);
         if (ageCheck == null || ageCheck.equals("false")) {
             log.info("MemberService createMember NOT ALLOWED");
             return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
