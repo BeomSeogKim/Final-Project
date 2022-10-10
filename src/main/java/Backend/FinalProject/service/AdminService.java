@@ -2,9 +2,9 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Report;
-import Backend.FinalProject.dto.ReportCommentDto;
-import Backend.FinalProject.dto.ReportMemberDto;
-import Backend.FinalProject.dto.ReportPostDto;
+import Backend.FinalProject.dto.response.report.ReportCommentDto;
+import Backend.FinalProject.dto.response.report.ReportMemberDto;
+import Backend.FinalProject.dto.response.report.ReportPostDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;

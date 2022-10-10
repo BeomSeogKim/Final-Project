@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto;
+package Backend.FinalProject.dto.response.report;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportCommentDto {
-    private Long commentId;
+public class ReportMemberDto {
+    private Long memberId;
     private String content;
 }
