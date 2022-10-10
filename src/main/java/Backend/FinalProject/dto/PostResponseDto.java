@@ -19,6 +19,7 @@ public class PostResponseDto {
     private String authorId;
     private String authorNickname;
     private String memberImgUrl;
+    private long memberId;
     private String address;
     private String placeX;
     private String placeY;
