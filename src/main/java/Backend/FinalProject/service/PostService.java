@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.enums.Category.*;
@@ -400,10 +401,13 @@ public class PostService{
             log.info("PostService deletePost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
+        String role = request.getHeader("role");
 
-        if (!post.getMember().getUserId().equals(member.getUserId())) {
-            log.info("PostService deletePost BAD_REQUEST");
-            return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
+        if (!Objects.equals(role, "ROLE_ADMIN")) {
+            if (!post.getMember().getUserId().equals(member.getUserId())) {
+                log.info("PostService deletePost BAD_REQUEST");
+                return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
+            }
         }
 
         ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
