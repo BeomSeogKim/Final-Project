@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,9 +39,17 @@ public class ReportService {
 
         // 신고할 회원 찾기
         Member reportMember = memberRepository.findById(memberId).orElse(null);
+        if (reportRepository.findByMemberId(memberId)!= null) {
+            log.info("ReportService reportPost NOT_FOUND");
+            return ResponseDto.fail("ALREADY EXIST", "이미 신고하신 회원 입니다.");
+        }
         if (reportMember == null) {
             log.info("ReportService reportUser NOT_FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 회원을 찾을 수 없습니다.");
+        }
+        if (reportDto.getContent() == null || reportDto.getContent().isEmpty()) {
+            log.info("ReportService reportUser NOT_FOUND");
+            return ResponseDto.fail("NOT FOUND", "신고내용을 입력해주세요.");
         }
 
         Report report = Report.builder()
@@ -61,10 +70,20 @@ public class ReportService {
 
         // 신고할 게시글 찾기
         Post reportPost = postRepository.findById(postId).orElse(null);
+        if (reportRepository.findByPostId(postId) != null) {
+            log.info("ReportService reportPost NOT_FOUND");
+            return ResponseDto.fail("ALREADY EXIST", "이미 신고하신 게시글 입니다.");
+        }
         if (reportPost == null) {
-            log.info("ReportService reportUser NOT_FOUND");
+            log.info("ReportService reportPost NOT_FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 게시글을 찾을 수 없습니다.");
         }
+        if (reportDto.getContent() == null || reportDto.getContent().isEmpty()) {
+            log.info("ReportService reportPost NOT_FOUND");
+            return ResponseDto.fail("NOT FOUND", "신고내용을 입력해주세요.");
+        }
+
+
 
         Report report = Report.builder()
                 .content(reportDto.getContent())
@@ -85,9 +104,17 @@ public class ReportService {
 
         // 신고할 회원 찾기
         Comment reportComment = commentRepository.findById(commentId).orElse(null);
+        if (reportRepository.findByCommentId(commentId)!=null) {
+            log.info("ReportService reportPost NOT_FOUND");
+            return ResponseDto.fail("ALREADY EXIST", "이미 신고하신 댓글 입니다.");
+        }
         if (reportComment == null) {
-            log.info("ReportService reportUser NOT_FOUND");
+            log.info("ReportService reportComment NOT_FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 댓글을 찾을 수 없습니다.");
+        }
+        if (reportDto.getContent() == null || reportDto.getContent().isEmpty()) {
+            log.info("ReportService reportComment NOT_FOUND");
+            return ResponseDto.fail("NOT FOUND", "신고내용을 입력해주세요.");
         }
 
         Report report = Report.builder()
