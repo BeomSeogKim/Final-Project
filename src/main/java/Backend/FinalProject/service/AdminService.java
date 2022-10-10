@@ -1,10 +1,10 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.domain.*;
+import Backend.FinalProject.domain.Report;
 import Backend.FinalProject.dto.ReportResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.repository.*;
+import Backend.FinalProject.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -80,7 +80,7 @@ public class AdminService {
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
-        List<Report> reportCommenList = reportRepository.findBycomment();
+        List<Report> reportCommenList = reportRepository.findByComment();
         if (reportCommenList.isEmpty()) {
             return ResponseDto.fail("NOT FOUND", "댓글을 신고한 내역이 없습니다.");
         }
