@@ -226,7 +226,7 @@ public class PostService{
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         for (Post post : all) {
-            if (post.getStatus().equals(PostState.RECRUIT)) {
+            if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(PostState.RECRUIT)) {
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
                                 .id(post.getId())
