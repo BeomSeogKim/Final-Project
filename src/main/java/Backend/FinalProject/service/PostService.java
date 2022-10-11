@@ -68,8 +68,14 @@ public class PostService{
     Time time = new Time();
     // In
     String folderName = "/postImage";
-    String baseImage = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/baseImage.jpeg";
-
+    String baseImageStudy = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%80%E1%85%A9%E1%86%BC%E1%84%87%E1%85%AE.webp";
+    String baseImageEtc = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%80%E1%85%B5%E1%84%90%E1%85%A1.webp";
+    String baseImageReading = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%83%E1%85%A9%E1%86%A8%E1%84%89%E1%85%A5.jpeg";
+    String baseImageTravel = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8B%E1%85%A7%E1%84%92%E1%85%A2%E1%86%BC.jpeg";
+    String baseImageOnline = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8B%E1%85%A9%E1%86%AB%E1%84%85%E1%85%A1%E1%84%8B%E1%85%B5%E1%86%AB.webp";
+    String baseImageExercise = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8B%E1%85%AE%E1%86%AB%E1%84%83%E1%85%A9%E1%86%BC.webp";
+    String baseImageReligion = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8C%E1%85%A9%E1%86%BC%E1%84%80%E1%85%AD.webp";
+    String imgUrl;
         // 게시글 등록
     @Transactional
     public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
@@ -83,7 +89,7 @@ public class PostService{
         Member member = (Member) responseDto.getData();
 
         MultipartFile imgFile = request.getImgFile();
-        String imgUrl;
+        String imgUrl = baseImageEtc;
 
         ResponseDto<Object> fail = checkNullAndEmpty(request);
         if (fail != null) return fail;
@@ -125,7 +131,21 @@ public class PostService{
 
         // 이미지 업로드 관련 로직
         if (imgFile == null || imgFile.isEmpty()) {
-            imgUrl = baseImage;
+            if (request.getCategory() == null) {
+                imgUrl = baseImageEtc;
+            } else if (request.getCategory().equals("exercise")) {
+                imgUrl = baseImageExercise;
+            } else if (request.getCategory().equals("travel")) {
+                imgUrl = baseImageTravel;
+            } else if (request.getCategory().equals("reading")) {
+                imgUrl = baseImageReading;
+            } else if (request.getCategory().equals("study")) {
+                imgUrl = baseImageStudy;
+            } else if (request.getCategory().equals("religion")) {
+                imgUrl = baseImageReligion;
+            } else if (request.getCategory().equals("online")) {
+                imgUrl = baseImageOnline;
+            }
         } else {
             ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
             ImageFile imageFile = (ImageFile) image.getData();
@@ -214,6 +234,7 @@ public class PostService{
                                 .title(post.getTitle())
                                 .maxNum(post.getMaxNum())
                                 .address(post.getAddress())
+                                .category(post.getCategory())
                                 .restDay(time.convertLocalDateToTime((post.getEndDate())))
                                 .dDay(post.getDDay())
                                 .imgUrl(post.getImgUrl())
@@ -366,7 +387,9 @@ public class PostService{
         }
 
         if (!imgFile.isEmpty()) {
-            if (post.getImgUrl().equals(baseImage)) {
+            if (post.getImgUrl().equals(baseImageEtc) || post.getImgUrl().equals(baseImageExercise) || post.getImgUrl().equals(baseImageOnline)||
+                    post.getImgUrl().equals(baseImageStudy) || post.getImgUrl().equals(baseImageReading) || post.getImgUrl().equals(baseImageReligion)
+            || post.getImgUrl().equals(baseImageTravel)) {
                 ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
                 ImageFile imageFile = (ImageFile) image.getData();
                 imgUrl = imageFile.getUrl();
