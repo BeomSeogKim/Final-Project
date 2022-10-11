@@ -1,10 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.domain.Comment;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.Post;
-import Backend.FinalProject.domain.Report;
+import Backend.FinalProject.domain.*;
 import Backend.FinalProject.dto.ReportListDto;
 import Backend.FinalProject.dto.response.report.ReportCommentDto;
 import Backend.FinalProject.dto.response.report.ReportMemberDto;
@@ -22,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import static Backend.FinalProject.domain.ReportStatus.UNDONE;
+import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
 
 @RestController
 @RequiredArgsConstructor
@@ -117,12 +117,15 @@ public class AdminService {
         List<ReportMemberDto> reportMember = new ArrayList<>();
 
         for(Report report : reportMemberList) {
-            reportMember.add(
-                    ReportMemberDto.builder()
-                            .reportId(report.getId())
-                            .memberId(report.getMemberId())
-                            .content(report.getContent())
-                            .build());
+            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+                reportMember.add(
+                        ReportMemberDto.builder()
+                                .reportId(report.getId())
+                                .memberId(report.getMemberId())
+                                .content(report.getContent())
+                                .build());
+            }
+
         }
 
         List<Report> reportPostList = reportRepository.findByPost();
@@ -130,12 +133,15 @@ public class AdminService {
         List<ReportPostDto> reportPost = new ArrayList<>();
 
         for (Report report : reportPostList) {
-            reportPost.add(
-                    ReportPostDto.builder()
-                            .reportId(report.getId())
-                            .postId(report.getPostId())
-                            .content(report.getContent())
-                            .build());
+            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+                reportPost.add(
+                        ReportPostDto.builder()
+                                .reportId(report.getId())
+                                .postId(report.getPostId())
+                                .content(report.getContent())
+                                .build());
+            }
+
         }
 
         List<Report> reportCommenList = reportRepository.findByComment();
@@ -143,12 +149,16 @@ public class AdminService {
         List<ReportCommentDto> reportComment = new ArrayList<>();
 
         for (Report report : reportCommenList) {
-            reportComment.add(
-                    ReportCommentDto.builder()
-                            .reportId(report.getId())
-                            .commentId(report.getCommentId())
-                            .content(report.getContent())
-                            .build());
+            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+                reportComment.add(
+                        ReportCommentDto.builder()
+                                .postId(report.getReportPostId())
+                                .reportId(report.getId())
+                                .commentId(report.getCommentId())
+                                .content(report.getContent())
+                                .build());
+            }
+
         }
         ReportListDto reportList = ReportListDto.builder()
                 .memberList(reportMember)
@@ -159,6 +169,7 @@ public class AdminService {
         return ResponseDto.success(reportList);
 
     }
+    @Transactional
     public ResponseDto<?> executeReport(Long reportId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.validateCheck(request);
         Report report = reportRepository.findById(reportId).orElse(null);
@@ -173,11 +184,21 @@ public class AdminService {
             assert post != null;
             post.executeRegulation();
             postRepository.flush();
+            // 같은 아이디를 가진 게시글 신고글들 다 HIDE 처리
+            List<Report> samePostReport = reportRepository.findAllByPostId(report.getPostId());
+            samePostReport.forEach(Report::hide);
+            // 같은 아이디를 가진 댓글 신고들 다 UNDONE 처리
+            List<Report> samePostCommentReport = reportRepository.findAllByReportPostId(report.getPostId());
+            samePostCommentReport.forEach(Report::hide);
         } else {
             Comment comment = commentRepository.findById(report.getCommentId()).orElse(null);
             assert comment != null;
             comment.executeRegulation();
             commentRepository.flush();
+            // 같은 댓글을 가진 댓글 신고들 다 Undone 처리
+            List<Report> sameCommentReport = reportRepository.findALlByCommentId(report.getCommentId());
+            sameCommentReport.forEach(Report::hide);
+
         }
         report.updateStatus();
         reportRepository.flush();

@@ -1,5 +1,6 @@
 package Backend.FinalProject.domain;
 
+import Backend.FinalProject.domain.enums.ShowStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.*;
 
 import static Backend.FinalProject.domain.ReportStatus.DONE;
+import static Backend.FinalProject.domain.enums.ShowStatus.HIDE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -17,7 +19,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Report extends Timestamped{
+public class Report extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -28,6 +30,8 @@ public class Report extends Timestamped{
 
     private Long reportMemberId;
 
+    private Long reportPostId;
+
     private Long memberId;
 
     private Long postId;
@@ -37,8 +41,16 @@ public class Report extends Timestamped{
     @Enumerated(value = STRING)
     private ReportStatus status;
 
+    @Enumerated(value = STRING)
+    private ShowStatus show;
+
     @Transactional
     public void updateStatus() {
         this.status = DONE;
+    }
+
+    @Transactional
+    public void hide() {
+        this.show = HIDE;
     }
 }
