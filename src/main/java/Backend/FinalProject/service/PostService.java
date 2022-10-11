@@ -172,8 +172,7 @@ public class PostService{
                 .title(request.getTitle())
                 .content(request.getContent())
                 .maxNum(request.getMaxNum())
-                .currentNum(1)              // 현재 모집된 정원의 수
-
+                .currentNum(0)              // 현재 모집된 정원의 수
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)
