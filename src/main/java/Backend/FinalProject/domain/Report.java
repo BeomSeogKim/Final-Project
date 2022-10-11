@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 
+import static Backend.FinalProject.domain.ReportStatus.DONE;
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
@@ -23,12 +26,19 @@ public class Report {
     @Column
     private String content;
 
-    @Column(name = "member_id")
+    private Long reportMemberId;
+
     private Long memberId;
 
-    @Column(name = "post_id")
     private Long postId;
 
-    @Column(name = "comment_id")
     private Long commentId;
+
+    @Enumerated(value = STRING)
+    private ReportStatus status;
+
+    @Transactional
+    public void updateStatus() {
+        this.status = DONE;
+    }
 }

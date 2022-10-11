@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static Backend.FinalProject.domain.enums.PostState.*;
+import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -147,5 +149,11 @@ public class Post extends Timestamped{
 
     public void disclose() {
         this.status = CLOSURE;
+    }
+
+    @Transactional
+    public void executeRegulation() {
+        this.regulation = REGULATED;
+        this.member.executeRegulation();
     }
 }
