@@ -247,6 +247,7 @@ public class MyPageService {
                             .minAge(member.getMinAge())
                             .aplicationCount(aplicationCount)
                             .leaderCount(hostCount)
+                            .numOfRegulation(member.getNumOfRegulation())
                             .build()
             );
         }
