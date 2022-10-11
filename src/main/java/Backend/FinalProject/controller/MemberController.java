@@ -21,7 +21,6 @@ public class MemberController {
     /**
      * 회원가입
      * @param signupRequestDto 이미지 파일을 포함한 여러가지 데이터
-     * @return
      */
     @PostMapping("/member/signup")
     public ResponseDto<String> signUp(
@@ -55,6 +54,11 @@ public class MemberController {
         return memberService.updateMember(request, httpServletRequest, httpServletResponse);
     }
 
+    /**
+     * 비밀번호 변경
+     * @param request : 비밀 번호 변경 관련한 필요 목록
+     * @param httpServletRequest : Member 검증을 위한 param.
+     */
     @PutMapping("/member/password")
     public ResponseDto<?> updateMemberPassword(
             @ModelAttribute MemberPasswordUpdateDto request,
