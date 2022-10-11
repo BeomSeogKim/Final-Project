@@ -11,6 +11,7 @@ import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
+import Backend.FinalProject.domain.enums.Regulation;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -225,6 +226,7 @@ public class PostService{
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         List<Post> contentOfPost = pageOfPost.getContent();
+        Long count = 0L;
         for (Post post : contentOfPost) {
             if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(PostState.RECRUIT)) {
                 PostResponseDtoList.add(
@@ -240,13 +242,15 @@ public class PostService{
                                 .status(post.getStatus())
                                 .build()
                 );
+            } else {
+                count++;
             }
         }
         PostResponseDtoPage informationOfPost = PostResponseDtoPage.builder()
                 .postList(PostResponseDtoList)
                 .totalPage(pageOfPost.getTotalPages() - 1)
                 .currentPage(pageNum)
-                .totalPost(pageOfPost.getTotalElements())
+                .totalPost(pageOfPost.getTotalElements() - count)       // 현재 페이지에 보여야 하는 갯수로 카운트를 진행.
                 .isFirstPage(pageOfPost.isFirst())
                 .hasNextPage(pageOfPost.hasNext())
                 .hasPreviousPage(pageOfPost.hasPrevious())
@@ -257,12 +261,15 @@ public class PostService{
     // 게시글 상세 조회
     public ResponseDto<?> getPost(Long postId) {
 
-        boolean isWish = false;
+        boolean isWish = false;     // 회원이 좋아요를 눌렀는지 안눌렀는지 Check
 
         Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
         if (null == post) {
             log.info("PostService getPost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+        if (post.getRegulation().equals(Regulation.REGULATED)) {
+            return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
         }
         List<Comment> commentList = commentRepository.findAllByPost(post);
         List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
