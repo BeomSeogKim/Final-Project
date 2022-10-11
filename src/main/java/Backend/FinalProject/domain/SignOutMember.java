@@ -1,6 +1,6 @@
 package Backend.FinalProject.domain;
 
-import Backend.FinalProject.domain.enums.*;
+import Backend.FinalProject.domain.enums.Regulation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +21,6 @@ public class SignOutMember extends Timestamped{
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String userId;
 
     private String password;
