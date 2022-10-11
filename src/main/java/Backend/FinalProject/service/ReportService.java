@@ -7,14 +7,18 @@ import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.Report;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.ReportDto;
-import Backend.FinalProject.repository.*;
+import Backend.FinalProject.repository.CommentRepository;
+import Backend.FinalProject.repository.MemberRepository;
+import Backend.FinalProject.repository.PostRepository;
+import Backend.FinalProject.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
+
+import static Backend.FinalProject.domain.ReportStatus.UNDONE;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,10 @@ public class ReportService {
         // 토큰 유효성 검사
         // todo
         ResponseDto<?> responseDto = validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
 
         // 신고할 회원 찾기
         Member reportMember = memberRepository.findById(memberId).orElse(null);
@@ -54,7 +62,9 @@ public class ReportService {
 
         Report report = Report.builder()
                 .content(reportDto.getContent())
+                .reportMemberId(member.getId())
                 .memberId(memberId)
+                .status(UNDONE)
                 .build();
 
         reportRepository.save(report);
@@ -67,6 +77,10 @@ public class ReportService {
         // 토큰 유효성 검사
         // todo
         ResponseDto<?> responseDto = validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
 
         // 신고할 게시글 찾기
         Post reportPost = postRepository.findById(postId).orElse(null);
@@ -86,8 +100,10 @@ public class ReportService {
 
 
         Report report = Report.builder()
+                .reportMemberId(member.getId())
                 .content(reportDto.getContent())
                 .postId(postId)
+                .status(UNDONE)
                 .build();
 
 
@@ -101,6 +117,10 @@ public class ReportService {
         // 토큰 유효성 검사
         // todo
         ResponseDto<?> responseDto = validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
 
         // 신고할 회원 찾기
         Comment reportComment = commentRepository.findById(commentId).orElse(null);
@@ -118,8 +138,10 @@ public class ReportService {
         }
 
         Report report = Report.builder()
+                .reportMemberId(member.getId())
                 .content(reportDto.getContent())
                 .commentId(commentId)
+                .status(UNDONE)
                 .build();
 
         reportRepository.save(report);

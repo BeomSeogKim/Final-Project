@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -41,6 +43,8 @@ public class Member extends Timestamped{
 
     @Column(length = 1000)
     private String imgUrl;
+
+    private int numOfRegulation;
 
     @Enumerated(value = STRING)
     private Authority userRole;
@@ -112,4 +116,13 @@ public class Member extends Timestamped{
         this.imgUrl = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
         this.userRole = Authority.ROLE_GUEST;
     }
+
+    @Transactional
+    public void executeRegulation() {
+        this.numOfRegulation++;
+        if (this.numOfRegulation >= 10) {
+            this.regulation = REGULATED;
+        }
+    }
+
 }

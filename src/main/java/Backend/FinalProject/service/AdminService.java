@@ -1,15 +1,22 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
+import Backend.FinalProject.domain.Comment;
+import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.Report;
 import Backend.FinalProject.dto.ReportListDto;
 import Backend.FinalProject.dto.response.report.ReportCommentDto;
 import Backend.FinalProject.dto.response.report.ReportMemberDto;
 import Backend.FinalProject.dto.response.report.ReportPostDto;
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.repository.CommentRepository;
+import Backend.FinalProject.repository.MemberRepository;
+import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +29,9 @@ import java.util.List;
 public class AdminService {
 
     private final ReportRepository reportRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
 
 
 
@@ -145,5 +155,36 @@ public class AdminService {
 
         return ResponseDto.success(reportList);
 
+    }
+    public ResponseDto<?> executeReport(Long reportId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+        Report report = reportRepository.findById(reportId).orElse(null);
+        assert report != null;
+        if (report.getMemberId() != null) {
+            Member member = memberRepository.findById(report.getMemberId()).orElse(null);
+            assert member != null;
+            member.executeRegulation();
+            memberRepository.flush();
+        } else if (report.getPostId() != null) {
+            Post post = postRepository.findById(report.getPostId()).orElse(null);
+            assert post != null;
+            post.executeRegulation();
+            postRepository.flush();
+        } else {
+            Comment comment = commentRepository.findById(report.getCommentId()).orElse(null);
+            assert comment != null;
+            comment.executeRegulation();
+            commentRepository.flush();
+        }
+        report.updateStatus();
+        reportRepository.flush();
+        return ResponseDto.success("성공적으로 처리 되었습니다.");
+    }
+
+    @Transactional
+    public ResponseDto<?> withdrawReport(Long reportId, HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+        reportRepository.deleteById(reportId);
+        return ResponseDto.success("성공적으로 처리 되었습니다.");
     }
 }
