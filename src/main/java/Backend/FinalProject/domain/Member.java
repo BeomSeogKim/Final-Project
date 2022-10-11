@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
-import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -113,8 +111,5 @@ public class Member extends Timestamped{
         this.minAge = 0;
         this.imgUrl = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
         this.userRole = Authority.ROLE_GUEST;
-        this.gender = Gender.NEUTRAL;
-        this.requiredAgreement = REQUIRED_DISAGREE;
-        this.marketingAgreement = MARKETING_DISAGREE;
     }
 }
