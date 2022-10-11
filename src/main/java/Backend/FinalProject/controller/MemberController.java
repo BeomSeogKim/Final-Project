@@ -3,6 +3,8 @@ package Backend.FinalProject.controller;
 import Backend.FinalProject.dto.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.*;
+import Backend.FinalProject.dto.request.checkduplication.IdCheckDuplicateDto;
+import Backend.FinalProject.dto.request.checkduplication.NickCheckDuplicateDto;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,6 @@ public class MemberController {
     /**
      * 회원가입
      * @param signupRequestDto 이미지 파일을 포함한 여러가지 데이터
-     * @return
      */
     @PostMapping("/member/signup")
     public ResponseDto<String> signUp(
@@ -55,6 +56,11 @@ public class MemberController {
         return memberService.updateMember(request, httpServletRequest, httpServletResponse);
     }
 
+    /**
+     * 비밀번호 변경
+     * @param request : 비밀 번호 변경 관련한 필요 목록
+     * @param httpServletRequest : Member 검증을 위한 param.
+     */
     @PutMapping("/member/password")
     public ResponseDto<?> updateMemberPassword(
             @ModelAttribute MemberPasswordUpdateDto request,
@@ -65,6 +71,7 @@ public class MemberController {
 
     /**
      * 로그아웃
+     * @param request : Member 검증을 위한 Param.
      */
     @PostMapping("/member/logout")
     public ResponseDto<?> logout(
@@ -74,6 +81,7 @@ public class MemberController {
 
     /**
      * 회원탈퇴
+     * @param request : Member 검증을 위한 Param.
      */
     @PutMapping("/member/signout")
     public ResponseDto<?> signOut(
@@ -83,6 +91,8 @@ public class MemberController {
 
     /**
      * 아이디 중복검사
+     * @param userId : 검사할 아이디
+     * @return
      */
     @PostMapping("member/id")
     public ResponseDto<?> duplicateID(@RequestBody IdCheckDuplicateDto userId) {
@@ -91,6 +101,8 @@ public class MemberController {
 
     /**
      * 닉네임 중복검사
+     * @param nickname : 검사할 닉네임
+     * @return
      */
     @PostMapping("member/nickname")
     public ResponseDto<?> duplicateNickname(@RequestBody NickCheckDuplicateDto nickname) {

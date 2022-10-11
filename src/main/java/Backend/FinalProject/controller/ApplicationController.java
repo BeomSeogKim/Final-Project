@@ -2,7 +2,6 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.ApplicationRequestDto;
-import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +16,9 @@ public class ApplicationController {
 
     /**
      * 게시글 참여신청
+     * @param postId : 게시글 아이디
+     * @param applicationRequestDto : 지원 신청 내용
+     * @param request : Token 이 담긴 데이터
      */
     @PostMapping("/post/application/{postId}")
     public ResponseDto<?> submitApplication(
@@ -26,7 +28,11 @@ public class ApplicationController {
         return applicationService.submitApplication(postId, applicationRequestDto, request);
     }
 
-//     게시글 참여 신청 취소
+    /**
+     * 게시글 참여 신청 취소
+     * @param postId : 게시글 아이디
+     * @param request : Token 이 담긴 데이터
+     */
     @PostMapping("/post/application/cancel/{postId}")
     public ResponseDto<?> cancelApplication(
             @PathVariable Long postId,
@@ -36,6 +42,9 @@ public class ApplicationController {
 
     /**
      * 게시글 참여 수락
+     * @param applicationId : 지원 신청 아이디
+     * @param request : Token 이 담긴 데이터
+     * @return
      */
     @PostMapping("/post/application/approve/{applicationId}")
     public ResponseDto<?> approveApplication(
@@ -46,6 +55,8 @@ public class ApplicationController {
 
     /**
      * 게시글 참여 거절
+     * @param applicationId : 지원 신청 아이디
+     * @param request : Token 이 담긴 데이터
      */
     @PostMapping("/post/application/disapprove/{applicationId}")
     public ResponseDto<?> disapproveApplication(
@@ -56,6 +67,8 @@ public class ApplicationController {
 
     /**
      * 지원자 보기
+     * @param postId : 게시글 아이디
+     * @param request : Token 이 담긴 데이터
      */
     @GetMapping("/post/application/{postId}")
     public ResponseDto<?> getApplicationList(
