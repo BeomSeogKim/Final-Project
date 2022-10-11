@@ -36,22 +36,26 @@ public class CommentService {
 
     public ResponseDto<?> getComments(Long postId) {
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
+//        List<Comment> commentList = commentRepository.findAllByPostIdTest(UNREGULATED, postId);
         if (commentList.isEmpty() || commentList == null) {
             log.info("CommentService getComments NO CONTENT");
             return ResponseDto.fail("NO CONTENT", "댓글이 존재하지 않습니다.");
         }
         List<AllCommentResponseDto> commentResponseDto = new ArrayList<>();
         for (Comment comment : commentList) {
-            commentResponseDto.add(
-                    AllCommentResponseDto.builder()
-                            .commentId(comment.getId())
-                            .memberImage(comment.getMember().getImgUrl())
-                            .memberNickname(comment.getMember().getNickname())
-                            .content(comment.getContent())
-                            .memberId(comment.getMember().getUserId())
-                            .build()
-            );
+            if (comment.getRegulation().equals(UNREGULATED)) {
+                commentResponseDto.add(
+                        AllCommentResponseDto.builder()
+                                .commentId(comment.getId())
+                                .memberImage(comment.getMember().getImgUrl())
+                                .memberNickname(comment.getMember().getNickname())
+                                .content(comment.getContent())
+                                .memberId(comment.getMember().getUserId())
+                                .build()
+                );
+            }
         }
+
         return ResponseDto.success(commentResponseDto);
     }
 
