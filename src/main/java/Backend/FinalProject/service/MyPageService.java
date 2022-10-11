@@ -7,8 +7,6 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.WishList;
 import Backend.FinalProject.domain.enums.ApplicationState;
-import Backend.FinalProject.dto.ApplicationListResponseDto;
-import Backend.FinalProject.dto.ApplicationResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.response.MemberInfoDto;
 import Backend.FinalProject.dto.response.MyPageDto;
@@ -20,7 +18,6 @@ import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.extern.slf4j.XSlf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class MyPageService {
-    // todo
     private final TokenProvider tokenProvider;
 
     private final ApplicationRepository applicationRepository;
@@ -56,8 +52,9 @@ public class MyPageService {
         }
         Member member = (Member) responseDto.getData();
 
-        List<Application> applicationList = applicationRepository.findAllByMemberId(member.getId()).orElse(null);
-        if (applicationList == null) {
+        //todo
+        List<Application> applicationList = applicationRepository.findAllByMemberId(member.getId());
+        if (applicationList.isEmpty()) {
             log.info("MyPageService application NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "신청한 모임이 없습니다.");
         }
@@ -78,8 +75,9 @@ public class MyPageService {
 
         Member member = (Member) responseDto.getData();
 
-        List<Application> applicationList = applicationRepository.findAllByMemberId(member.getId()).orElse(null);
-        if (applicationList == null) {
+        //todo
+        List<Application> applicationList = applicationRepository.findAllByMemberId(member.getId());
+        if (applicationList.isEmpty()) {
             log.info("MyPageService applicationList NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "신청한 모임이 없습니다.");
         }

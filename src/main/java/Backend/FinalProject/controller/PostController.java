@@ -35,7 +35,6 @@ public class PostController {
      */
     @GetMapping("/post/all")
     public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum, @PageableDefault(size = 9) Pageable pageable) {
-        System.out.println(pageNum);
         return postService.getAllPost(pageNum, pageable);
     }
 

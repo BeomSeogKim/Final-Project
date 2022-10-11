@@ -17,7 +17,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Report {
+public class Report extends Timestamped{
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
