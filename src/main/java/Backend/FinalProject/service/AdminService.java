@@ -145,6 +145,7 @@ public class AdminService {
         for (Report report : reportCommenList) {
             reportComment.add(
                     ReportCommentDto.builder()
+                            .postId(report.getReportPostId())
                             .reportId(report.getId())
                             .commentId(report.getCommentId())
                             .content(report.getContent())

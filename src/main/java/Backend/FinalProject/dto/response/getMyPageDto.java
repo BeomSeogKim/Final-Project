@@ -20,5 +20,6 @@ public class getMyPageDto {
     private Integer minAge;
     private int aplicationCount;
     private int leaderCount;
+    private int numOfRegulation;
 
 }

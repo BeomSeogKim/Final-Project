@@ -136,8 +136,9 @@ public class ReportService {
             log.info("ReportService reportComment NOT_FOUND");
             return ResponseDto.fail("NOT FOUND", "신고내용을 입력해주세요.");
         }
-
+        System.out.println(reportComment.getPost().getId());
         Report report = Report.builder()
+                .reportPostId(reportComment.getPost().getId())
                 .reportMemberId(member.getId())
                 .content(reportDto.getContent())
                 .commentId(commentId)

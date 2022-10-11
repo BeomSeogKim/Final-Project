@@ -65,7 +65,7 @@ public class SecurityConfiguration {
                 .antMatchers("/oauth/**").permitAll()
                 .antMatchers("/chat/**", "/chat/user", "/webjars/**", "/ws-stomp/**").permitAll()
                 .antMatchers("/post", "/post/detail/**").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지
+//                .antMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지
                 .anyRequest().authenticated()
 
                 .and()

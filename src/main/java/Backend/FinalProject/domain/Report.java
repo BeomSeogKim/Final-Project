@@ -28,6 +28,8 @@ public class Report {
 
     private Long reportMemberId;
 
+    private Long reportPostId;
+
     private Long memberId;
 
     private Long postId;
