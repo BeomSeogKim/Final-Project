@@ -24,7 +24,7 @@ public class MemberController {
      * @return
      */
     @PostMapping("/member/signup")
-    public ResponseDto<String> signup(
+    public ResponseDto<String> signUp(
             @ModelAttribute  SignupRequestDto signupRequestDto) {
         return memberService.createMember(signupRequestDto);
     }

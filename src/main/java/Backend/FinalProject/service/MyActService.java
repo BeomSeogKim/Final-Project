@@ -10,7 +10,6 @@ import Backend.FinalProject.dto.response.ApplicantResponseDto;
 import Backend.FinalProject.dto.response.MyActPostResponseDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
-import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyActService {
 
-    private final TokenProvider tokenProvider;
     private final ApplicationRepository applicationRepository;
     private final PostRepository postRepository;
     private final Validation validation;
@@ -45,10 +43,8 @@ public class MyActService {
             return ResponseDto.fail("NO POSTS", "아직 주최한 모임이 없습니다.");
         }
         for (Post post : postList) {
-            List<Application> allApplicants = applicationRepository.findAllByPostId(post.getId()).orElse(null);
-            if (allApplicants == null) {
-                continue;
-            }
+            // todo
+            List<Application> allApplicants = applicationRepository.findAllByPostIdMyAct(post.getId());
             for (Application applicant : allApplicants) {
                 applicants.add(
                         ApplicantResponseDto.builder()
@@ -75,8 +71,9 @@ public class MyActService {
         Member member = (Member) responseDto.getData();
 
         List<MyActPostResponseDto> list = new ArrayList<>();
-        List<Application> postList = applicationRepository.findAllByMemberId(member.getId()).orElse(null);
-        if (postList == null) {
+        //todo
+        List<Application> postList = applicationRepository.findAllByMemberId(member.getId());
+        if (postList.isEmpty()) {
             log.info("MyActService postList NO APPLICATION");
             return ResponseDto.fail("NO APPLICATION", "신청 내역이 존재하지 않습니다.");
         }
