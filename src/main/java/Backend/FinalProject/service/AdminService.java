@@ -1,10 +1,12 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.domain.*;
-import Backend.FinalProject.dto.ReportResponseDto;
+import Backend.FinalProject.domain.Report;
+import Backend.FinalProject.dto.response.report.ReportCommentDto;
+import Backend.FinalProject.dto.response.report.ReportMemberDto;
+import Backend.FinalProject.dto.response.report.ReportPostDto;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.repository.*;
+import Backend.FinalProject.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,12 +37,12 @@ public class AdminService {
         if (reportMemberList.isEmpty()) {
             return ResponseDto.fail("NOT FOUND", "회원을 신고한 내역이 없습니다.");
         }
-        List<ReportResponseDto> reportList = new ArrayList<>();
+        List<ReportMemberDto> reportList = new ArrayList<>();
 
         for(Report report : reportMemberList) {
             reportList.add(
-                    ReportResponseDto.builder()
-                            .id(report.getMemberId())
+                    ReportMemberDto.builder()
+                            .memberId(report.getMemberId())
                             .content(report.getContent())
                             .build());
         }
@@ -60,12 +62,12 @@ public class AdminService {
             return ResponseDto.fail("NOT FOUND", "게시글을 신고한 내역이 없습니다.");
         }
         
-        List<ReportResponseDto> reportList = new ArrayList<>();
+        List<ReportPostDto> reportList = new ArrayList<>();
 
         for (Report report : reportPostList) {
             reportList.add(
-                    ReportResponseDto.builder()
-                            .id(report.getPostId())
+                    ReportPostDto.builder()
+                            .postId(report.getPostId())
                             .content(report.getContent())
                             .build());
         }
@@ -80,17 +82,17 @@ public class AdminService {
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
-        List<Report> reportCommenList = reportRepository.findBycomment();
+        List<Report> reportCommenList = reportRepository.findByComment();
         if (reportCommenList.isEmpty()) {
             return ResponseDto.fail("NOT FOUND", "댓글을 신고한 내역이 없습니다.");
         }
 
-        List<ReportResponseDto> reportList = new ArrayList<>();
+        List<ReportCommentDto> reportList = new ArrayList<>();
 
         for (Report report : reportCommenList) {
             reportList.add(
-                    ReportResponseDto.builder()
-                            .id(report.getCommentId())
+                    ReportCommentDto.builder()
+                            .commentId(report.getCommentId())
                             .content(report.getContent())
                             .build());
         }
