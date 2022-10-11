@@ -1,13 +1,9 @@
 package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.PostRequestDto;
-import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +15,10 @@ public class AdminController {
     private final AdminService adminService;
 
 
+    @GetMapping("/admin/report/list")
+    public ResponseDto<?> getReportList(HttpServletRequest request) {
+        return adminService.getReportList(request);
+    }
     @GetMapping("/admin/member")
     public ResponseDto<?> getReportMember(
             HttpServletRequest request) {
