@@ -2,7 +2,6 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.ApplicationRequestDto;
-import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +16,9 @@ public class ApplicationController {
 
     /**
      * 게시글 참여신청
+     * @param postId : 게시글 아이디
+     * @param applicationRequestDto : 지원 신청 내용
+     * @param request : Token 이 담긴 데이터
      */
     @PostMapping("/post/application/{postId}")
     public ResponseDto<?> submitApplication(
