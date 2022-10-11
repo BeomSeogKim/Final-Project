@@ -5,8 +5,6 @@ import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,10 +30,12 @@ public class PostController {
 
     /**
      * 전체 게시글 조회
+     * @param pageNum : 페이지 장 수
+     * @return
      */
     @GetMapping("/post/all")
-    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum, @PageableDefault(size = 9) Pageable pageable) {
-        return postService.getAllPost(pageNum, pageable);
+    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum) {
+        return postService.getAllPost(pageNum);
     }
 
     /**

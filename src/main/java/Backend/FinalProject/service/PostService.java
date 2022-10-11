@@ -218,7 +218,7 @@ public class PostService{
 
 
     // 게시글 전체 조회
-    public ResponseDto<?> getAllPost(Integer pageNum, Pageable pageable) {
+    public ResponseDto<?> getAllPost(Integer pageNum) {
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
         Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest);
