@@ -47,7 +47,7 @@ public class ReportService {
 
         // 신고할 회원 찾기
         Member reportMember = memberRepository.findById(memberId).orElse(null);
-        if (reportRepository.findByMemberId(memberId)!= null) {
+        if (reportRepository.findByMemberIdAndReportMemberId(memberId,member.getId())!= null) {
             log.info("ReportService reportPost NOT_FOUND");
             return ResponseDto.fail("ALREADY EXIST", "이미 신고하신 회원 입니다.");
         }
@@ -84,7 +84,7 @@ public class ReportService {
 
         // 신고할 게시글 찾기
         Post reportPost = postRepository.findById(postId).orElse(null);
-        if (reportRepository.findByPostId(postId) != null) {
+        if (reportRepository.findByPostIdAndReportMemberId(postId, member.getId()) != null) {
             log.info("ReportService reportPost NOT_FOUND");
             return ResponseDto.fail("ALREADY EXIST", "이미 신고하신 게시글 입니다.");
         }
@@ -124,7 +124,7 @@ public class ReportService {
 
         // 신고할 회원 찾기
         Comment reportComment = commentRepository.findById(commentId).orElse(null);
-        if (reportRepository.findByCommentId(commentId)!=null) {
+        if (reportRepository.findByCommentIdAndReportMemberId(commentId, member.getId())!=null) {
             log.info("ReportService reportPost NOT_FOUND");
             return ResponseDto.fail("ALREADY EXIST", "이미 신고하신 댓글 입니다.");
         }
