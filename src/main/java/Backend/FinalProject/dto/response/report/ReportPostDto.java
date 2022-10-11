@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportPostDto {
+    private Long reportId;
     private Long postId;
     private String content;
 }

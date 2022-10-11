@@ -119,6 +119,7 @@ public class AdminService {
         for(Report report : reportMemberList) {
             reportMember.add(
                     ReportMemberDto.builder()
+                            .reportId(report.getId())
                             .memberId(report.getMemberId())
                             .content(report.getContent())
                             .build());
@@ -131,6 +132,7 @@ public class AdminService {
         for (Report report : reportPostList) {
             reportPost.add(
                     ReportPostDto.builder()
+                            .reportId(report.getId())
                             .postId(report.getPostId())
                             .content(report.getContent())
                             .build());
@@ -143,6 +145,7 @@ public class AdminService {
         for (Report report : reportCommenList) {
             reportComment.add(
                     ReportCommentDto.builder()
+                            .reportId(report.getId())
                             .commentId(report.getCommentId())
                             .content(report.getContent())
                             .build());

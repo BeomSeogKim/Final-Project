@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportMemberDto {
+    private Long reportId;
     private Long memberId;
     private String content;
 }
