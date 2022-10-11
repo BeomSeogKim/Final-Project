@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.request;
+package Backend.FinalProject.dto.request.checkduplication;
 
 import lombok.Getter;
 

@@ -374,7 +374,11 @@ public class MemberService {
         if (userId.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 회원 아이디입니다.");
-        } else return ResponseDto.success("사용 가능한 아이디입니다.");
+        } else if (id == null) {
+            return ResponseDto.fail("INVALID TYPE", "데이터의 형식을 다시한번 확인해주세요");
+        } else {
+            return ResponseDto.success("사용 가능한 아이디입니다.");
+        }
     }
 
     // 닉네임 중복 검사 method
@@ -383,7 +387,11 @@ public class MemberService {
         if (findNickname.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-NICKNAME");
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임입니다.");
-        } else return ResponseDto.success("사용 가능한 닉네임입니다.");
+        } else if (nickname == null) {
+            return ResponseDto.fail("INVALID TYPE", "데이터의 형식을 다시한번 확인해주세요");
+        } else {
+            return ResponseDto.success("사용 가능한 닉네임입니다.");
+        }
     }
 
     // 회원 검색
