@@ -1,5 +1,6 @@
 package Backend.FinalProject.dto.response;
 
+import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class AllPostResponseDto {
     private int maxNum;
     private String title;
     private String address;
+    private Category category;
     private String restDay;
     private LocalDate dDay;
     private String imgUrl;

@@ -2,6 +2,7 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Report;
+import Backend.FinalProject.dto.ReportListDto;
 import Backend.FinalProject.dto.response.report.ReportCommentDto;
 import Backend.FinalProject.dto.response.report.ReportMemberDto;
 import Backend.FinalProject.dto.response.report.ReportPostDto;
@@ -97,5 +98,52 @@ public class AdminService {
                             .build());
         }
         return ResponseDto.success(reportList);
+    }
+
+    public ResponseDto<?> getReportList(HttpServletRequest request) {
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        List<Report> reportMemberList = reportRepository.findByMember();
+        List<ReportMemberDto> reportMember = new ArrayList<>();
+
+        for(Report report : reportMemberList) {
+            reportMember.add(
+                    ReportMemberDto.builder()
+                            .memberId(report.getMemberId())
+                            .content(report.getContent())
+                            .build());
+        }
+
+        List<Report> reportPostList = reportRepository.findByPost();
+
+        List<ReportPostDto> reportPost = new ArrayList<>();
+
+        for (Report report : reportPostList) {
+            reportPost.add(
+                    ReportPostDto.builder()
+                            .postId(report.getPostId())
+                            .content(report.getContent())
+                            .build());
+        }
+
+        List<Report> reportCommenList = reportRepository.findByComment();
+
+        List<ReportCommentDto> reportComment = new ArrayList<>();
+
+        for (Report report : reportCommenList) {
+            reportComment.add(
+                    ReportCommentDto.builder()
+                            .commentId(report.getCommentId())
+                            .content(report.getContent())
+                            .build());
+        }
+        ReportListDto reportList = ReportListDto.builder()
+                .memberList(reportMember)
+                .postList(reportPost)
+                .commentList(reportComment)
+                .build();
+
+        return ResponseDto.success(reportList);
+
     }
 }
