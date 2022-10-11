@@ -17,7 +17,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     @Query(value = "select r from Report r where r.commentId is not null")
     List<Report> findByComment();
-  Report findByMemberId(Long memberId);
-  Report findByPostId(Long postId);
-  Report findByCommentId(Long commentId);
+  Report findByMemberIdAndReportMemberId(Long memberId,Long reportMemberId);
+  Report findByPostIdAndReportMemberId(Long postId,Long reportMemberId);
+  Report findByCommentIdAndReportMemberId(Long commentId,Long reportMemberId);
 }
