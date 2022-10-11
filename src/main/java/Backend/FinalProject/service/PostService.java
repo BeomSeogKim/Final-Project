@@ -219,13 +219,13 @@ public class PostService{
     // 게시글 전체 조회
     public ResponseDto<?> getAllPost(Integer pageNum, Pageable pageable) {
 
-        List<Post> all = postRepository.findAllByOrderByCreatedAtDesc(pageable);
-        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"createdAt"));
-        Page<Post> pageAll = postRepository.findAllByOrderByModifiedAtDesc(pageable);
-//        List<Post> page = postRepository.findAllOrderByModifiedAtDesc()
+        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
+        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest);
+
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
-        for (Post post : all) {
+        List<Post> contentOfPost = pageOfPost.getContent();
+        for (Post post : contentOfPost) {
             if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(PostState.RECRUIT)) {
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
@@ -242,16 +242,16 @@ public class PostService{
                 );
             }
         }
-        PostResponseDtoPage postList = PostResponseDtoPage.builder()
+        PostResponseDtoPage informationOfPost = PostResponseDtoPage.builder()
                 .postList(PostResponseDtoList)
-                .totalPage(pageAll.getTotalPages() - 1)
+                .totalPage(pageOfPost.getTotalPages() - 1)
                 .currentPage(pageNum)
-                .totalPost(pageAll.getTotalElements())
-                .isFirstPage(pageAll.isFirst())
-                .hasNextPage(pageAll.hasNext())
-                .hasPreviousPage(pageAll.hasPrevious())
+                .totalPost(pageOfPost.getTotalElements())
+                .isFirstPage(pageOfPost.isFirst())
+                .hasNextPage(pageOfPost.hasNext())
+                .hasPreviousPage(pageOfPost.hasPrevious())
                 .build();
-        return ResponseDto.success(postList);
+        return ResponseDto.success(informationOfPost);
     }
 
     // 게시글 상세 조회
@@ -377,6 +377,7 @@ public class PostService{
         }
 
         ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
+        assert chatRoom != null;
         chatRoom.updateName(title);
 
         post.updateJson(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
@@ -434,6 +435,7 @@ public class PostService{
         }
 
         ChatRoom chatRoom = chatRoomRepository.findByPostId(id).orElse(null);
+        assert chatRoom != null;
         chatMessageRepository.deleteAllByChatRoom(chatRoom);
         chatRoomRepository.delete(chatRoom);
         postRepository.delete(post);

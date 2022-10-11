@@ -222,9 +222,9 @@ public class ApplicationService {
             return ResponseDto.fail("NO AUTHORIZATION", "접근 권한이 없습니다");
         }
 
-        Optional<List<Application>> optionalApplicationList = applicationRepository.findAllByPostId(postId);
-        List<Application> applicationList = optionalApplicationList.orElse(null);
-        if (applicationList == null) {
+        //todo
+        List<Application> applicationList = applicationRepository.findAllByPostIdApplication(postId);
+        if (applicationList.isEmpty()) {
             log.info("ApplicationService getApplicationList NO ATTENDEE");
             return ResponseDto.fail("NO ATTENDEE", "지원자가 존재하지 않습니다.");
         }
