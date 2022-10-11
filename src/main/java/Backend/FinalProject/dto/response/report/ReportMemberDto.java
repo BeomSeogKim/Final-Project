@@ -13,4 +13,6 @@ public class ReportMemberDto {
     private Long reportId;
     private Long memberId;
     private String content;
+    private String reportNickname;
+    private String memberImgUrl;
 }
