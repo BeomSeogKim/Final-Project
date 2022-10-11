@@ -28,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -334,6 +333,9 @@ public class PostService{
         if (null == post) {
             log.info("PostService updatePost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+        if (post.getRegulation().equals(Regulation.REGULATED)) {
+            return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
         }
 
         String title = postUpdateRequestDto.getTitle();
