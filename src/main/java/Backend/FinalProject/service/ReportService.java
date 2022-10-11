@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 
 import static Backend.FinalProject.domain.ReportStatus.UNDONE;
+import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +66,7 @@ public class ReportService {
                 .reportMemberId(member.getId())
                 .memberId(memberId)
                 .status(UNDONE)
+                .show(SHOW)
                 .build();
 
         reportRepository.save(report);
@@ -104,6 +106,7 @@ public class ReportService {
                 .content(reportDto.getContent())
                 .postId(postId)
                 .status(UNDONE)
+                .show(SHOW)
                 .build();
 
 
@@ -143,6 +146,7 @@ public class ReportService {
                 .content(reportDto.getContent())
                 .commentId(commentId)
                 .status(UNDONE)
+                .show(SHOW)
                 .build();
 
         reportRepository.save(report);
