@@ -23,8 +23,7 @@ public class SchedulerService {
 
     /**
      * 매일 오전 1시 기준으로 게시글들 상태 업데이트
-     * 모집 마감일이 지난 경우 ==> DONE 상태로 바뀜
-     * 모임 일이 지난 경우 ==> CLOSURE 상태로 바뀜
+     * 모집 마감일이 지났는데 모집 인원이 0이 아닌 게시글의 경우 ==> DONE 상태로 바꿈
      */
 
     @Scheduled(cron = "0 0 1 * * *")
@@ -34,11 +33,8 @@ public class SchedulerService {
 
         List<Post> postList = postRepository.findAll();
         for (Post post : postList) {
-            if (now.isAfter(post.getEndDate())) {
+            if (now.isAfter(post.getEndDate()) && post.getCurrentNum() != 0) {
                 post.updateStatus();
-            }
-            if (now.isAfter(post.getDDay())) {
-                post.closeStatus();
             }
         }
     }

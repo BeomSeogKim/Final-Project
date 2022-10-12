@@ -16,9 +16,10 @@ public class ApplicationController {
 
     /**
      * 게시글 참여신청
-     * @param postId : 게시글 아이디
+     *
+     * @param postId                : 게시글 아이디
      * @param applicationRequestDto : 지원 신청 내용
-     * @param request : Token 이 담긴 데이터
+     * @param request               : Token 이 담긴 데이터
      */
     @PostMapping("/post/application/{postId}")
     public ResponseDto<?> submitApplication(
@@ -30,7 +31,8 @@ public class ApplicationController {
 
     /**
      * 게시글 참여 신청 취소
-     * @param postId : 게시글 아이디
+     *
+     * @param postId  : 게시글 아이디
      * @param request : Token 이 담긴 데이터
      */
     @PostMapping("/post/application/cancel/{postId}")
@@ -42,8 +44,9 @@ public class ApplicationController {
 
     /**
      * 게시글 참여 수락
+     *
      * @param applicationId : 지원 신청 아이디
-     * @param request : Token 이 담긴 데이터
+     * @param request       : Token 이 담긴 데이터
      * @return
      */
     @PostMapping("/post/application/approve/{applicationId}")
@@ -55,8 +58,9 @@ public class ApplicationController {
 
     /**
      * 게시글 참여 거절
+     *
      * @param applicationId : 지원 신청 아이디
-     * @param request : Token 이 담긴 데이터
+     * @param request       : Token 이 담긴 데이터
      */
     @PostMapping("/post/application/disapprove/{applicationId}")
     public ResponseDto<?> disapproveApplication(
@@ -67,7 +71,8 @@ public class ApplicationController {
 
     /**
      * 지원자 보기
-     * @param postId : 게시글 아이디
+     *
+     * @param postId  : 게시글 아이디
      * @param request : Token 이 담긴 데이터
      */
     @GetMapping("/post/application/{postId}")
@@ -75,5 +80,18 @@ public class ApplicationController {
             @PathVariable Long postId,
             HttpServletRequest request) {
         return applicationService.getApplicationList(postId, request);
+    }
+
+    /**
+     * 모집 마감
+     * @param postId : 게시글 아이디
+     * @param request : Token 이 담긴 데이터
+     */
+    @PutMapping("/post/execute/{postId}")
+    public ResponseDto<?> changePostStatus(
+            @PathVariable Long postId,
+            HttpServletRequest request
+    ) {
+        return applicationService.changePostStatus(postId, request);
     }
 }

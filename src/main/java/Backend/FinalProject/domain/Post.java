@@ -114,6 +114,7 @@ public class Post extends Timestamped{
         this.imgUrl = imgUrl;
     }
 
+    @Transactional
     public void updateStatus() {
         this.status = DONE;
     }
