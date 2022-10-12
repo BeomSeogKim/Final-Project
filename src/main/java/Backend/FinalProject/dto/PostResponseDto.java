@@ -1,5 +1,6 @@
 package Backend.FinalProject.dto;
 
+import Backend.FinalProject.domain.enums.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class PostResponseDto {
 
     private Long id;
     private String title;
+    private Category category;
     private String authorId;
     private String authorNickname;
     private String memberImgUrl;
