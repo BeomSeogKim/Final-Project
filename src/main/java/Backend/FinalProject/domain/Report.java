@@ -39,18 +39,18 @@ public class Report extends Timestamped {
     private Long commentId;
 
     @Enumerated(value = STRING)
-    private ReportStatus status;
+    private ReportStatus reportStatus;
 
     @Enumerated(value = STRING)
-    private ShowStatus show;
+    private ShowStatus showStatus;
 
     @Transactional
     public void updateStatus() {
-        this.status = DONE;
+        this.reportStatus = DONE;
     }
 
     @Transactional
     public void hide() {
-        this.show = HIDE;
+        this.showStatus = HIDE;
     }
 }
