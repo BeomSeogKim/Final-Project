@@ -118,7 +118,7 @@ public class AdminService {
 
         for(Report report : reportMemberList) {
             if (report.getReportStatus().equals(UNDONE) && report.getShowStatus().equals(SHOW)) {
-              Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
+              Member optionalMember = memberRepository.findById(report.getMemberId()).orElse(null);
               if(optionalMember==null){
                   log.info("AdminService getReportList NOT FOUND");
                   return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");

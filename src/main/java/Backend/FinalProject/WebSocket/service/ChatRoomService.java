@@ -3,6 +3,7 @@ package Backend.FinalProject.WebSocket.service;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.ChatRoomDto;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
+import Backend.FinalProject.WebSocket.domain.ChatMemberResponseDto;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageInfoDto;
@@ -135,5 +136,35 @@ public class ChatRoomService {
             );
         }
         return ResponseDto.success(chatRoomDtoList);
+    }
+
+    public ResponseDto<?> getRoomMemberInfo(Long roomId, HttpServletRequest request) {
+        ChatRoom validation = chatRoomRepository.findById(roomId).orElse(null);
+        if (validation == null) {
+            return ResponseDto.fail("NO CHAT ROOM", "해당 채팅방이 존재하지 않습니다");
+        }
+        ResponseDto<?> responseDto = this.validation.validateCheck(request);
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        List<ChatMemberResponseDto> chatMemberInfo = new ArrayList<>();
+        List<ChatMember> chatMemberList = chatMemberRepository.findAllByChatRoomId(roomId);
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
+
+        for (ChatMember chatMember : chatMemberList) {
+            boolean isLeader;
+            isLeader = chatMember.getMember().getId() == (chatRoom.getPost().getMember().getId());
+            chatMemberInfo.add(
+                    ChatMemberResponseDto.builder()
+                            .imgUrl(chatMember.getMember().getImgUrl())
+                            .nickname(chatMember.getMember().getNickname())
+                            .memberId(chatMember.getMember().getId())
+                            .isLeader(isLeader)
+                            .build()
+            );
+        }
+        return ResponseDto.success(chatMemberInfo);
     }
 }
