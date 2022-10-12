@@ -2,6 +2,8 @@ plugins {
 	id 'org.springframework.boot' version '2.7.3'
 	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
 	id 'java'
+	//querydsl 추가
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'Backend'
@@ -40,22 +42,47 @@ dependencies {
 
 	// web socket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-//	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-//	implementation 'org.springframework.boot:spring-boot-starter-freemarker'
 	implementation 'org.springframework.boot:spring-boot-devtools'
 
-//	implementation 'org.webjars.bower:bootstrap:4.3.1'
-//	implementation 'org.webjars.bower:vue:2.5.16'
-//	implementation 'org.webjars.bower:axios:0.17.1'
 	implementation 'org.webjars:sockjs-client:1.1.2'
 	implementation 'org.webjars:stomp-websocket:2.3.3-1'
 	implementation 'com.google.code.gson:gson:2.8.0'
 
+	//querydsl 추가
+	implementation 'com.querydsl:querydsl-jpa'
+	// 쿼리 파라미터 로그 남기기 ==> 로컬에서만 사용하자
+//	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
 
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+//querydsl 추가
+//def querydslDir = 'src/main/generated'
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	library = "com.querydsl:querydsl-apt"
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src/main/java', querydslDir]
+		}
+	}
+}
+
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+	querydsl.extendsFrom compileClasspath
 }
 
 jar {
