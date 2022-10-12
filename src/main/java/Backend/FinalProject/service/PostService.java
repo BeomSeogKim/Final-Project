@@ -299,6 +299,7 @@ public class PostService{
         return ResponseDto.success(PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle()).authorId(post.getMember().getUserId()).authorNickname(post.getMember().getNickname())
+                .status(post.getStatus())
                 .category(post.getCategory())
                 .memberId(post.getMember().getId())
                 .memberImgUrl(post.getMember().getImgUrl())
