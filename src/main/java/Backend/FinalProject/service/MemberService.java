@@ -173,8 +173,8 @@ public class MemberService {
         Member member = isPresentMember(loginRequestDto.getUserId());
 
         if (member == null) {
-            log.info("MemberService login INVALID_ID");
-            return ResponseDto.fail("INVALID_ID", "존재하지 않는 아이디입니다.");
+            log.info("MemberService login ");
+            return ResponseDto.fail("", "존재하지 않는 아이디입니다.");
         }
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
             log.info("MemberService login INVALID_PASSWORD");

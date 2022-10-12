@@ -227,20 +227,28 @@ public class PostService{
         List<Post> contentOfPost = pageOfPost.getContent();
         Long count = 0L;
         for (Post post : contentOfPost) {
+            int numOfComment = commentRepository.findAllCountByPost(post);
             if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(PostState.RECRUIT)) {
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
                                 .id(post.getId())
                                 .title(post.getTitle())
                                 .maxNum(post.getMaxNum())
-                                .address(post.getAddress())
+                                .address(
+                                        post.getDetailAddress().equals("undefined") ? post.getAddress(): post.getAddress() + " " + post.getDetailAddress()
+                                        )
                                 .category(post.getCategory())
                                 .restDay(time.convertLocalDateToTime((post.getEndDate())))
                                 .dDay(post.getDDay())
                                 .imgUrl(post.getImgUrl())
                                 .status(post.getStatus())
+                                .authorImgUrl(post.getMember().getImgUrl())
+                                .authorNickname(post.getMember().getNickname())
+                                .numOfComment(numOfComment)
+                                .numOfWish(post.getNumOfWish())
                                 .build()
                 );
+
             } else {
                 count++;
             }
