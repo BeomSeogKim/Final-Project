@@ -28,4 +28,8 @@ public class AllPostResponseDto {
     private String imgUrl;
     @Enumerated(value = STRING)
     private PostState status;
+    private String authorImgUrl;
+    private String authorNickname;
+    private int numOfComment;
+    private int numOfWish;
 }
