@@ -78,8 +78,8 @@ public class PostController {
      */
     @PostMapping("/post/search")
     public ResponseDto<?> findPost(@RequestBody SearchDto searchDto,
-                                   HttpServletRequest request) {
-        return postService.findPost(searchDto, request);
+                                   @RequestParam("page") Integer pageNum) {
+        return postService.findPost(searchDto, pageNum);
     }
 
     /**

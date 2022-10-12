@@ -10,7 +10,6 @@ import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.Category;
-import Backend.FinalProject.domain.enums.PostState;
 import Backend.FinalProject.domain.enums.Regulation;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
@@ -25,6 +24,7 @@ import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +46,7 @@ import java.util.Optional;
 
 import static Backend.FinalProject.domain.QPost.post;
 import static Backend.FinalProject.domain.enums.Category.*;
+import static Backend.FinalProject.domain.enums.PostState.RECRUIT;
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static java.time.LocalDate.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -180,7 +181,7 @@ public class PostService{
                 .startDate(startDate)
                 .endDate(endDate)
                 .imgUrl(imgUrl)
-                .status(PostState.RECRUIT)      // 현재 모집 중
+                .status(RECRUIT)      // 현재 모집 중
                 .member(member)
                 .address(request.getAddress())
                 .placeX(request.getPlaceX())
@@ -232,7 +233,7 @@ public class PostService{
         Long count = 0L;
         for (Post post : contentOfPost) {
             int numOfComment = commentRepository.findAllCountByPost(post);
-            if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(PostState.RECRUIT)) {
+            if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(RECRUIT)) {
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
                                 .id(post.getId())
@@ -538,18 +539,29 @@ public class PostService{
     }
 
 
-    public ResponseDto<?> findPost(SearchDto search, HttpServletRequest request) {
+    public ResponseDto<?> findPost(SearchDto search, Integer pageNum ) {
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
         List<Post> postList = queryFactory.selectFrom(post)
-                .where(categoryEq(search.getCategory()), keywordEq(search.getKeyword()))
+                .where(categoryEq(search.getCategory()), keywordEq(search.getKeyword()), post.status.eq(RECRUIT), post.regulation.eq(UNREGULATED))
+                .orderBy(post.modifiedAt.desc())
+                .offset(pageNum * 9)
+                .limit(9)
                 .fetch();
-
+        QueryResults<Post> pageInfo = queryFactory.selectFrom(post)
+                .where(categoryEq(search.getCategory()), keywordEq(search.getKeyword()), post.status.eq(RECRUIT), post.regulation.eq(UNREGULATED))
+                .orderBy(post.modifiedAt.desc())
+                .offset(pageNum * 9)
+                .limit(9)
+                .fetchResults();
 
         List<AllPostResponseDto> detailPostInformation = new ArrayList<>();
         for (Post findPost : postList) {
-            if (findPost.getRegulation().equals(UNREGULATED) && findPost.getStatus().equals(PostState.RECRUIT)) {
+
+            int numOfComment = commentRepository.findAllCountByPost(findPost);
+
+            if (findPost.getRegulation().equals(UNREGULATED) && findPost.getStatus().equals(RECRUIT)) {
                 detailPostInformation.add(
                         AllPostResponseDto.builder()
                                 .id(findPost.getId())
@@ -561,15 +573,62 @@ public class PostService{
                                 .dDay(findPost.getDDay())
                                 .imgUrl(findPost.getImgUrl())
                                 .status(findPost.getStatus())
+                                .authorImgUrl(findPost.getMember().getImgUrl())
+                                .authorNickname(findPost.getMember().getNickname())
+                                .numOfComment(numOfComment)
+                                .numOfWish(findPost.getNumOfWish())
                                 .build()
                 );
             }
         }
-        return ResponseDto.success(detailPostInformation);
+        int totalPage = (int) pageInfo.getTotal() / (int) pageInfo.getLimit();
+        int restPage = (int) pageInfo.getTotal() - (int) pageInfo.getLimit() * totalPage;
+        if (restPage > 0) {
+            totalPage++;
+        }
+        totalPage = totalPage - 1;      // 전체 페이지 한번 ㅜ줄이기
+
+        boolean firstPage = false;
+        boolean nextPage = true;
+        boolean previousPage = true;
+
+        if (pageNum == totalPage) {
+            nextPage = false;
+            firstPage = false;
+            previousPage = true;
+            if (totalPage == 0) {
+                previousPage = false;
+            }
+        }
+
+        if (pageNum == 0) {
+            firstPage = true;
+            previousPage = false;
+            nextPage = true;
+            if (totalPage == 0) {
+                nextPage = false;
+            }
+        }
+
+        PostResponseDtoPage informationOfPost = PostResponseDtoPage.builder()
+                .postList(detailPostInformation)
+                .totalPage(totalPage)
+                .currentPage(pageNum)
+                .totalPost(pageInfo.getTotal())       // 현재 페이지에 보여야 하는 갯수로 카운트를 진행.
+                .isFirstPage(firstPage)
+                .hasNextPage(nextPage)
+                .hasPreviousPage(previousPage)
+                .build();
+
+        return ResponseDto.success(informationOfPost);
     }
 
     private Predicate categoryEq(String category) {
-        return category != null ? post.category.eq(valueOf(category)) : null;
+        if (category == null || category.trim().isEmpty() || category.equals("ALL")) {
+            return null;
+        } else {
+            return post.category.eq(valueOf(category));
+        }
     }
 
     private Predicate keywordEq(String keyword) {
