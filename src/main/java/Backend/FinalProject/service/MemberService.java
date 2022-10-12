@@ -132,13 +132,13 @@ public class MemberService {
             setAgeCheck = CHECKED;
         }
 
-        if (age >= 10 || age < 20) {
+        if (age < 20) {
             minAge = 10;
-        } else if (age >= 20 || age < 30) {
+        } else if (age < 30) {
             minAge = 20;
-        } else if (age >= 30 || age < 40) {
+        } else if (age < 40) {
             minAge = 30;
-        } else if (age >= 40 || age < 50) {
+        } else if (age < 50) {
             minAge = 40;
         } else {
             minAge = 50;
