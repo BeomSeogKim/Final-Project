@@ -34,4 +34,10 @@ public class ChatRoomController {
     public ResponseDto<?> getRooms(HttpServletRequest request) {
         return chatRoomService.getRooms(request);
     }
+
+    // 채팅방 참가자 조회
+    @GetMapping("room/{roomId}/info")
+    public ResponseDto<?> getRoomMemberInfo(@PathVariable Long roomId, HttpServletRequest request) {
+        return chatRoomService.getRoomMemberInfo(roomId, request);
+    }
 }
