@@ -62,7 +62,7 @@ public class Post extends Timestamped{
     private String placeX;
     // y 위치
     private String placeY;
-    // kakaMap 링크
+    // kakaoMap 링크
     private String placeUrl;
     // 장소 이름
     private String placeName;

@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class IdCheckDuplicateDto {
-    private String idCheck;
+    public String idCheck;
 }

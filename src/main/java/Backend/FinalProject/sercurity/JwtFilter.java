@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 response.getWriter().println(
                         new ObjectMapper().writeValueAsString(
                                 //ResponseDto
-                                ("BAD_REQUEST"+ "Token이 유효햐지 않습니다.")
+                                ("BAD_REQUEST"+ "Token 이 유효햐지 않습니다.")
                         )
                 );
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

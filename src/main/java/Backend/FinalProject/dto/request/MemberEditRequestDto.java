@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class MemberEditRequestDto {
-    private String password;
-    private String nickname;
+    public String password;
+    public String nickname;
 }

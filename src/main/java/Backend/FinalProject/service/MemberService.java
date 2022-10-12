@@ -73,7 +73,7 @@ public class MemberService {
         String requiredAgreement = request.getRequiredAgreement();
         String marketingAgreement = request.getMarketingAgreement();
         String imgUrl;
-        Integer minAge;
+        int minAge;
         Gender genderSet = Gender.NEUTRAL;
         AgeCheck setAgeCheck = UNCHECKED;
         RequiredAgreement setRequiredAgreement = REQUIRED_DISAGREE;

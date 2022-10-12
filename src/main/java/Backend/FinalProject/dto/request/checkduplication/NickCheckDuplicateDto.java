@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class NickCheckDuplicateDto {
-    private String nickCheck;
+    public String nickCheck;
 }

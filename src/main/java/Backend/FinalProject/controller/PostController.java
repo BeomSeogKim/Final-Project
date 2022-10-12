@@ -74,7 +74,7 @@ public class PostController {
     /**
      * 게시글 검색
      * @param searchDto : keyword 및 category
-     * @param request : Token 이 담긴 데이터
+     * @param pageNum : 페이지네이션을 위한 page 숫자.
      */
     @PostMapping("/post/search")
     public ResponseDto<?> findPost(@RequestBody SearchDto searchDto,
