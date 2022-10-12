@@ -16,6 +16,7 @@ public class CommentController {
 
     /**
      * 댓글 조회
+     * @param postId : 게시글 아이디
      */
     @GetMapping("/comment/{postId}")
     public ResponseDto<?> getComments(
@@ -25,9 +26,11 @@ public class CommentController {
     }
 
 
-
     /**
      * 댓글 작성
+     * @param postId : 게시글 아이디
+     * @param commentRequestDto : 작성 내용
+     * @param request : Token 이 담긴 데이터
      */
     @PostMapping("/comment/{postId}")
     public ResponseDto<?> writeComment(
@@ -39,6 +42,9 @@ public class CommentController {
 
     /**
      * 댓글 수정
+     * @param commentId : 댓글 아이디
+     * @param commentRequestDto : 수정 내용
+     * @param request : Token 이 담긴 데이터
      */
     @PutMapping("/comment/{commentId}")
     public ResponseDto<?> editComment(
@@ -50,6 +56,8 @@ public class CommentController {
 
     /**
      * 댓글 삭제
+     * @param commentId : 댓글 아이디
+     * @param request : Token 이 담긴 데이터
      */
     @DeleteMapping("/comment/{commentId}")
     public ResponseDto<?> deleteComment(

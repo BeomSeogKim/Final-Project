@@ -7,6 +7,7 @@ import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.enums.ApplicationState;
+import Backend.FinalProject.domain.enums.Regulation;
 import Backend.FinalProject.dto.ApplicationListResponseDto;
 import Backend.FinalProject.dto.ApplicationResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -62,10 +63,10 @@ public class ApplicationService {
         String content = applicationRequestDto.getContent();
         if (content == null) {
             log.info("ApplicationService submitApplication EMPTY");
-            return ResponseDto.fail("EMPTY", "내용을 적어주세요");
+            return ResponseDto.fail("EMPTY CONTENT", "내용을 적어주세요");
         }
 
-        // 기존에 참여 신청한 회원 거절
+        // 기존에 참여 신청한 회원의 경우 신청 거절
         Optional<Application> optionalForm = applicationRepository.findByPostIdAndMemberId(postId, member.getId());
         Application form = optionalForm.orElse(null);
         if (form != null) {
@@ -74,9 +75,15 @@ public class ApplicationService {
         }
 
         // 게시글 작성자가 신청을 할 경우 거절
-        if (post.getMember().getId() == member.getId()) {
+        if (post.getMember().getId().equals(member.getId())) {
             log.info("ApplicationService submitApplication INVALID ACCESS");
             return ResponseDto.fail("INVALID ACCESS", "모임 주최자는 신청할 수 없습니다.");
+        }
+
+        // 제재먹은 게시글의 경우 신청 불가
+        if (post.getRegulation().equals(Regulation.REGULATED)) {
+            log.info("ApplicationService submitApplication REGULATED POST");
+            return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
         }
 
 

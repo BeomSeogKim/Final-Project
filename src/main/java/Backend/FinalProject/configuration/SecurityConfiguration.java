@@ -60,11 +60,10 @@ public class SecurityConfiguration {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**/*").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
-                .antMatchers("/member/**", "/ws/chat", "/api/view/**").permitAll()
-                .antMatchers("/post/all").permitAll()
-                .antMatchers("/oauth/**").permitAll()
-                .antMatchers("/chat/**", "/chat/user", "/webjars/**", "/ws-stomp/**").permitAll()
-                .antMatchers("/post", "/post/detail/**").permitAll()
+                .antMatchers("/member/signup", "/member/login" , "/oauth/**").permitAll()   // 회원 가입, 로그인 관련 페이지
+                .antMatchers("/ws/chat").permitAll()        // 웹 소켓 관련 페이지
+                .antMatchers("/post/all").permitAll()       // 전체 게시글 관련
+                .antMatchers("/chat/**", "/chat/user", "/ws-stomp/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지
                 .anyRequest().authenticated()
 

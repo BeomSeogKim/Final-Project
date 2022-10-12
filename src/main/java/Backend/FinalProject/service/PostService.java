@@ -11,6 +11,7 @@ import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
+import Backend.FinalProject.domain.enums.Regulation;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -27,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -217,7 +217,7 @@ public class PostService{
 
 
     // 게시글 전체 조회
-    public ResponseDto<?> getAllPost(Integer pageNum, Pageable pageable) {
+    public ResponseDto<?> getAllPost(Integer pageNum) {
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
         Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest);
@@ -225,6 +225,7 @@ public class PostService{
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         List<Post> contentOfPost = pageOfPost.getContent();
+        Long count = 0L;
         for (Post post : contentOfPost) {
             if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(PostState.RECRUIT)) {
                 PostResponseDtoList.add(
@@ -240,13 +241,15 @@ public class PostService{
                                 .status(post.getStatus())
                                 .build()
                 );
+            } else {
+                count++;
             }
         }
         PostResponseDtoPage informationOfPost = PostResponseDtoPage.builder()
                 .postList(PostResponseDtoList)
                 .totalPage(pageOfPost.getTotalPages() - 1)
                 .currentPage(pageNum)
-                .totalPost(pageOfPost.getTotalElements())
+                .totalPost(pageOfPost.getTotalElements() - count)       // 현재 페이지에 보여야 하는 갯수로 카운트를 진행.
                 .isFirstPage(pageOfPost.isFirst())
                 .hasNextPage(pageOfPost.hasNext())
                 .hasPreviousPage(pageOfPost.hasPrevious())
@@ -257,12 +260,15 @@ public class PostService{
     // 게시글 상세 조회
     public ResponseDto<?> getPost(Long postId) {
 
-        boolean isWish = false;
+        boolean isWish = false;     // 회원이 좋아요를 눌렀는지 안눌렀는지 Check
 
         Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
         if (null == post) {
             log.info("PostService getPost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+        if (post.getRegulation().equals(Regulation.REGULATED)) {
+            return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
         }
         List<Comment> commentList = commentRepository.findAllByPost(post);
         List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
@@ -327,6 +333,9 @@ public class PostService{
         if (null == post) {
             log.info("PostService updatePost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
+        }
+        if (post.getRegulation().equals(Regulation.REGULATED)) {
+            return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
         }
 
         String title = postUpdateRequestDto.getTitle();
@@ -419,7 +428,7 @@ public class PostService{
         }
         Member member = (Member) responseDto.getData();
 
-        // 개사굴 유효성 검사e
+        // 게시글 유효성 검사
         Post post = isPresentPost(id);
         if (null == post) {
             log.info("PostService deletePost NOT_FOUND");
@@ -459,11 +468,17 @@ public class PostService{
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
         }
         // 검증 로직 -- 이미 좋아요를 누를 경우 중복 좋아요 불가.
-        WishList isPresentWish = wishListRepository.findByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
-        if (isPresentWish != null) {
+        WishList wish = wishListRepository.findByMemberIdAndPostId(member.getId(), post.getId()).orElse(null);
+        if (wish != null) {
             log.info("PostService addWish ALREADY LIKE");
             return ResponseDto.fail("ALREADY LIKE", "이미 좋아요를 누르셨습니다.");
         }
+        if (post.getMember().getId().equals(member.getId())) {
+            return ResponseDto.fail("INVALID ACCESS", "작성자는 좋아요를 누를 수 없습니다");
+        }
+
+        System.out.println(post.getMember().getId());
+        System.out.println(member.getId());
 
         WishList wishList = WishList.builder()
                 .member(member)

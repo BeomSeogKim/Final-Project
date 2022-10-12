@@ -5,8 +5,6 @@ import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,10 +30,11 @@ public class PostController {
 
     /**
      * 전체 게시글 조회
+     * @param pageNum : 페이지 장 수
      */
     @GetMapping("/post/all")
-    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum, @PageableDefault(size = 9) Pageable pageable) {
-        return postService.getAllPost(pageNum, pageable);
+    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum) {
+        return postService.getAllPost(pageNum);
     }
 
     /**
@@ -51,8 +50,7 @@ public class PostController {
      * 게시글 업데이트
      * @param postId : 게시글 아이디
      * @param requestDto : 업데이트에 필요한 데이터
-     * @param request : Token이 담긴 데이터
-     * @return
+     * @param request : Token 이 담긴 데이터
      */
     @PutMapping("/post/{postId}")
     public ResponseDto<?> updatePost(@PathVariable Long postId,
@@ -64,8 +62,7 @@ public class PostController {
     /**
      * 게시글 삭제
      * @param postId : 게시글 아이디
-     * @param request : Token이 담긴 데이터
-     * @return
+     * @param request : Token 이 담긴 데이터
      */
     @DeleteMapping("/post/{postId}")
     public ResponseDto<?> deletePost(@PathVariable Long postId,
@@ -73,13 +70,22 @@ public class PostController {
         return postService.deletePost(postId, request);
     }
 
-    // 게시글 찜
+    /**
+     * 게시글 찜
+     * @param postId : 게시글 아이디
+     * @param request : Token 이 담긴 데이터
+     */
     @PostMapping("/post/add/wish/{postId}")
     public ResponseDto<?> addWish(@PathVariable Long postId,
                                      HttpServletRequest request){
         return postService.addWish(postId, request);
     }
-    // 게시글 찜 삭제
+
+    /**
+     * 게시글 찜 삭제
+      * @param postId : 게시글 아이디
+     * @param request : Token 이 담긴 데이터
+     */
     @PostMapping("/post/remove/wish/{postId}")
     public ResponseDto<?> removeWish(@PathVariable Long postId,
                                   HttpServletRequest request){

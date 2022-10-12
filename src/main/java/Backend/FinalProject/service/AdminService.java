@@ -1,10 +1,7 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.domain.Comment;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.Post;
-import Backend.FinalProject.domain.Report;
+import Backend.FinalProject.domain.*;
 import Backend.FinalProject.dto.ReportListDto;
 import Backend.FinalProject.dto.response.report.ReportCommentDto;
 import Backend.FinalProject.dto.response.report.ReportMemberDto;
@@ -23,6 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static Backend.FinalProject.domain.ReportStatus.UNDONE;
+import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
 
 @RestController
 @RequiredArgsConstructor
@@ -118,19 +118,21 @@ public class AdminService {
         List<ReportMemberDto> reportMember = new ArrayList<>();
 
         for(Report report : reportMemberList) {
-            Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
-            if(optionalMember==null){
-                log.info("AdminService getReportList NOT FOUND");
-                return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+              Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
+              if(optionalMember==null){
+                  log.info("AdminService getReportList NOT FOUND");
+                  return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+              }
+              reportMember.add(
+                      ReportMemberDto.builder()
+                              .reportId(report.getId())
+                              .memberId(report.getMemberId())
+                              .content(report.getContent())
+                              .memberImgUrl(optionalMember.getImgUrl())
+                              .reportNickname(optionalMember.getNickname())
+                              .build());
             }
-            reportMember.add(
-                    ReportMemberDto.builder()
-                            .reportId(report.getId())
-                            .memberId(report.getMemberId())
-                            .content(report.getContent())
-                            .memberImgUrl(optionalMember.getImgUrl())
-                            .reportNickname(optionalMember.getNickname())
-                            .build());
         }
 
         List<Report> reportPostList = reportRepository.findByPost();
@@ -138,20 +140,22 @@ public class AdminService {
         List<ReportPostDto> reportPost = new ArrayList<>();
 
         for (Report report : reportPostList) {
-            Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
-            Post optionalPost = postRepository.findById(report.getPostId()).orElse(null);
-            if(optionalMember==null || optionalPost==null){
-                log.info("AdminService getReportList NOT FOUND");
-                return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+              Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
+              Post optionalPost = postRepository.findById(report.getPostId()).orElse(null);
+              if(optionalMember==null || optionalPost==null){
+                  log.info("AdminService getReportList NOT FOUND");
+                  return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+              }
+              reportPost.add(
+                      ReportPostDto.builder()
+                              .reportId(report.getId())
+                              .postId(report.getPostId())
+                              .content(report.getContent())
+                              .postUrl(optionalPost.getImgUrl())
+                              .reportNickname(optionalMember.getNickname())
+                              .build());
             }
-            reportPost.add(
-                    ReportPostDto.builder()
-                            .reportId(report.getId())
-                            .postId(report.getPostId())
-                            .content(report.getContent())
-                            .postUrl(optionalPost.getImgUrl())
-                            .reportNickname(optionalMember.getNickname())
-                            .build());
         }
 
         List<Report> reportCommenList = reportRepository.findByComment();
@@ -159,26 +163,29 @@ public class AdminService {
         List<ReportCommentDto> reportComment = new ArrayList<>();
 
         for (Report report : reportCommenList) {
-            Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
-            Post optionalPost = postRepository.findById(report.getReportPostId()).orElse(null);
-            Comment optionalComment = commentRepository.findById(report.getCommentId()).orElse(null);
+          if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+              Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
+              Post optionalPost = postRepository.findById(report.getReportPostId()).orElse(null);
+              Comment optionalComment = commentRepository.findById(report.getCommentId()).orElse(null);
 
-            if(optionalMember==null || optionalPost==null || optionalComment==null){
-                log.info("AdminService getReportList NOT FOUND");
-                return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
-            }
-            reportComment.add(
-                    ReportCommentDto.builder()
-                            .postId(report.getReportPostId())
-                            .reportId(report.getId())
-                            .commentId(report.getCommentId())
-                            .content(report.getContent())
-                            .memberUrl(optionalMember.getImgUrl())
-                            .reportNickname(optionalMember.getNickname())
-                            .postUrl(optionalPost.getImgUrl())
-                            .reportCommentContent(optionalComment.getContent())
-                            .build());
+              if(optionalMember==null || optionalPost==null || optionalComment==null){
+                  log.info("AdminService getReportList NOT FOUND");
+                  return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+              }
+              reportComment.add(
+                      ReportCommentDto.builder()
+                              .postId(report.getReportPostId())
+                              .reportId(report.getId())
+                              .commentId(report.getCommentId())
+                              .content(report.getContent())
+                              .memberUrl(optionalMember.getImgUrl())
+                              .reportNickname(optionalMember.getNickname())
+                              .postUrl(optionalPost.getImgUrl())
+                              .reportCommentContent(optionalComment.getContent())
+                              .build());
+          }
         }
+        
         ReportListDto reportList = ReportListDto.builder()
                 .memberList(reportMember)
                 .postList(reportPost)
@@ -188,6 +195,7 @@ public class AdminService {
         return ResponseDto.success(reportList);
 
     }
+    @Transactional
     public ResponseDto<?> executeReport(Long reportId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.validateCheck(request);
         Report report = reportRepository.findById(reportId).orElse(null);
@@ -202,11 +210,21 @@ public class AdminService {
             assert post != null;
             post.executeRegulation();
             postRepository.flush();
+            // 같은 아이디를 가진 게시글 신고글들 다 HIDE 처리
+            List<Report> samePostReport = reportRepository.findAllByPostId(report.getPostId());
+            samePostReport.forEach(Report::hide);
+            // 같은 아이디를 가진 댓글 신고들 다 UNDONE 처리
+            List<Report> samePostCommentReport = reportRepository.findAllByReportPostId(report.getPostId());
+            samePostCommentReport.forEach(Report::hide);
         } else {
             Comment comment = commentRepository.findById(report.getCommentId()).orElse(null);
             assert comment != null;
             comment.executeRegulation();
             commentRepository.flush();
+            // 같은 댓글을 가진 댓글 신고들 다 Undone 처리
+            List<Report> sameCommentReport = reportRepository.findALlByCommentId(report.getCommentId());
+            sameCommentReport.forEach(Report::hide);
+
         }
         report.updateStatus();
         reportRepository.flush();
