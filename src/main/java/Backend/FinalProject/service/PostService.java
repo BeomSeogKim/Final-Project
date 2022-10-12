@@ -25,6 +25,7 @@ import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -527,23 +528,14 @@ public class PostService{
     }
 
 
-    public ResponseDto<?> findPost(SearchDto searchDto, HttpServletRequest request) {
-        String keyword = searchDto.getKeyword();
-        String category = searchDto.getCategory();
-        if (category != null) {
-            category = "ETC";
-        }
-        if (keyword == null) {
-            keyword = "";
-        }
+    public ResponseDto<?> findPost(SearchDto search, HttpServletRequest request) {
+
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
         List<Post> postList = queryFactory.selectFrom(post)
-                .where(
-                        post.category.eq(valueOf(category)),
-                        post.title.contains(keyword),
-                        post.content.contains(keyword)
-                ).fetch();
+                .where(categoryEq(search.getCategory()), keywordEq(search.getKeyword()))
+                .fetch();
+
 
         List<AllPostResponseDto> detailPostInformation = new ArrayList<>();
         for (Post findPost : postList) {
@@ -564,5 +556,13 @@ public class PostService{
             }
         }
         return ResponseDto.success(detailPostInformation);
+    }
+
+    private Predicate categoryEq(String category) {
+        return category != null ? post.category.eq(valueOf(category)) : null;
+    }
+
+    private Predicate keywordEq(String keyword) {
+        return keyword != null ? post.title.contains(keyword).or(post.content.contains(keyword)) : null;
     }
 }
