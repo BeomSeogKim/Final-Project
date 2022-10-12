@@ -7,7 +7,6 @@ import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.enums.ApplicationState;
-import Backend.FinalProject.domain.enums.Regulation;
 import Backend.FinalProject.dto.ApplicationListResponseDto;
 import Backend.FinalProject.dto.ApplicationResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
@@ -24,6 +23,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static Backend.FinalProject.domain.enums.PostState.CLOSURE;
+import static Backend.FinalProject.domain.enums.PostState.DONE;
+import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -81,7 +85,7 @@ public class ApplicationService {
         }
 
         // 제재먹은 게시글의 경우 신청 불가
-        if (post.getRegulation().equals(Regulation.REGULATED)) {
+        if (post.getRegulation().equals(REGULATED)) {
             log.info("ApplicationService submitApplication REGULATED POST");
             return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
         }
@@ -258,5 +262,33 @@ public class ApplicationService {
                         .applicants(applicationListResponseDtoList)
                         .build()
         );
+    }
+
+    // 모집 관련 로직
+    public ResponseDto<?> changePostStatus(Long postId, HttpServletRequest request) {
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
+
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
+            return ResponseDto.fail("NO POST", "해당 게시글이 존재하지 않습니다.");
+        }
+        if (!member.getId().equals(post.getMember().getId())) {
+            return ResponseDto.fail("NO AUTHORITY", "게시글 작성자만 모집 마감을 진행 할 수 있습니다.");
+        }
+        if (post.getCurrentNum() == 0 || post.getStatus() == DONE || post.getStatus() == CLOSURE ||
+                post.getRegulation() == REGULATED) {
+            return ResponseDto.fail("INVALID REQUIREMENT", "해당 게시글은 모집 마감을 할 수 없습니다.");
+        }
+
+        post.updateStatus();
+        postRepository.flush();
+        return ResponseDto.success("모집이 마감 되었습니다.");
+
     }
 }
