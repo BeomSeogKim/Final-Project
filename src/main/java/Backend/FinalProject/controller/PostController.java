@@ -1,6 +1,7 @@
 package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.dto.SearchDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
@@ -71,13 +72,25 @@ public class PostController {
     }
 
     /**
+     * 게시글 검색
+     * @param searchDto : keyword 및 category
+     * @param request : Token 이 담긴 데이터
+     */
+    @PostMapping("/post/search")
+    public ResponseDto<?> findPost(@RequestBody SearchDto searchDto,
+                                   HttpServletRequest request) {
+        return postService.findPost(searchDto, request);
+    }
+
+    /**
      * 게시글 찜
      * @param postId : 게시글 아이디
      * @param request : Token 이 담긴 데이터
      */
     @PostMapping("/post/add/wish/{postId}")
     public ResponseDto<?> addWish(@PathVariable Long postId,
-                                     HttpServletRequest request){
+                                  HttpServletRequest request) {
+
         return postService.addWish(postId, request);
     }
 
