@@ -15,6 +15,7 @@ import Backend.FinalProject.domain.enums.Regulation;
 import Backend.FinalProject.dto.CommentResponseDto;
 import Backend.FinalProject.dto.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.dto.SearchDto;
 import Backend.FinalProject.dto.request.PostRequestDto;
 import Backend.FinalProject.dto.request.PostUpdateRequestDto;
 import Backend.FinalProject.dto.response.AllPostResponseDto;
@@ -24,6 +25,7 @@ import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static Backend.FinalProject.domain.QPost.post;
 import static Backend.FinalProject.domain.enums.Category.*;
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static java.time.LocalDate.now;
@@ -524,4 +527,42 @@ public class PostService{
     }
 
 
+    public ResponseDto<?> findPost(SearchDto searchDto, HttpServletRequest request) {
+        String keyword = searchDto.getKeyword();
+        String category = searchDto.getCategory();
+        if (category != null) {
+            category = "ETC";
+        }
+        if (keyword == null) {
+            keyword = "";
+        }
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        List<Post> postList = queryFactory.selectFrom(post)
+                .where(
+                        post.category.eq(valueOf(category)),
+                        post.title.contains(keyword),
+                        post.content.contains(keyword)
+                ).fetch();
+
+        List<AllPostResponseDto> detailPostInformation = new ArrayList<>();
+        for (Post findPost : postList) {
+            if (findPost.getRegulation().equals(UNREGULATED) && findPost.getStatus().equals(PostState.RECRUIT)) {
+                detailPostInformation.add(
+                        AllPostResponseDto.builder()
+                                .id(findPost.getId())
+                                .title(findPost.getTitle())
+                                .maxNum(findPost.getMaxNum())
+                                .address(findPost.getAddress())
+                                .category(findPost.getCategory())
+                                .restDay(time.convertLocalDateToTime((findPost.getEndDate())))
+                                .dDay(findPost.getDDay())
+                                .imgUrl(findPost.getImgUrl())
+                                .status(findPost.getStatus())
+                                .build()
+                );
+            }
+        }
+        return ResponseDto.success(detailPostInformation);
+    }
 }
