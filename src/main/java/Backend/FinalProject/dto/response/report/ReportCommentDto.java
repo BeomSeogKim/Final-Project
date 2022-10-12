@@ -10,8 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportCommentDto {
-    private Long postId;
     private Long reportId;
+    private Long postId;
     private Long commentId;
     private String content;
+    private String nickname;
+    private String postUrl;
+    private String memberUrl;
+    private String reportCommentContent;
 }

@@ -13,4 +13,6 @@ public class ReportPostDto {
     private Long reportId;
     private Long postId;
     private String content;
+    private String reportNickname;
+    private String postUrl;
 }

@@ -65,8 +65,8 @@ public class ReportService {
                 .content(reportDto.getContent())
                 .reportMemberId(member.getId())
                 .memberId(memberId)
-                .status(UNDONE)
-                .show(SHOW)
+                .reportStatus(UNDONE)
+                .showStatus(SHOW)
                 .build();
 
         reportRepository.save(report);
@@ -105,8 +105,8 @@ public class ReportService {
                 .reportMemberId(member.getId())
                 .content(reportDto.getContent())
                 .postId(postId)
-                .status(UNDONE)
-                .show(SHOW)
+                .reportStatus(UNDONE)
+                .showStatus(SHOW)
                 .build();
 
 
@@ -145,8 +145,8 @@ public class ReportService {
                 .reportMemberId(member.getId())
                 .content(reportDto.getContent())
                 .commentId(commentId)
-                .status(UNDONE)
-                .show(SHOW)
+                .reportStatus(UNDONE)
+                .showStatus(SHOW)
                 .build();
 
         reportRepository.save(report);
