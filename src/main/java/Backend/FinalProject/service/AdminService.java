@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static Backend.FinalProject.domain.ReportStatus.UNDONE;
 import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
@@ -118,7 +117,7 @@ public class AdminService {
         List<ReportMemberDto> reportMember = new ArrayList<>();
 
         for(Report report : reportMemberList) {
-            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+            if (report.getReportStatus().equals(UNDONE) && report.getShowStatus().equals(SHOW)) {
               Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
               if(optionalMember==null){
                   log.info("AdminService getReportList NOT FOUND");
@@ -140,7 +139,7 @@ public class AdminService {
         List<ReportPostDto> reportPost = new ArrayList<>();
 
         for (Report report : reportPostList) {
-            if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
+            if (report.getReportStatus().equals(UNDONE) && report.getShowStatus().equals(SHOW)) {
               Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
               Post optionalPost = postRepository.findById(report.getPostId()).orElse(null);
               if(optionalMember==null || optionalPost==null){
@@ -163,25 +162,33 @@ public class AdminService {
         List<ReportCommentDto> reportComment = new ArrayList<>();
 
         for (Report report : reportCommenList) {
-          if (report.getStatus().equals(UNDONE) && report.getShow().equals(SHOW)) {
-              Member optionalMember = memberRepository.findById(report.getReportMemberId()).orElse(null);
-              Post optionalPost = postRepository.findById(report.getReportPostId()).orElse(null);
-              Comment optionalComment = commentRepository.findById(report.getCommentId()).orElse(null);
-
-              if(optionalMember==null || optionalPost==null || optionalComment==null){
+          if (report.getReportStatus().equals(UNDONE) && report.getShowStatus().equals(SHOW)) {
+              Comment comment = commentRepository.findById(report.getCommentId()).orElse(null);
+              if (comment == null) {
                   log.info("AdminService getReportList NOT FOUND");
                   return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
               }
+              Post post = postRepository.findById(report.getReportPostId()).orElse(null);
+              if (post ==null) {
+                  log.info("AdminService getReportList NOT FOUND");
+                  return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+              }
+              Member member = memberRepository.findById(comment.getMember().getId()).orElse(null);
+              if (member == null) {
+                  log.info("AdminService getReportList NOT FOUND");
+                  return ResponseDto.fail("BAD REQUEST", "올바르지 않은 접근입니다.");
+              }
+
               reportComment.add(
                       ReportCommentDto.builder()
-                              .postId(report.getReportPostId())
                               .reportId(report.getId())
+                              .postId(report.getReportPostId())
                               .commentId(report.getCommentId())
                               .content(report.getContent())
-                              .memberUrl(optionalMember.getImgUrl())
-                              .reportNickname(optionalMember.getNickname())
-                              .postUrl(optionalPost.getImgUrl())
-                              .reportCommentContent(optionalComment.getContent())
+                              .memberUrl(member.getImgUrl())
+                              .nickname(member.getNickname())
+                              .postUrl(post.getImgUrl())
+                              .reportCommentContent(comment.getContent())
                               .build());
           }
         }
