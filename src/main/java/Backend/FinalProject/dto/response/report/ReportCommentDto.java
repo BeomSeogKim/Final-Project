@@ -14,4 +14,8 @@ public class ReportCommentDto {
     private Long reportId;
     private Long commentId;
     private String content;
+    private String reportNickname;
+    private String postUrl;
+    private String memberUrl;
+    private String reportCommentContent;
 }
