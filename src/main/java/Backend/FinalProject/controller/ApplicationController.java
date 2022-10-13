@@ -47,7 +47,6 @@ public class ApplicationController {
      *
      * @param applicationId : 지원 신청 아이디
      * @param request       : Token 이 담긴 데이터
-     * @return
      */
     @PostMapping("/post/application/approve/{applicationId}")
     public ResponseDto<?> approveApplication(

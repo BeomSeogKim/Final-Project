@@ -33,8 +33,13 @@ public class SchedulerService {
 
         List<Post> postList = postRepository.findAll();
         for (Post post : postList) {
+            // 모집 일자가 지났을 때 모집 인원이 한명이라도 있을 경우 모집 성사로 간주
             if (now.isAfter(post.getEndDate()) && post.getCurrentNum() != 0) {
                 post.updateStatus();
+            }
+            // 모집 일자가 지났을 때 모집 인원이 한명도 없을 경우 모집 성사되지 않음으로 간주.
+            if (now.isAfter(post.getEndDate()) && post.getCurrentNum() == 0) {
+                post.closeStatus();
             }
         }
     }
@@ -43,7 +48,7 @@ public class SchedulerService {
     @Transactional
     public void deleteInformation() {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime criticalLimit = now.minusDays(7);
+        LocalDateTime criticalLimit = now.minusYears(5);
         System.out.println("criticalLimit = " + criticalLimit);
 
         List<SignOutMember> signOutMemberList = signOutRepository.findAll();

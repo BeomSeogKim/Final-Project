@@ -34,9 +34,8 @@ public class Time {
     public String convertLocalDatetimeToTime(LocalDateTime localDateTime) {
         LocalDateTime now = LocalDateTime.now();
 
-        long diffTime = localDateTime.until(now, ChronoUnit.SECONDS); // now보다 이후면 +, 전이면 -
+        long diffTime = localDateTime.until(now, ChronoUnit.SECONDS); // now 보다 이후면 +, 전이면 -
 
-        String msg = null;
         if (diffTime < TIME_MAXIMUM.SEC){
             return diffTime + "초전";
         }
@@ -64,9 +63,8 @@ public class Time {
     public String convertLocalDateToTime(LocalDate localDate) {
         LocalDate now = LocalDate.now();
 
-        long diffTime = now.until(localDate, ChronoUnit.DAYS); // now보다 이후면 +, 전이면 -
+        long diffTime = now.until(localDate, ChronoUnit.DAYS); // now 보다 이후면 +, 전이면 -
 
-        String msg = null;
         if (diffTime < TIME_MAXIMUM.DAY) {
             return diffTime + "일 전";
         }

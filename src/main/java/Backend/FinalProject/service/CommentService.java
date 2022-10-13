@@ -9,7 +9,6 @@ import Backend.FinalProject.dto.request.CommentRequestDto;
 import Backend.FinalProject.dto.response.AllCommentResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
-import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 @Transactional
 @RequiredArgsConstructor
 public class CommentService {
-    private final TokenProvider tokenProvider;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final Validation validation;
@@ -37,7 +35,7 @@ public class CommentService {
     public ResponseDto<?> getComments(Long postId) {
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
 //        List<Comment> commentList = commentRepository.findAllByPostIdTest(UNREGULATED, postId);
-        if (commentList.isEmpty() || commentList == null) {
+        if (commentList.isEmpty()) {
             log.info("CommentService getComments NO CONTENT");
             return ResponseDto.fail("NO CONTENT", "댓글이 존재하지 않습니다.");
         }
@@ -109,17 +107,17 @@ public class CommentService {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
         Comment comment = optionalComment.orElse(null);
         if (comment == null) {
-            log.info("CommentService eidtComment NOT FOUND");
+            log.info("CommentService editComment NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 댓글을 찾을 수 없습니다.");
         }
-        if (comment.getMember().getId() != member.getId()) {
-            log.info("CommentService eidtComment NO AUTHORITY");
+        if (!comment.getMember().getId().equals(member.getId())) {
+            log.info("CommentService editComment NO AUTHORITY");
             return ResponseDto.fail("NO AUTHORITY", "작성자만 수정이 가능합니다.");
         }
 
         String commentDto = commentRequestDto.getComment();
         if (commentDto == null || commentDto.isEmpty()) {
-            log.info("CommentService eidtComment EMPTY COMMENT");
+            log.info("CommentService editComment EMPTY COMMENT");
             return ResponseDto.fail("EMPTY COMMENT", "내용을 기입해주세요");
         }
 

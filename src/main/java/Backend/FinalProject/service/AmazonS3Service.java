@@ -37,12 +37,13 @@ public class AmazonS3Service {
         if (validateFileExists(multipartFile))      // 빈 파일인지 확인
             return ResponseDto.fail("NO-IMAGE-FILE","등록된 이미지가 없습니다.");
         String contentType = multipartFile.getContentType();
+        assert contentType != null;
         if (!contentType.equals("image/png") && !contentType.equals("image/jpeg") && !contentType.equals("image/jpg") && !contentType.equals("image/bmp"))
-            return ResponseDto.fail("IMAGE CONTENT-TYPE", "JPG, PNG, BMP만 업로드 가능합니다.");
+            return ResponseDto.fail("IMAGE CONTENT-TYPE", "JPG, PNG, BMP 만 업로드 가능합니다.");
 
         String fileName = createFileName(multipartFile.getOriginalFilename());  // 난수파일이름생성 (난수이름+파일이름)
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(multipartFile.getContentType());          // ObjectMetadata에 파일 타입, byte크기 넣어주기. 넣지않으면 IDE상에서 설정하라는 권장로그가 뜸
+        objectMetadata.setContentType(multipartFile.getContentType());          // ObjectMetadata 에 파일 타입, byte 크기 넣어주기. 넣지않으면 IDE 상에서 설정하라는 권장로그가 뜸
         objectMetadata.setContentLength(multipartFile.getSize());
 
         try (InputStream inputStream = multipartFile.getInputStream()) {
@@ -52,7 +53,7 @@ public class AmazonS3Service {
             log.info("AmazonS3Service uploadFile UPLOAD-FAILED");
             return ResponseDto.fail("UPLOAD-FAILED","파일 업로드 실패");
         }
-        ImageFile imageMapper = ImageFile.builder()                         // 업로드한 파일들을 관리할 테이블에 파일이름, URL넣기
+        ImageFile imageMapper = ImageFile.builder()                         // 업로드한 파일들을 관리할 테이블에 파일이름, URL 넣기
                 .url(amazonS3Client.getUrl(bucketName+filePath, fileName).toString())
                 .imageName(fileName)
                 .build();
@@ -72,8 +73,8 @@ public class AmazonS3Service {
         if (optionalImageMapper.isEmpty())    // 실제있는 파일인지 확인
             return true;
         ImageFile image = optionalImageMapper.get();
-        filesRepository.deleteById(image.getId());    // imageMapper에서 삭제
-        DeleteObjectRequest request = new DeleteObjectRequest(bucketName + filePath, fileName); // 삭제 request생성
+        filesRepository.deleteById(image.getId());    // imageMapper 에서 삭제
+        DeleteObjectRequest request = new DeleteObjectRequest(bucketName + filePath, fileName); // 삭제 request 생성
         amazonS3Client.deleteObject(request);      // s3에서 파일삭제
         return false;
     }

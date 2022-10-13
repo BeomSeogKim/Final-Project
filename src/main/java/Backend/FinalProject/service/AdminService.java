@@ -37,7 +37,7 @@ public class AdminService {
 
     private final Validation validation;
 
-    public ResponseDto<?> getreportmember(HttpServletRequest request) {
+    public ResponseDto<?> getReportMember(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
@@ -62,7 +62,7 @@ public class AdminService {
         return ResponseDto.success(reportList);
     }
 
-    public ResponseDto<?> getreportpost(HttpServletRequest request) {
+    public ResponseDto<?> getReportPost(HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
@@ -87,20 +87,20 @@ public class AdminService {
         return ResponseDto.success(reportList);
     }
 
-    public ResponseDto<?> getreportcomment(HttpServletRequest request) {
+    public ResponseDto<?> getReportComment(HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
-        List<Report> reportCommenList = reportRepository.findByComment();
-        if (reportCommenList.isEmpty()) {
+        List<Report> reportCommentList = reportRepository.findByComment();
+        if (reportCommentList.isEmpty()) {
             return ResponseDto.fail("NOT FOUND", "댓글을 신고한 내역이 없습니다.");
         }
 
         List<ReportCommentDto> reportList = new ArrayList<>();
 
-        for (Report report : reportCommenList) {
+        for (Report report : reportCommentList) {
             reportList.add(
                     ReportCommentDto.builder()
                             .commentId(report.getCommentId())
@@ -111,7 +111,7 @@ public class AdminService {
     }
 
     public ResponseDto<?> getReportList(HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        validation.validateCheck(request);
 
         List<Report> reportMemberList = reportRepository.findByMember();
         List<ReportMemberDto> reportMember = new ArrayList<>();
@@ -157,11 +157,11 @@ public class AdminService {
             }
         }
 
-        List<Report> reportCommenList = reportRepository.findByComment();
+        List<Report> reportCommentList = reportRepository.findByComment();
 
         List<ReportCommentDto> reportComment = new ArrayList<>();
 
-        for (Report report : reportCommenList) {
+        for (Report report : reportCommentList) {
           if (report.getReportStatus().equals(UNDONE) && report.getShowStatus().equals(SHOW)) {
               Comment comment = commentRepository.findById(report.getCommentId()).orElse(null);
               if (comment == null) {
@@ -204,7 +204,7 @@ public class AdminService {
     }
     @Transactional
     public ResponseDto<?> executeReport(Long reportId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        validation.validateCheck(request);
         Report report = reportRepository.findById(reportId).orElse(null);
         assert report != null;
         if (report.getMemberId() != null) {
@@ -240,7 +240,7 @@ public class AdminService {
 
     @Transactional
     public ResponseDto<?> withdrawReport(Long reportId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        validation.validateCheck(request);
         reportRepository.deleteById(reportId);
         return ResponseDto.success("성공적으로 처리 되었습니다.");
     }
