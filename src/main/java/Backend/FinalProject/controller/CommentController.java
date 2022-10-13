@@ -36,7 +36,7 @@ public class CommentController {
     public ResponseDto<?> writeComment(
             @PathVariable Long postId,
             @RequestBody CommentRequestDto commentRequestDto,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws Exception {
         return commentService.writeComment(postId, commentRequestDto, request);
     }
 
