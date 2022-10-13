@@ -36,6 +36,9 @@ public class SchedulerService {
             if (now.isAfter(post.getEndDate()) && post.getCurrentNum() != 0) {
                 post.updateStatus();
             }
+            if (now.isAfter(post.getEndDate()) && post.getCurrentNum() == 0) {
+                post.closeStatus();
+            }
         }
     }
 
