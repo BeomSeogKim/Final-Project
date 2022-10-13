@@ -1,21 +1,32 @@
 package Backend.FinalProject.sse.service;
 
+import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationContent;
 import Backend.FinalProject.sse.domain.NotificationType;
+import Backend.FinalProject.sse.dto.NotificationCountDto;
 import Backend.FinalProject.sse.dto.NotificationDto;
+import Backend.FinalProject.sse.dto.StatusResponseDto;
 import Backend.FinalProject.sse.repository.EmitterRepository;
 import Backend.FinalProject.sse.repository.EmitterRepositoryImpl;
 import Backend.FinalProject.sse.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +36,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository = new EmitterRepositoryImpl();
 
     private final NotificationRepository notificationRepository;
+    private final Validation validation;
 
     public SseEmitter subscribe(Long memberId, String lastEventId) throws Exception {
 
@@ -80,9 +92,21 @@ public class NotificationService {
 
     }
 
-
+    @Transactional
+    public List<NotificationDto> readNotification(Long notificationId, HttpServletRequest request) throws Exception {
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validation.validateCheck(request);
+        Member member = (Member) responseDto.getData();
+        log.info(String.valueOf(member.getId()));
+        // 알림을 받은 사람의 id 와 알림의 id 를 받아와서 해당 알림을 찾는다.
+        Optional<Notification> notification = notificationRepository.findById(notificationId);
+        Notification checkNotification = notification.orElseThrow(() -> new Exception());
+        checkNotification.read();       // 읽음 처리 
+        return findAllNotifications(member.getId());
+    }
 
     // 유효시간이 다 지난다면 503 에러가 발생하기 때문에 더미데이터를 발행
+
     private void sendNotification(SseEmitter emitter, String eventId, String emitterId, Object data) {
         try {
             emitter.send(SseEmitter.event()
@@ -96,8 +120,8 @@ public class NotificationService {
     private boolean hasLostData(String lastEventId) {
         return !lastEventId.isEmpty();
     }
-
     // 받지못한 데이터가 있다면 last - event - id를 기준으로 그 뒤의 데이터를 추출해 알림을 보내주면 된다.
+
     private void sendLostData(String lastEventId, Long userId, String emitterId, SseEmitter emitter) {
         Map<String, Object> eventCaches = emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(userId));
         eventCaches.entrySet().stream()
@@ -113,4 +137,57 @@ public class NotificationService {
                 .isRead(false) // 현재 읽음상태
                 .build();
     }
+
+    @Transactional
+    public List<NotificationDto> findAllNotifications(Long userId) throws Exception {
+        //try 안에 있던 repo 조회 밖으로 뺌
+        List<Notification> notifications = notificationRepository.findAllByUserId(userId);
+        try {
+            return notifications.stream()
+                    .map(NotificationDto::create)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new Exception();
+        } finally {
+            //추가코드
+            if (notifications.stream() != null) {
+                notifications.stream().close();
+            }
+        }
+    }
+
+    public NotificationCountDto countUnReadNotifications(Long userId) {
+        //유저의 알람리스트에서 ->isRead(false)인 갯수를 측정 ,
+        Long count = notificationRepository.countUnReadNotifications(userId);
+        return NotificationCountDto.builder()
+                .count(count)
+                .build();
+    }
+    @Transactional
+    public ResponseEntity<Object> deleteAllByNotifications(Member member) {
+        Long receiverId = member.getId();
+        try {
+            notificationRepository.deleteAllByMemberId(receiverId);
+            return new ResponseEntity<>(new StatusResponseDto("알림 목록 전체삭제 성공", true), HttpStatus.OK);
+        }catch (Exception e){
+            throw new Error();
+        }
+
+    }
+
+    @Transactional
+    public ResponseEntity<Object> deleteByNotifications(Long notificationId) {
+        try{
+            Optional<Notification> notification = notificationRepository.findById(notificationId);
+            if(notification.isPresent()){
+                notificationRepository.deleteById(notificationId);
+                return new ResponseEntity<>(new StatusResponseDto("알림 삭제 완료", true), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new StatusResponseDto("존재하지 않는 알림입니다",false ), HttpStatus.BAD_REQUEST);
+            }
+        }catch (Exception e){
+            throw new Error();
+        }
+    }
+
 }
