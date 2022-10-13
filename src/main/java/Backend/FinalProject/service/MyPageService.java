@@ -220,14 +220,14 @@ public class MyPageService {
             log.info("MyPageService getMemberMypage NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 고객은 존재하지 않습니다.");
         }
-        List<Application> memberAplicationInfo = applicationRepository.findAllByMemberIdAndStatus(memberId,ApplicationState.APPROVED);
-        if (memberAplicationInfo == null) {
+        List<Application> memberApplicationInfo = applicationRepository.findAllByMemberIdAndStatus(memberId,ApplicationState.APPROVED);
+        if (memberApplicationInfo == null) {
             log.info("MyPageService getMemberMypage NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "참가했던 모임이 없습니다.");
         }
-        int aplicationCount=0;
-        for(int i =0; i<memberAplicationInfo.size();i++){
-            aplicationCount++;
+        int applicationCount=0;
+        for(int i =0; i<memberApplicationInfo.size();i++){
+            applicationCount++;
         }
 
         List<Post> PostHostInfo  = postRepository.findAllByMemberId(memberId);
@@ -245,7 +245,7 @@ public class MyPageService {
                             .root(member.getRoot())
                             .gender(member.getGender())
                             .minAge(member.getMinAge())
-                            .aplicationCount(aplicationCount)
+                            .aplicationCount(applicationCount)
                             .leaderCount(hostCount)
                             .numOfRegulation(member.getNumOfRegulation())
                             .build()

@@ -33,7 +33,7 @@ public class MemberController {
     /**
      * 로그인
      * @param loginRequestDto : 로그인에 필요한 정보들을 담은 Dto
-     * @param response        : Header에 Token을 담아주는 역할
+     * @param response        : Header 에 Token 을 담아주는 역할
      */
     @PostMapping("/member/login")
     public ResponseDto<String> login(
@@ -92,7 +92,6 @@ public class MemberController {
     /**
      * 아이디 중복검사
      * @param userId : 검사할 아이디
-     * @return
      */
     @PostMapping("member/id")
     public ResponseDto<?> duplicateID(@RequestBody IdCheckDuplicateDto userId) {
@@ -102,7 +101,6 @@ public class MemberController {
     /**
      * 닉네임 중복검사
      * @param nickname : 검사할 닉네임
-     * @return
      */
     @PostMapping("member/nickname")
     public ResponseDto<?> duplicateNickname(@RequestBody NickCheckDuplicateDto nickname) {

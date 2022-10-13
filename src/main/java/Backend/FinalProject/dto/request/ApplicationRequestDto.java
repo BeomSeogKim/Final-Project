@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class ApplicationRequestDto {
-    private String content;
+    public String content;
 }

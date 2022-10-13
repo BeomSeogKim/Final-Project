@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -41,7 +42,7 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     public ResponseDto<?> findById(Long roomId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        validation.validateCheck(request);
 
         // 방 정보 내어주자
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
@@ -155,7 +156,8 @@ public class ChatRoomService {
 
         for (ChatMember chatMember : chatMemberList) {
             boolean isLeader;
-            isLeader = chatMember.getMember().getId() == (chatRoom.getPost().getMember().getId());
+            assert chatRoom != null;
+            isLeader = Objects.equals(chatMember.getMember().getId(), chatRoom.getPost().getMember().getId());
             chatMemberInfo.add(
                     ChatMemberResponseDto.builder()
                             .imgUrl(chatMember.getMember().getImgUrl())

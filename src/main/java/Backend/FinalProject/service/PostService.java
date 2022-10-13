@@ -80,8 +80,8 @@ public class PostService{
     String baseImageOnline = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8B%E1%85%A9%E1%86%AB%E1%84%85%E1%85%A1%E1%84%8B%E1%85%B5%E1%86%AB.webp";
     String baseImageExercise = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8B%E1%85%AE%E1%86%AB%E1%84%83%E1%85%A9%E1%86%BC.webp";
     String baseImageReligion = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/postImage/%E1%84%8C%E1%85%A9%E1%86%BC%E1%84%80%E1%85%AD.webp";
-    String imgUrl;
-        // 게시글 등록
+
+    // 게시글 등록
     @Transactional
     public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
@@ -100,8 +100,8 @@ public class PostService{
         if (fail != null) return fail;
         // 최대 정원의 수는 최소 3명에서 최대 5명
         if (request.getMaxNum() <= 2 || request.getMaxNum() >= 6) {
-            log.info("PostService createPost MAXNUM ERROR");
-            return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
+            log.info("PostService createPost MAXIMUM ERROR");
+            return ResponseDto.fail("MAXIMUM ERROR", "모집 정원을 다시 확인해주세요");
         }
 
         // 날짜 String 을 LocalDate 로 변경
@@ -275,7 +275,7 @@ public class PostService{
 
         boolean isWish = false;     // 회원이 좋아요를 눌렀는지 안눌렀는지 Check
 
-        Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post가 있는지 검사 하는 과정
+        Post post = isPresentPost(postId);   // 입력한 id에 해당하는 post 가 있는지 검사 하는 과정
         if (null == post) {
             log.info("PostService getPost NOT_FOUND");
             return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
@@ -367,8 +367,8 @@ public class PostService{
 
         // 최대 정원은 3명에서 5명
         if (maxNum <= 2 || maxNum >= 6) {
-            log.info("PostService updatePost MAXNUM ERROR");
-            return ResponseDto.fail("MAXNUM ERROR", "모집 정원을 다시 확인해주세요");
+            log.info("PostService updatePost MAXIMUM ERROR");
+            return ResponseDto.fail("MAXIMUM ERROR", "모집 정원을 다시 확인해주세요");
         }
 
         // 날짜 String 을 LocalDate 로 변경
@@ -500,7 +500,7 @@ public class PostService{
                 .post(post)
                 .build();
         wishListRepository.save(wishList);
-        // 게시글의 numOfWish에 새로 적용
+        // 게시글의 numOfWish 에 새로 적용
         post.addWish();
         return ResponseDto.success(true);
     }

@@ -38,19 +38,19 @@ public class AdminController {
     @GetMapping("/admin/member")
     public ResponseDto<?> getReportMember(
             HttpServletRequest request) {
-        return adminService.getreportmember(request);
+        return adminService.getReportMember(request);
     }
 
     @GetMapping("/admin/post")
     public ResponseDto<?> getReportPost(
             HttpServletRequest request) {
-        return adminService.getreportpost(request);
+        return adminService.getReportPost(request);
     }
 
     @GetMapping("/admin/comment")
     public ResponseDto<?> getReportComment(
             HttpServletRequest request) {
-        return adminService.getreportcomment(request);
+        return adminService.getReportComment(request);
     }
 
 }
