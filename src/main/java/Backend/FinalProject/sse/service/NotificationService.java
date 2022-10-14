@@ -46,11 +46,11 @@ public class NotificationService {
         // 1시간 설정
         Long timeout = 60L * 1000L * 60L;
 
-        // 생성된 emitterId 를 기반으로 emitter를 저장
+        // 생성된 emitterId 를 기반으로 emitter 를 저장
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(timeout));
 
         try {
-            // emitter 의 시간이 만료된 후 rpository 에서 삭제
+            // emitter 의 시간이 만료된 후 repository 에서 삭제
             emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
             emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
 
