@@ -13,6 +13,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.ApplicationRequestDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
+import Backend.FinalProject.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ import java.util.Optional;
 import static Backend.FinalProject.domain.enums.PostState.CLOSURE;
 import static Backend.FinalProject.domain.enums.PostState.DONE;
 import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
+import static Backend.FinalProject.sse.domain.NotificationType.ACCEPT;
+import static Backend.FinalProject.sse.domain.NotificationType.REJECT;
 
 @Slf4j
 @Service
@@ -39,6 +42,7 @@ public class ApplicationService {
     private final PostRepository postRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final AutomatedChatService automatedChatService;
+    private final NotificationService notificationService;
 
     // 게시글 참여 요청
     public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationRequestDto, HttpServletRequest request) {
@@ -132,7 +136,7 @@ public class ApplicationService {
 
     // 게시글 참여 수락
     @Transactional
-    public ResponseDto<?> approveApplication(Long applicationId, HttpServletRequest request) {
+    public ResponseDto<?> approveApplication(Long applicationId, HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
@@ -180,11 +184,13 @@ public class ApplicationService {
         // 채팅 메세지
         automatedChatService.createChatMessage(application.getMember(), chatRoom);
 
+        notificationService.send(application.getMember(), ACCEPT, application.getPost().getTitle() + " 모임 신청이 수락되었습니다.");
+
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
 
     @Transactional
-    public ResponseDto<?> disapproveApplication(Long applicationId, HttpServletRequest request) {
+    public ResponseDto<?> disapproveApplication(Long applicationId, HttpServletRequest request) throws Exception {
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.validateCheck(request);
@@ -206,6 +212,7 @@ public class ApplicationService {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
         application.disapprove();
+        notificationService.send(application.getMember(), REJECT, application.getPost().getTitle() + " 모임 신청이 거절되었습니다.");
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
 

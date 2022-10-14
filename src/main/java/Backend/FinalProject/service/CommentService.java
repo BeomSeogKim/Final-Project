@@ -9,6 +9,7 @@ import Backend.FinalProject.dto.request.CommentRequestDto;
 import Backend.FinalProject.dto.response.AllCommentResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
+import Backend.FinalProject.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
+import static Backend.FinalProject.sse.domain.NotificationType.ALARM;
 
 @Slf4j
 @Service
@@ -30,6 +32,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final Validation validation;
+    private final NotificationService notificationService;
 
 
     public ResponseDto<?> getComments(Long postId) {
@@ -59,7 +62,7 @@ public class CommentService {
 
 
     // 댓글 작성
-    public ResponseDto<?> writeComment(Long postId, CommentRequestDto commentRequestDto, HttpServletRequest request) {
+    public ResponseDto<?> writeComment(Long postId, CommentRequestDto commentRequestDto, HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.validateCheck(request);
 
@@ -89,6 +92,8 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+        notificationService.send(post.getMember(), ALARM, member.getNickname()+ "님이 " + post.getTitle() + "게시글에 댓글을 달았습니다." );
+
         return ResponseDto.success("댓글 작성이 완료되었습니다.");
 
     }

@@ -59,7 +59,7 @@ public class SecurityConfiguration {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**/*").permitAll()
-                .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/h2-console/**", "/", "/subscribe").permitAll()
                 .antMatchers("/member/signup", "/member/login" ,"/member/id", "/member/nickname","/member/reissue", "/oauth/**").permitAll()   // 회원 가입, 로그인 관련 페이지
                 .antMatchers("/ws/chat").permitAll()        // 웹 소켓 관련 페이지
                 .antMatchers("/post/all", "/post/detail/**").permitAll()       // 전체 게시글 관련
