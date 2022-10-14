@@ -82,6 +82,8 @@ public class ChatService {
                     .build();
             chatMessageRepository.save(chatMessage);
 
+            LocalDateTime lastChatTime = LocalDateTime.now();
+            chatRoom.updateTime(lastChatTime);
         }
         return ResponseDto.success("메세지 보내기 성공");
     }

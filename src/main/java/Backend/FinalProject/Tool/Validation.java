@@ -2,7 +2,6 @@ package Backend.FinalProject.Tool;
 
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 public class Validation {
 
     private final TokenProvider tokenProvider;
-    private final MemberRepository memberRepository;
 
     // RefreshToken 유효성 검사
     @Transactional

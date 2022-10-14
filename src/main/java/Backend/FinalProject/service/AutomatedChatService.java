@@ -28,6 +28,7 @@ public class AutomatedChatService {
                 .id(post.getId())
                 .name(post.getTitle())
                 .post(post)
+                .lastChatTime(LocalDateTime.now())
                 .build();
         chatRoomRepository.save(chatRoom);
         return chatRoom;
@@ -58,6 +59,7 @@ public class AutomatedChatService {
                 .sendTime(now)
                 .build();
         chatMessageRepository.save(chatMessage);
+        chatRoom.updateTime(LocalDateTime.now());
         return chatMessage;
     }
 }
