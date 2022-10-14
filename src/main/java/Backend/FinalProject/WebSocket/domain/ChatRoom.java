@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
@@ -35,6 +36,8 @@ public class ChatRoom extends Timestamped {
     @OneToMany(mappedBy ="chatRoom", cascade = ALL, orphanRemoval = true)
     private List<ChatMember> chatMemberList;
 
+    private LocalDateTime lastChatTime;
+
     //== 연관관계 메서드 ==//
     public void setPost(Post post) {
         this.post = post;
@@ -46,5 +49,9 @@ public class ChatRoom extends Timestamped {
 
     public void updateName(String title) {
         this.name = title;
+    }
+
+    public void updateTime(LocalDateTime lastChatTime) {
+        this.lastChatTime = lastChatTime;
     }
 }

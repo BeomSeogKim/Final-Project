@@ -112,7 +112,7 @@ public class ChatRoomService {
             return chkResponse;
         Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
         assert member != null;
-        List<ChatMember> chatList = chatMemberRepository.findAllByMember(member);
+        List<ChatMember> chatList = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
         if (chatList.isEmpty() || chatList == null) {
             return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
         }
