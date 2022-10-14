@@ -51,7 +51,7 @@ public class ApplicationController {
     @PostMapping("/post/application/approve/{applicationId}")
     public ResponseDto<?> approveApplication(
             @PathVariable Long applicationId,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws Exception {
         return applicationService.approveApplication(applicationId, request);
     }
 
@@ -64,7 +64,7 @@ public class ApplicationController {
     @PostMapping("/post/application/disapprove/{applicationId}")
     public ResponseDto<?> disapproveApplication(
             @PathVariable Long applicationId,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws Exception {
         return applicationService.disapproveApplication(applicationId, request);
     }
 

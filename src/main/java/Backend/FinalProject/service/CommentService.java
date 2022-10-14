@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
-import static Backend.FinalProject.sse.domain.NotificationType.APPLY;
+import static Backend.FinalProject.sse.domain.NotificationType.ALARM;
 
 @Slf4j
 @Service
@@ -92,7 +92,7 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
-        notificationService.send(post.getMember(), APPLY, "테스트 입니다.");
+        notificationService.send(post.getMember(), ALARM, member.getNickname()+ "님이 " + post.getTitle() + "게시글에 댓글을 달았습니다." );
 
         return ResponseDto.success("댓글 작성이 완료되었습니다.");
 
