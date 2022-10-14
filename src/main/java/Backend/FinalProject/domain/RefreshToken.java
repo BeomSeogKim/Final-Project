@@ -26,5 +26,8 @@ public class RefreshToken extends Timestamped {
     @Column(nullable = false)
     private String keyValue;
 
+    public void updateValue(String token) {
+        this.keyValue = token;
+    }
 }
 

@@ -13,6 +13,7 @@ import Backend.FinalProject.repository.*;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.parser.ParseException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -399,6 +400,42 @@ public class MemberService {
     public Member isPresentMember(String userId) {
         Optional<Member> findMember = memberRepository.findByUserId(userId);
         return findMember.orElse(null);
+    }
+
+    public ResponseDto<?> reissue(HttpServletRequest request, HttpServletResponse response) throws ParseException, ParseException {
+        if (tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ) != null) {
+            log.info("getMemberIdByToken");
+            log.info(tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ));
+            return ResponseDto.fail("AVAILABLE CODE","아직 유효한 토큰입니다.");
+        }
+        if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
+            return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
+        }
+        String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);
+        if (null == memberId) {
+            return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
+        }
+        Member member = memberRepository.findByUserId(memberId).orElse(null);
+
+        RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
+
+        if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
+            log.info("refreshToken : "+refreshToken.getKeyValue());
+            log.info("header rft : "+request.getHeader("RefreshToken"));
+            return ResponseDto.fail("INVALID REFRESH TOKEN","토큰이 일치하지 않습니다.");
+        }
+        assert member != null;
+        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
+        refreshToken.updateValue(tokenDto.getRefreshToken());
+        tokenToHeaders(tokenDto, response);
+        return ResponseDto.success("재발급 완료");
+
+    }
+
+    // 헤더에 토큰담기
+    public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
+        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
     }
 
 }
