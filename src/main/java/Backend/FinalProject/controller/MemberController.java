@@ -7,6 +7,7 @@ import Backend.FinalProject.dto.request.checkduplication.IdCheckDuplicateDto;
 import Backend.FinalProject.dto.request.checkduplication.NickCheckDuplicateDto;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,7 +94,7 @@ public class MemberController {
      * 아이디 중복검사
      * @param userId : 검사할 아이디
      */
-    @PostMapping("member/id")
+    @PostMapping("/member/id")
     public ResponseDto<?> duplicateID(@RequestBody IdCheckDuplicateDto userId) {
         return memberService.isPresentId(userId.getIdCheck());
     }
@@ -102,8 +103,14 @@ public class MemberController {
      * 닉네임 중복검사
      * @param nickname : 검사할 닉네임
      */
-    @PostMapping("member/nickname")
+    @PostMapping("/member/nickname")
     public ResponseDto<?> duplicateNickname(@RequestBody NickCheckDuplicateDto nickname) {
         return memberService.isPresentNickname(nickname.getNickCheck());
     }
+
+    @GetMapping("/member/reissue")
+    public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException {
+        return memberService.reissue(request, response);
+    }
+
 }
