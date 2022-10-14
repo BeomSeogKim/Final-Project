@@ -9,6 +9,9 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,10 +26,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,7 +35,7 @@ public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30 * 6 ;            //30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 ;//* 60 * 30 * 6 ;            //30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;     //7일
 
     private final Key key;
@@ -176,5 +176,45 @@ public class TokenProvider {
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    public String getMemberIdByToken(String accessToken) {
+        String token = "";
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+            token = accessToken.substring(7);
+        } else {
+            return null;
+        }
+        Claims claims;
+        try {
+            claims = Jwts
+                    .parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        }
+        catch (ExpiredJwtException e) {
+            return null;
+        }
+
+        return claims.getSubject();
+    }
+
+    public String getMemberFromExpiredAccessToken(HttpServletRequest request) throws ParseException, ParseException {
+        String jwt = getAccessToken(request);
+
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        assert jwt != null;
+        String[] parts = jwt.split("\\.");
+
+        JSONParser parser = new JSONParser();
+        log.info(String.valueOf(parser.parse(new String(decoder.decode(parts[0])))));
+        log.info(String.valueOf(parser.parse(new String(decoder.decode(parts[1])))));
+        JSONObject jsonObject = (JSONObject) parser.parse(new String(decoder.decode(parts[1])));
+
+
+
+        return jsonObject.get("sub").toString();
     }
 }
