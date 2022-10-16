@@ -38,9 +38,6 @@ public class NotificationController {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.validateCheck(request);
         Member member = (Member) responseDto.getData();
-        log.info("Authorization : {}", request.getHeader("Authorization"));
-        log.info("RefreshToken : {}" , request.getHeader("RefreshToken"));
-        log.info("memberNickname:{}", member.getNickname());
         //추가
         response.setCharacterEncoding("UTF-8");
 
