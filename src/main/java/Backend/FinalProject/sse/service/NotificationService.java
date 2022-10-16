@@ -45,7 +45,7 @@ public class NotificationService {
         String emitterId = memberId + "_" + System.currentTimeMillis();
 
         // 1시간 설정
-        Long timeout = 60L * 1000L * 60L / 60 / 6;
+        Long timeout = 60L * 1000L * 60L;
 
         // 생성된 emitterId 를 기반으로 emitter 를 저장
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(timeout));
@@ -61,7 +61,6 @@ public class NotificationService {
             // 수 많은 이벤트들을 구분하기 위해 이벤트 ID에 시간을 통해 구분을 해준다.
 //            sendNotification(emitter, eventId, emitterId, "EventStream Created. [userId=" + memberId + "]");
             sendNotification(emitter, eventId, emitterId, NotificationDto.builder().notificationContent("EventStream Created. [userId= " + memberId + "]").build());
-
             // 클라이언트가 미 수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
             if (hasLostData(lastEventId)) {
                 sendLostData(lastEventId, memberId, emitterId, emitter);

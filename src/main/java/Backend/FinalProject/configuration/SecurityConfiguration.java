@@ -65,6 +65,7 @@ public class SecurityConfiguration {
                 .antMatchers("/post/all", "/post/detail/**").permitAll()       // 전체 게시글 관련
                 .antMatchers("/chat/**", "/chat/user", "/ws-stomp/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지
+                .antMatchers("/test").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
