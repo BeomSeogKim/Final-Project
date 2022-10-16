@@ -184,7 +184,10 @@ public class ApplicationService {
         // 채팅 메세지
         automatedChatService.createChatMessage(application.getMember(), chatRoom);
 
-        notificationService.send(application.getMember(), ACCEPT, application.getPost().getTitle() + " 모임 신청이 수락되었습니다.");
+        // TODO
+        // 수락이 될 경우 참여한 모임 조회 url 로 이동 시키기
+        String url = "localhost:3000/mypage/participation";
+        notificationService.send(application.getMember(), ACCEPT, application.getPost().getTitle() + " 모임 신청이 수락되었습니다.", url);
 
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
@@ -212,7 +215,9 @@ public class ApplicationService {
             return ResponseDto.fail("NO AUTHORIZATION", "권한이 없습니다.");
         }
         application.disapprove();
-        notificationService.send(application.getMember(), REJECT, application.getPost().getTitle() + " 모임 신청이 거절되었습니다.");
+        // TODO
+        String url = "localhost:3000/mypage/act/applicant";
+        notificationService.send(application.getMember(), REJECT, application.getPost().getTitle() + " 모임 신청이 거절되었습니다.", url);
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
 

@@ -6,6 +6,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationContent;
 import Backend.FinalProject.sse.domain.NotificationType;
+import Backend.FinalProject.sse.domain.RelatedUrl;
 import Backend.FinalProject.sse.dto.NotificationCountDto;
 import Backend.FinalProject.sse.dto.NotificationDto;
 import Backend.FinalProject.sse.dto.StatusResponseDto;
@@ -44,7 +45,7 @@ public class NotificationService {
         String emitterId = memberId + "_" + System.currentTimeMillis();
 
         // 1시간 설정
-        Long timeout = 60L * 1000L * 60L;
+        Long timeout = 60L * 1000L * 60L / 60 / 6;
 
         // 생성된 emitterId 를 기반으로 emitter 를 저장
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(timeout));
@@ -72,11 +73,11 @@ public class NotificationService {
     }
 
     @Async
-    public void send(Member receiver, NotificationType notificationType, String notificationContent) throws Exception {
+    public void send(Member receiver, NotificationType notificationType, String notificationContent, String url) throws Exception {
         log.info("send 실행");
-        log.info("receiver : {} , type : {} , content : {}", receiver.getNickname(), notificationType, notificationContent);
+        log.info("receiver : {} , type : {} , content : {}, url : {}", receiver.getNickname(), notificationType, notificationContent, url );
 
-        Notification notification = notificationRepository.save(createNotification(receiver, notificationType, notificationContent));
+        Notification notification = notificationRepository.save(createNotification(receiver, notificationType, notificationContent, url));
 
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
@@ -85,8 +86,7 @@ public class NotificationService {
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
                     sendNotification(emitter, eventId, key, NotificationDto.create(notification));
-
-                    log.info("emitter : {}, eventId : {} , key : {}, notify : {}", emitter, eventId, key, NotificationDto.create(notification));
+                    log.info(String.valueOf(emitter));
                 }
         );
 
@@ -130,11 +130,12 @@ public class NotificationService {
                 .forEach(entry -> sendNotification(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    private Notification createNotification(Member receiver, NotificationType notificationType, String notificationContent) throws Exception {
+    private Notification createNotification(Member receiver, NotificationType notificationType, String notificationContent, String url) throws Exception {
         return Notification.builder()
                 .member(receiver)
                 .notificationType(notificationType)
                 .notificationContent(new NotificationContent(notificationContent))
+                .url(new RelatedUrl(url))
                 .isRead(false) // 현재 읽음상태
                 .build();
     }

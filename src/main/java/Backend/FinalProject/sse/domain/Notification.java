@@ -29,6 +29,9 @@ public class Notification extends Timestamped {
     @Embedded
     private NotificationContent notificationContent;    // 알림 내용 - 50자 이내
 
+    @Embedded
+    private RelatedUrl url;
+
     @Column(nullable = false)
     private Boolean isRead;                             // 읽었는지에 대한 여부
 
