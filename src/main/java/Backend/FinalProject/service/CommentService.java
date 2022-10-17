@@ -93,7 +93,7 @@ public class CommentService {
 
         commentRepository.save(comment);
         //TODO
-        String url = "https://localhost:3000/detail/" + post.getId();
+        String url = "http://localhost:3000/detail/" + post.getId();
         notificationService.send(post.getMember(), ALARM, member.getNickname()+ "님이 " + post.getTitle() + "게시글에 댓글을 달았습니다.", url);
 
         return ResponseDto.success("댓글 작성이 완료되었습니다.");
