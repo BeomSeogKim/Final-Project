@@ -83,7 +83,7 @@ public class PostService{
 
     // 게시글 등록
     @Transactional
-    public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> writePost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
@@ -221,7 +221,7 @@ public class PostService{
 
 
     // 게시글 전체 조회
-    public ResponseDto<?> getAllPost(Integer pageNum) {
+    public ResponseDto<?> getPostList(Integer pageNum) {
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
         Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest);
@@ -270,7 +270,7 @@ public class PostService{
     }
 
     // 게시글 상세 조회
-    public ResponseDto<?> getPost(Long postId) {
+    public ResponseDto<?> getDetailPost(Long postId) {
 
         boolean isWish = false;     // 회원이 좋아요를 눌렀는지 안눌렀는지 Check
 
@@ -468,7 +468,7 @@ public class PostService{
 
     // 찜 추가
     @Transactional
-    public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
+    public ResponseDto<?> addWishList(Long postId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -506,7 +506,7 @@ public class PostService{
 
     // 찜 삭제
     @Transactional
-    public ResponseDto<?> removeWish(Long postId, HttpServletRequest request) {
+    public ResponseDto<?> removeWishList(Long postId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;

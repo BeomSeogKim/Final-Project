@@ -27,7 +27,7 @@ public class MyActService {
     private final Validation validation;
 
 
-    public ResponseDto<?> applicantList(HttpServletRequest request) {
+    public ResponseDto<?> getApplicantList(HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
@@ -61,7 +61,7 @@ public class MyActService {
         return ResponseDto.success(applicants);
     }
 
-    public ResponseDto<?> postList(HttpServletRequest request) {
+    public ResponseDto<?> getApplicationList(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 

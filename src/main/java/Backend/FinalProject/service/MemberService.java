@@ -97,12 +97,12 @@ public class MemberService {
             return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
         }
         // 아이디 중복검사
-        if (!isPresentId(userId).isSuccess()) {
+        if (!checkDuplicateId(userId).isSuccess()) {
             log.info("MemberService createMember ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 아이디 입니다.");
         }
         // 닉네임 중복검사
-        if (!isPresentNickname(nickname).isSuccess()) {
+        if (!checkDuplicateNickname(nickname).isSuccess()) {
             log.info("MemberService createMember ALREADY EXIST-NICKNAME");
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
         }
@@ -200,8 +200,8 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest,
-                                       HttpServletResponse response) {
+    public ResponseDto<?> editProfile(MemberUpdateDto request, HttpServletRequest httpServletRequest,
+                                      HttpServletResponse response) {
         String imgUrl;
 
         String nickname = request.getNickname();
@@ -258,7 +258,7 @@ public class MemberService {
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
     @Transactional
-    public ResponseDto<?> updateMemberPassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> updatePassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
         String password = request.getPassword();
         String updatePassword = request.getUpdatePassword();
         String UpdatePasswordCheck = request.getUpdatePasswordCheck();
@@ -373,7 +373,7 @@ public class MemberService {
 
 
     // 회원 아이디 중복 검사 method
-    public ResponseDto<String> isPresentId(String id) {
+    public ResponseDto<String> checkDuplicateId(String id) {
         Optional<Member> userId = memberRepository.findByUserId(id);
         if (userId.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-ID");
@@ -386,7 +386,7 @@ public class MemberService {
     }
 
     // 닉네임 중복 검사 method
-    public ResponseDto<String> isPresentNickname(String nickname) {
+    public ResponseDto<String> checkDuplicateNickname(String nickname) {
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
         if (findNickname.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-NICKNAME");
@@ -405,7 +405,7 @@ public class MemberService {
         return findMember.orElse(null);
     }
 
-    public ResponseDto<?> reissue(HttpServletRequest request, HttpServletResponse response) throws ParseException, ParseException {
+    public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException, ParseException {
         if (tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ) != null) {
             Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
             Date now = new Date(System.currentTimeMillis());

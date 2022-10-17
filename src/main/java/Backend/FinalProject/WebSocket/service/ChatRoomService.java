@@ -41,7 +41,7 @@ public class ChatRoomService {
     private final ChatMemberRepository chatMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    public ResponseDto<?> findById(Long roomId, HttpServletRequest request) {
+    public ResponseDto<?> getRoomInfo(Long roomId, HttpServletRequest request) {
         validation.checkAccessToken(request);
 
         // 방 정보 내어주자
@@ -59,7 +59,7 @@ public class ChatRoomService {
     }
 
 
-    public ResponseDto<?> getMessage(Long roomId, Integer pageNum, Pageable pageable, HttpServletRequest request) {
+    public ResponseDto<?> getMessageList(Long roomId, Integer pageNum, Pageable pageable, HttpServletRequest request) {
         ResponseDto<?> chkResponse = validation.checkAccessToken(request);
         if (!chkResponse.isSuccess())
             return chkResponse;
@@ -106,7 +106,7 @@ public class ChatRoomService {
         return ResponseDto.success(chatMessageInfoDto);
     }
 
-    public ResponseDto<?> getRooms(HttpServletRequest request) {
+    public ResponseDto<?> getRoomList(HttpServletRequest request) {
         ResponseDto<?> chkResponse = validation.checkAccessToken(request);
         if (!chkResponse.isSuccess())
             return chkResponse;

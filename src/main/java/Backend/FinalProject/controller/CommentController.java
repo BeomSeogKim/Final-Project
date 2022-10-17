@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class CommentController {
 
+    //== Dependency Injection ==//
     private final CommentService commentService;
 
     /**
@@ -19,10 +20,10 @@ public class CommentController {
      * @param postId : 게시글 아이디
      */
     @GetMapping("/comment/{postId}")
-    public ResponseDto<?> getComments(
+    public ResponseDto<?> getCommentList(
             @PathVariable Long postId
     ) {
-        return commentService.getComments(postId);
+        return commentService.getCommentList(postId);
     }
 
 
@@ -30,39 +31,39 @@ public class CommentController {
      * 댓글 작성
      * @param postId : 게시글 아이디
      * @param commentRequestDto : 작성 내용
-     * @param request : Token 이 담긴 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @PostMapping("/comment/{postId}")
     public ResponseDto<?> writeComment(
             @PathVariable Long postId,
             @RequestBody CommentRequestDto commentRequestDto,
-            HttpServletRequest request) throws Exception {
-        return commentService.writeComment(postId, commentRequestDto, request);
+            HttpServletRequest httpServletRequest) throws Exception {
+        return commentService.writeComment(postId, commentRequestDto, httpServletRequest);
     }
 
     /**
      * 댓글 수정
      * @param commentId : 댓글 아이디
      * @param commentRequestDto : 수정 내용
-     * @param request : Token 이 담긴 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @PutMapping("/comment/{commentId}")
     public ResponseDto<?> editComment(
             @PathVariable Long commentId,
             @RequestBody CommentRequestDto commentRequestDto,
-            HttpServletRequest request) {
-        return commentService.editComment(commentId, commentRequestDto, request);
+            HttpServletRequest httpServletRequest) {
+        return commentService.editComment(commentId, commentRequestDto, httpServletRequest);
     }
 
     /**
      * 댓글 삭제
      * @param commentId : 댓글 아이디
-     * @param request : Token 이 담긴 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @DeleteMapping("/comment/{commentId}")
     public ResponseDto<?> deleteComment(
             @PathVariable Long commentId,
-            HttpServletRequest request) {
-        return commentService.deleteComment(commentId, request);
+            HttpServletRequest httpServletRequest) {
+        return commentService.deleteComment(commentId, httpServletRequest);
     }
 }
