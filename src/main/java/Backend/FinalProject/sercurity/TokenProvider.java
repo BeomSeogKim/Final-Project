@@ -35,7 +35,7 @@ public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30 * 6 ;            //30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30 ;            //30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;     //7일
 
     private final Key key;
@@ -199,6 +199,29 @@ public class TokenProvider {
         }
 
         return claims.getSubject();
+    }
+
+    public Date getExpirationTime(String accessToken) {
+        String token = "";
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+            token = accessToken.substring(7);
+        } else {
+            return null;
+        }
+        Claims claims;
+        try {
+            claims = Jwts
+                    .parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        }
+        catch (ExpiredJwtException e) {
+            return null;
+        }
+
+        return claims.getExpiration();
     }
 
     public String getMemberFromExpiredAccessToken(HttpServletRequest request) throws ParseException, ParseException {
