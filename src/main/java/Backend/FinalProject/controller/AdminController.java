@@ -14,43 +14,35 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class AdminController {
 
+    //== Dependency Injection ==//
     private final AdminService adminService;
 
-
+    /**
+     * 신고 내역 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/admin/report/list")
-    public ResponseDto<?> getReportList(HttpServletRequest request) {
-        return adminService.getReportList(request);
+    public ResponseDto<?> getReportList(HttpServletRequest httpServletRequest) {
+        return adminService.getReportList(httpServletRequest);
     }
 
+    /**
+     * 신고처리 (제재)
+     * @param reportId : 신고 아이디
+     * @param request : HttpServlet Request
+     */
     @PostMapping("/admin/report/execute/{reportId}")
     private ResponseDto<?> executeReport(@PathVariable Long reportId, HttpServletRequest request) {
         return adminService.executeReport(reportId, request);
     }
 
+    /**
+     * 신고처리 (반려)
+     * @param reportId : 신고 아이디
+     * @param request : HttpServlet Request
+     */
     @PostMapping("/admin/report/withdraw/{reportId}")
     private ResponseDto<?> withdrawReport(@PathVariable Long reportId, HttpServletRequest request) {
         return adminService.withdrawReport(reportId, request);
     }
-
-
-
-
-    @GetMapping("/admin/member")
-    public ResponseDto<?> getReportMember(
-            HttpServletRequest request) {
-        return adminService.getReportMember(request);
-    }
-
-    @GetMapping("/admin/post")
-    public ResponseDto<?> getReportPost(
-            HttpServletRequest request) {
-        return adminService.getReportPost(request);
-    }
-
-    @GetMapping("/admin/comment")
-    public ResponseDto<?> getReportComment(
-            HttpServletRequest request) {
-        return adminService.getReportComment(request);
-    }
-
 }

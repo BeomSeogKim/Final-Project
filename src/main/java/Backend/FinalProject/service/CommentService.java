@@ -35,7 +35,7 @@ public class CommentService {
     private final NotificationService notificationService;
 
 
-    public ResponseDto<?> getComments(Long postId) {
+    public ResponseDto<?> getCommentList(Long postId) {
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
 //        List<Comment> commentList = commentRepository.findAllByPostIdTest(UNREGULATED, postId);
         if (commentList.isEmpty()) {

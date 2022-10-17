@@ -13,15 +13,24 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class MyActController {
 
+    //== Dependency Injection ==//
     private final MyActService myActService;
 
+    /**
+     * 내가 주최한 모임 관리
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/act/host")
-    public ResponseDto<?> applicantList(HttpServletRequest request) {
-        return myActService.applicantList(request);
+    public ResponseDto<?> getApplicantList(HttpServletRequest httpServletRequest) {
+        return myActService.getApplicantList(httpServletRequest);
     }
 
+    /**
+     * 내가 신청한 모임 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/act/applicant")
-    public ResponseDto<?> postList(HttpServletRequest request) {
-        return myActService.postList(request);
+    public ResponseDto<?> getApplicationList(HttpServletRequest httpServletRequest) {
+        return myActService.getApplicationList(httpServletRequest);
     }
 }

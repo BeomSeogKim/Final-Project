@@ -67,7 +67,7 @@ public class MyPageService {
     }
 
     // 참여 중인 모임 조회
-    public ResponseDto<?> participation(HttpServletRequest request) {
+    public ResponseDto<?> getParticipationList(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
@@ -123,7 +123,7 @@ public class MyPageService {
 
 
     // 내가 주최한 모임 조회
-    public ResponseDto<?> leader(HttpServletRequest request) {
+    public ResponseDto<?> getPostLedByMe(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
@@ -159,7 +159,7 @@ public class MyPageService {
     }
 
     // 찜한 모임 조회
-    public ResponseDto<?> addWish(HttpServletRequest request) {
+    public ResponseDto<?> getWishList(HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
@@ -191,7 +191,7 @@ public class MyPageService {
 
     }
 
-    public ResponseDto<?> getInfo(HttpServletRequest request) {
+    public ResponseDto<?> getMyInfo(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
@@ -208,7 +208,7 @@ public class MyPageService {
                 .build());
     }
     // 회원정보 조회
-    public ResponseDto<?> getMemberMypage(Long memberId, HttpServletRequest request) {
+    public ResponseDto<?> getMemberInfo(Long memberId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
@@ -253,7 +253,7 @@ public class MyPageService {
         }
 
         // 해당 회원이 게시한 게시글 조회
-    public ResponseDto<?> getMemberPost(Long memberId, HttpServletRequest request) {
+    public ResponseDto<?> getMemberPostList(Long memberId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
