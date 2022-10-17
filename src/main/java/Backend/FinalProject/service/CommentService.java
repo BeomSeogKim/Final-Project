@@ -64,7 +64,7 @@ public class CommentService {
     // 댓글 작성
     public ResponseDto<?> writeComment(Long postId, CommentRequestDto commentRequestDto, HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -103,7 +103,7 @@ public class CommentService {
     // 댓글 수정
     public ResponseDto<?> editComment(Long commentId, CommentRequestDto commentRequestDto, HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -138,7 +138,7 @@ public class CommentService {
     public ResponseDto<?> deleteComment(Long commentId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;

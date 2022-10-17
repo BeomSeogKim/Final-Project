@@ -95,7 +95,7 @@ public class NotificationService {
     @Transactional
     public List<NotificationDto> readNotification(Long notificationId, HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
         log.info(String.valueOf(member.getId()));
         // 알림을 받은 사람의 id 와 알림의 id 를 받아와서 해당 알림을 찾는다.

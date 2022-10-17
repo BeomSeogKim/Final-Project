@@ -42,7 +42,7 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     public ResponseDto<?> findById(Long roomId, HttpServletRequest request) {
-        validation.validateCheck(request);
+        validation.checkAccessToken(request);
 
         // 방 정보 내어주자
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
@@ -60,7 +60,7 @@ public class ChatRoomService {
 
 
     public ResponseDto<?> getMessage(Long roomId, Integer pageNum, Pageable pageable, HttpServletRequest request) {
-        ResponseDto<?> chkResponse = validation.validateCheck(request);
+        ResponseDto<?> chkResponse = validation.checkAccessToken(request);
         if (!chkResponse.isSuccess())
             return chkResponse;
         Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
@@ -107,7 +107,7 @@ public class ChatRoomService {
     }
 
     public ResponseDto<?> getRooms(HttpServletRequest request) {
-        ResponseDto<?> chkResponse = validation.validateCheck(request);
+        ResponseDto<?> chkResponse = validation.checkAccessToken(request);
         if (!chkResponse.isSuccess())
             return chkResponse;
         Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
@@ -144,7 +144,7 @@ public class ChatRoomService {
         if (validation == null) {
             return ResponseDto.fail("NO CHAT ROOM", "해당 채팅방이 존재하지 않습니다");
         }
-        ResponseDto<?> responseDto = this.validation.validateCheck(request);
+        ResponseDto<?> responseDto = this.validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }

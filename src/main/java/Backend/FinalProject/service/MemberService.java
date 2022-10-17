@@ -205,7 +205,7 @@ public class MemberService {
         MultipartFile imgFile = request.getImgFile();
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
+        ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -261,7 +261,7 @@ public class MemberService {
         String UpdatePasswordCheck = request.getUpdatePasswordCheck();
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
+        ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -323,7 +323,7 @@ public class MemberService {
     @Transactional
     public ResponseDto<?> signOut(HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
