@@ -18,16 +18,18 @@ import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequiredArgsConstructor
 @Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MyPageService {
     private final TokenProvider tokenProvider;
 
@@ -125,10 +127,14 @@ public class MyPageService {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
-        if (!responseDto.isSuccess()) {
-            return responseDto;
-        }
-        Member member = (Member) responseDto.getData();
+//        if (!responseDto.isSuccess()) {
+//            return responseDto;
+//        }
+//        Member member = (Member) responseDto.getData();
+
+        String accessToken = tokenProvider.getUserIdByToken(request.getHeader("Authorization"));
+        Optional<Member> byNickname = memberRepository.findByNickname(accessToken);
+        Member member = byNickname.get();
 
         List<Post> postListById = postRepository.findAllByMemberId(member.getId());
         if (postListById.isEmpty() || equals(null)) {
@@ -137,7 +143,10 @@ public class MyPageService {
         }
 
 
+
+
         List<MyPageDto> postList = new ArrayList<>();
+        log.info("breakpoint");
         for (Post post : postListById) {
             if (post.getMember().equals(member.getId())) {
 
