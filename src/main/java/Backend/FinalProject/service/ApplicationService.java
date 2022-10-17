@@ -48,7 +48,7 @@ public class ApplicationService {
     public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationRequestDto, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -110,7 +110,7 @@ public class ApplicationService {
     @Transactional
     public ResponseDto<?> cancelApplication(Long postId, HttpServletRequest request) {
 
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -138,7 +138,7 @@ public class ApplicationService {
     @Transactional
     public ResponseDto<?> approveApplication(Long applicationId, HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -196,7 +196,7 @@ public class ApplicationService {
     public ResponseDto<?> disapproveApplication(Long applicationId, HttpServletRequest request) throws Exception {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -226,7 +226,7 @@ public class ApplicationService {
     public ResponseDto<?> getApplicationList(Long postId, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -279,7 +279,7 @@ public class ApplicationService {
     // 모집 관련 로직
     public ResponseDto<?> changePostStatus(Long postId, HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;

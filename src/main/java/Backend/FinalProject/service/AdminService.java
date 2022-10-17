@@ -39,7 +39,7 @@ public class AdminService {
 
     public ResponseDto<?> getReportMember(HttpServletRequest request) {
 
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -63,7 +63,7 @@ public class AdminService {
     }
 
     public ResponseDto<?> getReportPost(HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -88,7 +88,7 @@ public class AdminService {
     }
 
     public ResponseDto<?> getReportComment(HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -111,7 +111,7 @@ public class AdminService {
     }
 
     public ResponseDto<?> getReportList(HttpServletRequest request) {
-        validation.validateCheck(request);
+        validation.checkAccessToken(request);
 
         List<Report> reportMemberList = reportRepository.findByMember();
         List<ReportMemberDto> reportMember = new ArrayList<>();
@@ -204,7 +204,7 @@ public class AdminService {
     }
     @Transactional
     public ResponseDto<?> executeReport(Long reportId, HttpServletRequest request) {
-        validation.validateCheck(request);
+        validation.checkAccessToken(request);
         Report report = reportRepository.findById(reportId).orElse(null);
         assert report != null;
         if (report.getMemberId() != null) {
@@ -240,7 +240,7 @@ public class AdminService {
 
     @Transactional
     public ResponseDto<?> withdrawReport(Long reportId, HttpServletRequest request) {
-        validation.validateCheck(request);
+        validation.checkAccessToken(request);
         reportRepository.deleteById(reportId);
         return ResponseDto.success("성공적으로 처리 되었습니다.");
     }

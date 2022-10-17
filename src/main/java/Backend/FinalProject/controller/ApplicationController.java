@@ -57,7 +57,6 @@ public class ApplicationController {
 
     /**
      * 게시글 참여 거절
-     *
      * @param applicationId : 지원 신청 아이디
      * @param request       : Token 이 담긴 데이터
      */
@@ -70,7 +69,6 @@ public class ApplicationController {
 
     /**
      * 지원자 보기
-     *
      * @param postId  : 게시글 아이디
      * @param request : Token 이 담긴 데이터
      */

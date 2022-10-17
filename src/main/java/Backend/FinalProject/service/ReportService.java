@@ -40,7 +40,7 @@ public class ReportService {
     public  ResponseDto<?> reportUser(Long memberId, ReportDto reportDto, HttpServletRequest request) {
         // 토큰 유효성 검사
         // todo
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -78,7 +78,7 @@ public class ReportService {
     public  ResponseDto<?> reportPost(Long postId, ReportDto reportDto, HttpServletRequest request) {
         // 토큰 유효성 검사
         // todo
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -119,7 +119,7 @@ public class ReportService {
     public  ResponseDto<?> reportComment(Long commentId, ReportDto reportDto, HttpServletRequest request) {
         // 토큰 유효성 검사
         // todo
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }

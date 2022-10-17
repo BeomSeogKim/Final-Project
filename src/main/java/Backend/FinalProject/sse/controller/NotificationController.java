@@ -36,7 +36,7 @@ public class NotificationController {
                                 String lastEventId) throws Exception {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
         //추가
         response.setCharacterEncoding("UTF-8");
@@ -49,7 +49,7 @@ public class NotificationController {
     @GetMapping(value = "/notifications")
     public List<NotificationDto> findAllNotifications(HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
         return notificationService.findAllNotifications(member.getId());
     }
@@ -64,7 +64,7 @@ public class NotificationController {
     @GetMapping(value = "/notifications/count")
     public NotificationCountDto countUnReadNotifications(HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
         log.info(String.valueOf(member.getId()));
 
@@ -75,7 +75,7 @@ public class NotificationController {
     @DeleteMapping(value = "/notifications/delete")
     public ResponseEntity<Object> deleteNotifications(HttpServletRequest request) {
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
         log.info(String.valueOf(member.getId()));
         return notificationService.deleteAllByNotifications(member);

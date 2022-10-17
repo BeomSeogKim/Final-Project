@@ -86,8 +86,7 @@ public class PostService{
     public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(httpServletRequest);
-
+        ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -337,7 +336,7 @@ public class PostService{
     @Transactional  // 게시글 업데이트
     public ResponseDto<?> updatePost(Long id, PostUpdateRequestDto postUpdateRequestDto, HttpServletRequest request) {
 
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -436,7 +435,7 @@ public class PostService{
     public ResponseDto<?> deletePost(Long id, HttpServletRequest request) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -470,7 +469,7 @@ public class PostService{
     // 찜 추가
     @Transactional
     public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
@@ -508,7 +507,7 @@ public class PostService{
     // 찜 삭제
     @Transactional
     public ResponseDto<?> removeWish(Long postId, HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.validateCheck(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
         }
