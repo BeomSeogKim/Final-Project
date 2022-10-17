@@ -18,16 +18,18 @@ import Backend.FinalProject.repository.WishListRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequiredArgsConstructor
 @Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MyPageService {
     private final TokenProvider tokenProvider;
 
@@ -136,23 +138,21 @@ public class MyPageService {
             return ResponseDto.fail("NOT FOUND", "주최한 모임이 없습니다");
         }
 
-
         List<MyPageDto> postList = new ArrayList<>();
         for (Post post : postListById) {
             if (post.getMember().equals(member.getId())) {
-
+                postList.add(
+                        MyPageDto.builder()
+                                .postId(post.getId())
+                                .title(post.getTitle())
+                                .address(post.getAddress())
+                                .dDay(post.getDDay())
+                                .restDay(time.convertLocalDateToTime(post.getEndDate()))
+                                .imgUrl(post.getImgUrl())
+                                .nickname(post.getMember().getNickname())
+                                .build()
+                );
             }
-            postList.add(
-                    MyPageDto.builder()
-                            .postId(post.getId())
-                            .title(post.getTitle())
-                            .address(post.getAddress())
-                            .dDay(post.getDDay())
-                            .restDay(time.convertLocalDateToTime(post.getEndDate()))
-                            .imgUrl(post.getImgUrl())
-                            .nickname(post.getMember().getNickname())
-                            .build()
-            );
 
         }
         return ResponseDto.success(postList);
