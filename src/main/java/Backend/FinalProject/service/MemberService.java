@@ -9,6 +9,7 @@ import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.LoginRequestDto;
 import Backend.FinalProject.dto.request.MemberUpdateDto;
 import Backend.FinalProject.dto.request.SignupRequestDto;
+import Backend.FinalProject.dto.response.ReIssueMessageDto;
 import Backend.FinalProject.repository.*;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,10 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static Backend.FinalProject.domain.SignUpRoot.normal;
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
@@ -404,9 +407,11 @@ public class MemberService {
 
     public ResponseDto<?> reissue(HttpServletRequest request, HttpServletResponse response) throws ParseException, ParseException {
         if (tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ) != null) {
-            log.info("getMemberIdByToken");
-            log.info(tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ));
-            return ResponseDto.fail("AVAILABLE CODE","아직 유효한 토큰입니다.");
+            Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
+            Date now = new Date(System.currentTimeMillis());
+            long diff = expirationTime.getTime() - now.getTime();
+            long restTime = TimeUnit.MILLISECONDS.convert(diff, TimeUnit.MILLISECONDS);
+            return ResponseDto.success(ReIssueMessageDto.builder().message("아직 유효한 토큰입니다.").expiresAt(restTime).build());
         }
         if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
             return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
@@ -428,6 +433,8 @@ public class MemberService {
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         refreshToken.updateValue(tokenDto.getRefreshToken());
         tokenToHeaders(tokenDto, response);
+
+
         return ResponseDto.success("재발급 완료");
 
     }
