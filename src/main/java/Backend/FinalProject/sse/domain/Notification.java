@@ -51,4 +51,8 @@ public class Notification extends Timestamped {
     public String getNotificationContent() {
         return notificationContent.getNotificationContent();
     }
+
+    public String getUrl() {
+        return url.getUrl();
+    }
 }
