@@ -85,7 +85,6 @@ public class NotificationService {
                 (key, emitter) -> {
                     emitterRepository.saveEventCache(key, notification);
                     sendNotification(emitter, eventId, key, NotificationDto.create(notification));
-                    log.info(String.valueOf(emitter));
                 }
         );
 
