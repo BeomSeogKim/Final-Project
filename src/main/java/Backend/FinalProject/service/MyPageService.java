@@ -127,14 +127,10 @@ public class MyPageService {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
-//        if (!responseDto.isSuccess()) {
-//            return responseDto;
-//        }
-//        Member member = (Member) responseDto.getData();
-
-        String accessToken = tokenProvider.getUserIdByToken(request.getHeader("Authorization"));
-        Optional<Member> byNickname = memberRepository.findByNickname(accessToken);
-        Member member = byNickname.get();
+        if (!responseDto.isSuccess()) {
+            return responseDto;
+        }
+        Member member = (Member) responseDto.getData();
 
         List<Post> postListById = postRepository.findAllByMemberId(member.getId());
         if (postListById.isEmpty() || equals(null)) {
@@ -142,26 +138,21 @@ public class MyPageService {
             return ResponseDto.fail("NOT FOUND", "주최한 모임이 없습니다");
         }
 
-
-
-
         List<MyPageDto> postList = new ArrayList<>();
-        log.info("breakpoint");
         for (Post post : postListById) {
             if (post.getMember().equals(member.getId())) {
-
+                postList.add(
+                        MyPageDto.builder()
+                                .postId(post.getId())
+                                .title(post.getTitle())
+                                .address(post.getAddress())
+                                .dDay(post.getDDay())
+                                .restDay(time.convertLocalDateToTime(post.getEndDate()))
+                                .imgUrl(post.getImgUrl())
+                                .nickname(post.getMember().getNickname())
+                                .build()
+                );
             }
-            postList.add(
-                    MyPageDto.builder()
-                            .postId(post.getId())
-                            .title(post.getTitle())
-                            .address(post.getAddress())
-                            .dDay(post.getDDay())
-                            .restDay(time.convertLocalDateToTime(post.getEndDate()))
-                            .imgUrl(post.getImgUrl())
-                            .nickname(post.getMember().getNickname())
-                            .build()
-            );
 
         }
         return ResponseDto.success(postList);
