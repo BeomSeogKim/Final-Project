@@ -186,7 +186,7 @@ public class ApplicationService {
 
         // TODO
         // 수락이 될 경우 참여한 모임 조회 url 로 이동 시키기
-        String url = "http://localhost:3000/mypage/participation";
+        String url = "http://localhost:3000/mypage";
         notificationService.send(application.getMember(), ACCEPT, application.getPost().getTitle() + " 모임 신청이 수락되었습니다.", url);
 
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
@@ -216,7 +216,7 @@ public class ApplicationService {
         }
         application.disapprove();
         // TODO
-        String url = "http://localhost:3000/mypage/act/applicant";
+        String url = "http://localhost:3000/mypage/activity";
         notificationService.send(application.getMember(), REJECT, application.getPost().getTitle() + " 모임 신청이 거절되었습니다.", url);
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
