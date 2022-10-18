@@ -405,37 +405,37 @@ public class MemberService {
         return findMember.orElse(null);
     }
 
-    public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException, ParseException {
-        if (tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ) != null) {
-            Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
-            Date now = new Date(System.currentTimeMillis());
-            long diff = expirationTime.getTime() - now.getTime();
-            long restTime = TimeUnit.MILLISECONDS.convert(diff, TimeUnit.MILLISECONDS);
-            return ResponseDto.success(ReIssueMessageDto.builder().message("아직 유효한 토큰입니다.").expiresAt(restTime).build());
-        }
-        if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
-            return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
-        }
-        String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);
-        if (null == memberId) {
-            return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
-        }
-        Member member = memberRepository.findByUserId(memberId).orElse(null);
+    public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException {
+            if (tokenProvider.getUserIdByToken(request.getHeader("Authorization")) != null) {
+                Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
+                Date now = new Date(System.currentTimeMillis());
+                long diff = expirationTime.getTime() - now.getTime();
+                long restTime = TimeUnit.MILLISECONDS.convert(diff, TimeUnit.MILLISECONDS);
+                return ResponseDto.success(ReIssueMessageDto.builder().message("아직 유효한 토큰입니다.").expiresAt(restTime).build());
+            }
+            if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
+                return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
+            }
+            String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);
+            if (null == memberId) {
+                return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
+            }
+            Member member = memberRepository.findByUserId(memberId).orElse(null);
 
-        RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
+            RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
 
-        if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
-            log.info("refreshToken : "+refreshToken.getKeyValue());
-            log.info("header rft : "+request.getHeader("RefreshToken"));
-            return ResponseDto.fail("INVALID REFRESH TOKEN","토큰이 일치하지 않습니다.");
-        }
-        assert member != null;
-        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
-        refreshToken.updateValue(tokenDto.getRefreshToken());
-        tokenToHeaders(tokenDto, response);
+            if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
+                log.info("refreshToken : " + refreshToken.getKeyValue());
+                log.info("header rft : " + request.getHeader("RefreshToken"));
+                return ResponseDto.fail("INVALID REFRESH TOKEN", "토큰이 일치하지 않습니다.");
+            }
+            assert member != null;
+            TokenDto tokenDto = tokenProvider.generateTokenDto(member);
+            refreshToken.updateValue(tokenDto.getRefreshToken());
+            tokenToHeaders(tokenDto, response);
 
 
-        return ResponseDto.success("재발급 완료");
+            return ResponseDto.success("재발급 완료");
 
     }
 
