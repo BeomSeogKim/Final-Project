@@ -44,14 +44,17 @@ public class Notification extends Timestamped {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    //== 읽음 처리 ==//
     public void read() {
         this.isRead = true;
     }
 
+    //== 알림 내용 가져오기==//
     public String getNotificationContent() {
         return notificationContent.getNotificationContent();
     }
 
+    //== redirect Url 가져오기 ==// 
     public String getUrl() {
         return url.getUrl();
     }
