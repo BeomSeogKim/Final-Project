@@ -66,7 +66,7 @@ public class SecurityConfiguration {
                 .antMatchers("/chat/**", "/chat/user", "/ws-stomp/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지
                 .antMatchers("/test").permitAll()
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()
 
                 .and()
                 .apply(new JwtSecurityConfiguration(SECRET_KEY, tokenProvider, userDetailsService));
