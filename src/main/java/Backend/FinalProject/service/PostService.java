@@ -11,14 +11,14 @@ import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.Regulation;
-import Backend.FinalProject.dto.CommentResponseDto;
-import Backend.FinalProject.dto.PostResponseDto;
+import Backend.FinalProject.dto.response.comment.CommentResponseDto;
+import Backend.FinalProject.dto.response.post.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.SearchDto;
-import Backend.FinalProject.dto.request.PostRequestDto;
-import Backend.FinalProject.dto.request.PostUpdateRequestDto;
-import Backend.FinalProject.dto.response.AllPostResponseDto;
-import Backend.FinalProject.dto.response.PostResponseDtoPage;
+import Backend.FinalProject.dto.request.post.PostRequestDto;
+import Backend.FinalProject.dto.request.post.PostUpdateRequestDto;
+import Backend.FinalProject.dto.response.post.AllPostResponseDto;
+import Backend.FinalProject.dto.response.post.PostResponseDtoPage;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -603,10 +603,7 @@ public class PostService{
         if (pageNum == 0) {
             firstPage = true;
             previousPage = false;
-            nextPage = true;
-            if (totalPage == 0) {
-                nextPage = false;
-            }
+            nextPage = totalPage != 0;
         }
 
         PostResponseDtoPage informationOfPost = PostResponseDtoPage.builder()

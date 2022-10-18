@@ -3,13 +3,13 @@ package Backend.FinalProject.service;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.*;
-import Backend.FinalProject.dto.MemberPasswordUpdateDto;
+import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
-import Backend.FinalProject.dto.request.LoginRequestDto;
-import Backend.FinalProject.dto.request.MemberUpdateDto;
-import Backend.FinalProject.dto.request.SignupRequestDto;
-import Backend.FinalProject.dto.response.ReIssueMessageDto;
+import Backend.FinalProject.dto.request.member.LoginRequestDto;
+import Backend.FinalProject.dto.request.member.MemberUpdateDto;
+import Backend.FinalProject.dto.request.member.SignupRequestDto;
+import Backend.FinalProject.dto.response.member.ReIssueMessageDto;
 import Backend.FinalProject.repository.*;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static Backend.FinalProject.domain.enums.SignUpRoot.normal;
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
@@ -38,6 +36,7 @@ import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DIS
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
+import static Backend.FinalProject.domain.enums.SignUpRoot.normal;
 
 @Slf4j
 @Service
@@ -173,7 +172,7 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) throws UnsupportedEncodingException {
+    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         Member member = isPresentMember(loginRequestDto.getUserId());
 
         if (member == null) {

@@ -1,7 +1,8 @@
-package Backend.FinalProject.dto;
+package Backend.FinalProject.dto.response.post;
 
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;
+import Backend.FinalProject.dto.response.comment.CommentResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

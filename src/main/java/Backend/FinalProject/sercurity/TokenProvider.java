@@ -206,7 +206,7 @@ public class TokenProvider {
         return claims.getExpiration();
     }
 
-    public String getMemberFromExpiredAccessToken(HttpServletRequest request) throws ParseException, ParseException {
+    public String getMemberFromExpiredAccessToken(HttpServletRequest request) throws ParseException {
         String jwt = getAccessToken(request);
 
         Base64.Decoder decoder = Base64.getUrlDecoder();

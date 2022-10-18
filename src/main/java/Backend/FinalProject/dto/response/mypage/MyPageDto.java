@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.mypage;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,15 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MypageListDto
-{
+public class MyPageDto {
+    private Long postId;
     private String title;
-    private String imgUrl;
     private String address;
     private LocalDate dDay;
+    private String  restDay;
+    private String imgUrl;
+    private String nickname;
 }

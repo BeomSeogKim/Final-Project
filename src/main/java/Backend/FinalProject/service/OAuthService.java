@@ -3,7 +3,7 @@ package Backend.FinalProject.service;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.UserDetailsImpl;
 import Backend.FinalProject.domain.enums.Gender;
-import Backend.FinalProject.dto.KakaoUserInfoDto;
+import Backend.FinalProject.dto.response.member.KakaoUserInfoDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.repository.MemberRepository;

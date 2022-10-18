@@ -29,6 +29,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findAllByMemberIdAndStatus(Long memberId, ApplicationState state);
 
-    Optional<Application> deleteByPostIdAndMemberId(Long postId, Long memberId);
+    void deleteByPostIdAndMemberId(Long postId, Long memberId);
 
 }

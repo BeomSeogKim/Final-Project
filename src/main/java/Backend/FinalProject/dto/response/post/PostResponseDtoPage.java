@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.post;
 
 import lombok.Builder;
 import lombok.Getter;

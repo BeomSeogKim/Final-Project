@@ -2,8 +2,8 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.SearchDto;
-import Backend.FinalProject.dto.request.PostRequestDto;
-import Backend.FinalProject.dto.request.PostUpdateRequestDto;
+import Backend.FinalProject.dto.request.post.PostRequestDto;
+import Backend.FinalProject.dto.request.post.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

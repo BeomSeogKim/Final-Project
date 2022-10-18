@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto;
+package Backend.FinalProject.dto.response.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

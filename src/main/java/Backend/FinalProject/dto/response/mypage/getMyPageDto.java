@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.mypage;
 
 import Backend.FinalProject.domain.enums.SignUpRoot;
 import Backend.FinalProject.domain.enums.Gender;

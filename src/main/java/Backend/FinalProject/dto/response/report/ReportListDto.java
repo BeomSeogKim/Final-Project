@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto;
+package Backend.FinalProject.dto.response.report;
 
 import Backend.FinalProject.dto.response.report.ReportCommentDto;
 import Backend.FinalProject.dto.response.report.ReportMemberDto;

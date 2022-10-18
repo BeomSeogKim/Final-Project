@@ -1,10 +1,12 @@
 package Backend.FinalProject.controller;
 
-import Backend.FinalProject.dto.MemberPasswordUpdateDto;
+import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.*;
 import Backend.FinalProject.dto.request.checkduplication.IdCheckDuplicateDto;
 import Backend.FinalProject.dto.request.checkduplication.NickCheckDuplicateDto;
+import Backend.FinalProject.dto.request.member.LoginRequestDto;
+import Backend.FinalProject.dto.request.member.MemberUpdateDto;
+import Backend.FinalProject.dto.request.member.SignupRequestDto;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.parser.ParseException;
@@ -28,7 +30,7 @@ public class MemberController {
      */
     @PostMapping("/member/signup")
     public ResponseDto<String> signUp(
-            @ModelAttribute  SignupRequestDto signupRequestDto) {
+            @ModelAttribute SignupRequestDto signupRequestDto) {
         return memberService.createMember(signupRequestDto);
     }
 

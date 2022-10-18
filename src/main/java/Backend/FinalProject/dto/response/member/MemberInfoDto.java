@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.member;
 
 import Backend.FinalProject.domain.enums.SignUpRoot;
 import lombok.AllArgsConstructor;

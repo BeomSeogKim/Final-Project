@@ -2,7 +2,7 @@ package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
-import Backend.FinalProject.dto.ReportListDto;
+import Backend.FinalProject.dto.response.report.ReportListDto;
 import Backend.FinalProject.dto.response.report.ReportCommentDto;
 import Backend.FinalProject.dto.response.report.ReportMemberDto;
 import Backend.FinalProject.dto.response.report.ReportPostDto;
@@ -36,79 +36,6 @@ public class AdminService {
 
 
     private final Validation validation;
-
-    public ResponseDto<?> getReportMember(HttpServletRequest request) {
-
-        ResponseDto<?> responseDto = validation.checkAccessToken(request);
-
-        if (!responseDto.isSuccess()) {
-            return responseDto;
-        }
-        List<Report> reportMemberList = reportRepository.findByMember();
-        if (reportMemberList.isEmpty()) {
-            return ResponseDto.fail("NOT FOUND", "회원을 신고한 내역이 없습니다.");
-        }
-        List<ReportMemberDto> reportList = new ArrayList<>();
-
-        for(Report report : reportMemberList) {
-            reportList.add(
-                    ReportMemberDto.builder()
-                            .memberId(report.getMemberId())
-                            .content(report.getContent())
-                            .build());
-        }
-
-
-        return ResponseDto.success(reportList);
-    }
-
-    public ResponseDto<?> getReportPost(HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.checkAccessToken(request);
-
-        if (!responseDto.isSuccess()) {
-            return responseDto;
-        }
-        List<Report> reportPostList = reportRepository.findByPost();
-        if (reportPostList.isEmpty()) {
-            return ResponseDto.fail("NOT FOUND", "게시글을 신고한 내역이 없습니다.");
-        }
-        
-        List<ReportPostDto> reportList = new ArrayList<>();
-
-        for (Report report : reportPostList) {
-            reportList.add(
-                    ReportPostDto.builder()
-                            .postId(report.getPostId())
-                            .content(report.getContent())
-                            .build());
-        }
-
-
-        return ResponseDto.success(reportList);
-    }
-
-    public ResponseDto<?> getReportComment(HttpServletRequest request) {
-        ResponseDto<?> responseDto = validation.checkAccessToken(request);
-
-        if (!responseDto.isSuccess()) {
-            return responseDto;
-        }
-        List<Report> reportCommentList = reportRepository.findByComment();
-        if (reportCommentList.isEmpty()) {
-            return ResponseDto.fail("NOT FOUND", "댓글을 신고한 내역이 없습니다.");
-        }
-
-        List<ReportCommentDto> reportList = new ArrayList<>();
-
-        for (Report report : reportCommentList) {
-            reportList.add(
-                    ReportCommentDto.builder()
-                            .commentId(report.getCommentId())
-                            .content(report.getContent())
-                            .build());
-        }
-        return ResponseDto.success(reportList);
-    }
 
     public ResponseDto<?> getReportList(HttpServletRequest request) {
         validation.checkAccessToken(request);

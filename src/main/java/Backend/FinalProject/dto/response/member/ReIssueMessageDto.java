@@ -1,14 +1,15 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishPeopleDto {
-    private String userId;
+public class ReIssueMessageDto {
+    private String message;
+    private long expiresAt;
 }

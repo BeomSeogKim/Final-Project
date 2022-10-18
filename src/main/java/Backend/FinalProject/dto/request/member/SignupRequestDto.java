@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.request;
+package Backend.FinalProject.dto.request.member;
 
 
 import lombok.AllArgsConstructor;

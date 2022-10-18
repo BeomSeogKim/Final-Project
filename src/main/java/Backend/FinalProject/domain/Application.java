@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 import static Backend.FinalProject.domain.enums.ApplicationState.*;
-import static Backend.FinalProject.domain.enums.ApplicationState.APPROVED;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.*;
 import static javax.persistence.GenerationType.*;

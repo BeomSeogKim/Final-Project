@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.post;
 
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.PostState;

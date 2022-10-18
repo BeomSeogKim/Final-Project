@@ -1,7 +1,7 @@
 package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.ReportDto;
+import Backend.FinalProject.dto.request.report.ReportDto;
 import Backend.FinalProject.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -6,7 +6,7 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.Report;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.ReportDto;
+import Backend.FinalProject.dto.request.report.ReportDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.PostRepository;

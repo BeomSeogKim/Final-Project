@@ -1,4 +1,4 @@
-package Backend.FinalProject.dto.response;
+package Backend.FinalProject.dto.response.application;
 
 import Backend.FinalProject.domain.enums.ApplicationState;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApplicantResponseDto {
-    private Long postId;
+public class ApplicationListResponseDto {
     private String nickname;
     private String imgUrl;
-    private String title;
     private ApplicationState state;
+    private String content;
+    private Long applicationId;
+    private Long postId;
 }

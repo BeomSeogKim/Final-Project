@@ -99,7 +99,7 @@ public class NotificationService {
         log.info(String.valueOf(member.getId()));
         // 알림을 받은 사람의 id 와 알림의 id 를 받아와서 해당 알림을 찾는다.
         Optional<Notification> notification = notificationRepository.findById(notificationId);
-        Notification checkNotification = notification.orElseThrow(() -> new Exception());
+        Notification checkNotification = notification.orElseThrow(Exception::new);
         checkNotification.read();       // 읽음 처리 
         return findAllNotifications(member.getId());
     }
