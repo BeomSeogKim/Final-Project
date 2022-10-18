@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static Backend.FinalProject.domain.SignUpRoot.normal;
+import static Backend.FinalProject.domain.enums.SignUpRoot.normal;
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
@@ -363,7 +363,7 @@ public class MemberService {
                 .build();
         signOutRepository.save(signOutMember);
 
-        member.deleteMember();
+        member.signOut();
         em.merge(member);
 
 

@@ -403,7 +403,7 @@ public class PostService{
         assert chatRoom != null;
         chatRoom.updateName(title);
 
-        post.updateJson(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
+        post.updatePost(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
 
         if (imgFile == null || imgFile.isEmpty()) {
             return ResponseDto.success("업데이트가 완료되었습니다.");
@@ -416,14 +416,14 @@ public class PostService{
                 ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
                 ImageFile imageFile = (ImageFile) image.getData();
                 imgUrl = imageFile.getUrl();
-                post.updateImgUrl(imgUrl);
+                post.updateImg(imgUrl);
             } else {
                 ImageFile findImageFile = filesRepository.findByUrl(post.getImgUrl());
                 amazonS3Service.removeFile(findImageFile.getImageName(), folderName);
                 ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
                 ImageFile imageFile = (ImageFile) image.getData();
                 imgUrl = imageFile.getUrl();
-                post.updateImgUrl(imgUrl);
+                post.updateImg(imgUrl);
             }
         }
 

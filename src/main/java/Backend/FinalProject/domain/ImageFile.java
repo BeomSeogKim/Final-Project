@@ -15,6 +15,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImageFile extends Timestamped{
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
@@ -23,5 +24,4 @@ public class ImageFile extends Timestamped{
 
     @Column(length = 1000)
     private String url;
-
 }

@@ -1,4 +1,4 @@
-package Backend.FinalProject.domain;
+package Backend.FinalProject.domain.enums;
 
 public enum SignUpRoot {
     kakao, normal

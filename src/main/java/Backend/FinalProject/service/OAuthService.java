@@ -30,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
-import static Backend.FinalProject.domain.SignUpRoot.kakao;
+import static Backend.FinalProject.domain.enums.SignUpRoot.kakao;
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;

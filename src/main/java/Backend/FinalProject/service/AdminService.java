@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static Backend.FinalProject.domain.ReportStatus.UNDONE;
+import static Backend.FinalProject.domain.enums.ReportStatus.UNDONE;
 import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
 
 @RestController

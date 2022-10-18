@@ -123,7 +123,7 @@ public class CommentService {
             return ResponseDto.fail("EMPTY COMMENT", "내용을 기입해주세요");
         }
 
-        comment.update(commentDto);
+        comment.editComment(commentDto);
 
         return ResponseDto.success("댓글 수정이 완료되었습니다.");
 

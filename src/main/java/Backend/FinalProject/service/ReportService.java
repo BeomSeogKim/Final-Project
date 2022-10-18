@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static Backend.FinalProject.domain.ReportStatus.UNDONE;
+import static Backend.FinalProject.domain.enums.ReportStatus.UNDONE;
 import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
 
 @Service

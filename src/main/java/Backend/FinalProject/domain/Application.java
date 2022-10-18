@@ -34,6 +34,7 @@ public class Application extends Timestamped{
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
     @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
@@ -50,11 +51,13 @@ public class Application extends Timestamped{
         post.getApplicationList().add(this);
     }
 
+    //== 신청 승인 ==//
     public void approve() {
         this.status = APPROVED;
         this.post.plusCurrentNum();
     }
 
+    //== 신청 거절 ==//
     public void disapprove() {
         if (this.status.equals(APPROVED)) {
             this.post.minusCurrentNum();

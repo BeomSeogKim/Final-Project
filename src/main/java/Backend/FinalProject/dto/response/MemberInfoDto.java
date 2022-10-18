@@ -1,6 +1,6 @@
 package Backend.FinalProject.dto.response;
 
-import Backend.FinalProject.domain.SignUpRoot;
+import Backend.FinalProject.domain.enums.SignUpRoot;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

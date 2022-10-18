@@ -17,6 +17,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SignOutMember extends Timestamped{
+
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
@@ -35,5 +36,4 @@ public class SignOutMember extends Timestamped{
 
     @Enumerated(value = STRING)
     private Regulation regulation;
-
 }

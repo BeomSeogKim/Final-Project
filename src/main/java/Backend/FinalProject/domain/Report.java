@@ -1,5 +1,6 @@
 package Backend.FinalProject.domain;
 
+import Backend.FinalProject.domain.enums.ReportStatus;
 import Backend.FinalProject.domain.enums.ShowStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 
-import static Backend.FinalProject.domain.ReportStatus.DONE;
+import static Backend.FinalProject.domain.enums.ReportStatus.DONE;
 import static Backend.FinalProject.domain.enums.ShowStatus.HIDE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -44,11 +45,13 @@ public class Report extends Timestamped {
     @Enumerated(value = STRING)
     private ShowStatus showStatus;
 
+    //== 신고 완료 처리 ==//
     @Transactional
     public void updateStatus() {
         this.reportStatus = DONE;
     }
 
+    //== 신고 숨기기 ==//
     @Transactional
     public void hide() {
         this.showStatus = HIDE;
