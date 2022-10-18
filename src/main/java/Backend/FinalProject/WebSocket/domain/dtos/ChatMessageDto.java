@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ChatMessageDto {
+
     private String sender;
     private String message;
     private String sendTime;
     private String senderId;
     private String imgUrl;
-
 }

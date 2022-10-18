@@ -8,6 +8,7 @@ import java.util.List;
 @Builder
 @Getter
 public class ChatMessageInfoDto {
+
     private String chatRoomTitle;
     private List<ChatMessageResponse> chatMessageList;
     private Integer totalPage;
@@ -16,5 +17,4 @@ public class ChatMessageInfoDto {
     private boolean isFirstPage;
     private boolean hasNextPage;
     private boolean hasPreviousPage;
-
 }

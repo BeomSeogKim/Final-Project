@@ -31,7 +31,6 @@ public class Comment extends Timestamped{
     @JoinColumn(name = "member_id")
     private Member member;
 
-
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
@@ -49,11 +48,13 @@ public class Comment extends Timestamped{
         this.post = post;
         post.getCommentList().add(this);
     }
-    
-    public void update(String commentDto) {
+
+    //== 댯굴 수정 ==//
+    public void editComment(String commentDto) {
         this.content = commentDto;
     }
 
+    //== 댓글 제재 ==//
     @Transactional
     public void executeRegulation() {
         this.regulation = REGULATED;

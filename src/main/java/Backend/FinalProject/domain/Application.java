@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 import static Backend.FinalProject.domain.enums.ApplicationState.*;
-import static Backend.FinalProject.domain.enums.ApplicationState.APPROVED;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.FetchType.*;
 import static javax.persistence.GenerationType.*;
@@ -34,6 +33,7 @@ public class Application extends Timestamped{
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
     @JsonIgnore
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
@@ -50,11 +50,13 @@ public class Application extends Timestamped{
         post.getApplicationList().add(this);
     }
 
+    //== 신청 승인 ==//
     public void approve() {
         this.status = APPROVED;
         this.post.plusCurrentNum();
     }
 
+    //== 신청 거절 ==//
     public void disapprove() {
         if (this.status.equals(APPROVED)) {
             this.post.minusCurrentNum();

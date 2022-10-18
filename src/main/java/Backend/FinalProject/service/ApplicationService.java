@@ -7,10 +7,10 @@ import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.enums.ApplicationState;
-import Backend.FinalProject.dto.ApplicationListResponseDto;
-import Backend.FinalProject.dto.ApplicationResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.ApplicationRequestDto;
+import Backend.FinalProject.dto.request.application.ApplicationRequestDto;
+import Backend.FinalProject.dto.response.application.ApplicationListResponseDto;
+import Backend.FinalProject.dto.response.application.ApplicationResponseDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sse.service.NotificationService;
@@ -36,19 +36,24 @@ import static Backend.FinalProject.sse.domain.NotificationType.REJECT;
 @RequiredArgsConstructor
 public class ApplicationService {
 
-    // Dependency Injection
-    private final Validation validation;
-    private final ApplicationRepository applicationRepository;
+    //== Dependency Injection ==//
     private final PostRepository postRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final AutomatedChatService automatedChatService;
+    private final ApplicationRepository applicationRepository;
+    private final Validation validation;
     private final NotificationService notificationService;
+    private final AutomatedChatService automatedChatService;
 
-    // 게시글 참여 요청
-    public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationRequestDto, HttpServletRequest request) {
+    /**
+     * 게시글 참여 요청
+     * @param postId : 게시글 아이디
+     * @param applicationContent : 참여 신청 메세지
+     * @param httpServletRequest : HttpServlet Request
+     */
+    public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationContent, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
-        ResponseDto<?> responseDto = validation.checkAccessToken(request);
+        ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
 
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -58,7 +63,6 @@ public class ApplicationService {
         Optional<Post> optionalPost = postRepository.findById(postId);
 
         Post post = optionalPost.orElse(null);
-
         if (post == null) {
             log.info("ApplicationService submitApplication NOT FOUND");
             return ResponseDto.fail("NOT FOUND", "해당 게시글을 찾을 수 없습니다.");
@@ -68,7 +72,9 @@ public class ApplicationService {
             return ResponseDto.fail("MAX NUM", "이미 정원이 다 찼습니다");
         }
 
-        String content = applicationRequestDto.getContent();
+
+
+        String content = applicationContent.getContent();
         if (content == null) {
             log.info("ApplicationService submitApplication EMPTY");
             return ResponseDto.fail("EMPTY CONTENT", "내용을 적어주세요");

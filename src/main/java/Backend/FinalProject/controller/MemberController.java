@@ -1,10 +1,12 @@
 package Backend.FinalProject.controller;
 
-import Backend.FinalProject.dto.MemberPasswordUpdateDto;
+import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.*;
 import Backend.FinalProject.dto.request.checkduplication.IdCheckDuplicateDto;
 import Backend.FinalProject.dto.request.checkduplication.NickCheckDuplicateDto;
+import Backend.FinalProject.dto.request.member.LoginRequestDto;
+import Backend.FinalProject.dto.request.member.MemberUpdateDto;
+import Backend.FinalProject.dto.request.member.SignupRequestDto;
 import Backend.FinalProject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.parser.ParseException;
@@ -19,22 +21,23 @@ import java.io.UnsupportedEncodingException;
 @RequiredArgsConstructor
 public class MemberController {
 
+    //== Dependency Injection ==//
     private final MemberService memberService;
 
     /**
      * 회원가입
-     * @param signupRequestDto 이미지 파일을 포함한 여러가지 데이터
+     * @param signupRequestDto 회원 가입에 필요한 데이터
      */
     @PostMapping("/member/signup")
     public ResponseDto<String> signUp(
-            @ModelAttribute  SignupRequestDto signupRequestDto) {
+            @ModelAttribute SignupRequestDto signupRequestDto) {
         return memberService.createMember(signupRequestDto);
     }
 
     /**
      * 로그인
-     * @param loginRequestDto : 로그인에 필요한 정보들을 담은 Dto
-     * @param response        : Header 에 Token 을 담아주는 역할
+     * @param loginRequestDto : 로그인에 필요한 데이터
+     * @param response        : HttpServlet Response
      */
     @PostMapping("/member/login")
     public ResponseDto<String> login(
@@ -45,49 +48,50 @@ public class MemberController {
 
     /**
      * 회원정보 수정
-     * @param request            : 회원 수정에 필요한 목록
-     * @param httpServletRequest : Member 검증을 위한 param
+     * @param memberUpdateDto    : 회원 수정에 필요한 데이터
+     * @param httpServletRequest : HttpServlet Request
+     * @param httpServletResponse : HttpServlet Response
      */
     @PutMapping("/member")
     public ResponseDto<?> editProfile(
-            @ModelAttribute MemberUpdateDto request,
+            @ModelAttribute MemberUpdateDto memberUpdateDto,
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        return memberService.updateMember(request, httpServletRequest, httpServletResponse);
+        return memberService.editProfile(memberUpdateDto, httpServletRequest, httpServletResponse);
     }
 
     /**
      * 비밀번호 변경
-     * @param request : 비밀 번호 변경 관련한 필요 목록
+     * @param passwordUpdateDto : 비밀 번호 변경 관련한 필요 목록
      * @param httpServletRequest : Member 검증을 위한 param.
      */
     @PutMapping("/member/password")
-    public ResponseDto<?> updateMemberPassword(
-            @ModelAttribute MemberPasswordUpdateDto request,
+    public ResponseDto<?> updatePassword(
+            @ModelAttribute MemberPasswordUpdateDto passwordUpdateDto,
             HttpServletRequest httpServletRequest
             ) {
-        return memberService.updateMemberPassword(request, httpServletRequest);
+        return memberService.updatePassword(passwordUpdateDto, httpServletRequest);
     }
 
     /**
      * 로그아웃
-     * @param request : Member 검증을 위한 Param.
+     * @param httpServletRequest : Member 검증을 위한 Param.
      */
     @PostMapping("/member/logout")
     public ResponseDto<?> logout(
-            HttpServletRequest request) {
-        return memberService.logout(request);
+            HttpServletRequest httpServletRequest) {
+        return memberService.logout(httpServletRequest);
     }
 
     /**
      * 회원탈퇴
-     * @param request : Member 검증을 위한 Param.
+     * @param httpServletRequest : Member 검증을 위한 Param.
      */
     @PutMapping("/member/signout")
     public ResponseDto<?> signOut(
-            HttpServletRequest request) {
-        return memberService.signOut(request);
+            HttpServletRequest httpServletRequest) {
+        return memberService.signOut(httpServletRequest);
     }
 
     /**
@@ -95,8 +99,8 @@ public class MemberController {
      * @param userId : 검사할 아이디
      */
     @PostMapping("/member/id")
-    public ResponseDto<?> duplicateID(@RequestBody IdCheckDuplicateDto userId) {
-        return memberService.isPresentId(userId.getIdCheck());
+    public ResponseDto<?> checkDuplicateId(@RequestBody IdCheckDuplicateDto userId) {
+        return memberService.checkDuplicateId(userId.getIdCheck());
     }
 
     /**
@@ -104,13 +108,19 @@ public class MemberController {
      * @param nickname : 검사할 닉네임
      */
     @PostMapping("/member/nickname")
-    public ResponseDto<?> duplicateNickname(@RequestBody NickCheckDuplicateDto nickname) {
-        return memberService.isPresentNickname(nickname.getNickCheck());
+    public ResponseDto<?> checkDuplicateNickname(@RequestBody NickCheckDuplicateDto nickname) {
+        return memberService.checkDuplicateNickname(nickname.getNickCheck());
     }
 
+    /**
+     * AccessToken 재발급
+     * @param httpServletRequest : HttpServlet Request
+     * @param httpServletResponse : HttpServlet Response
+     */
     @GetMapping("/member/reissue")
-    public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException {
-        return memberService.reissue(request, response);
+    public ResponseDto<?> reissueAccessToken(HttpServletRequest httpServletRequest,
+                                             HttpServletResponse httpServletResponse) throws ParseException {
+        return memberService.reissueAccessToken(httpServletRequest, httpServletResponse);
     }
 
 }

@@ -3,13 +3,13 @@ package Backend.FinalProject.service;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.*;
-import Backend.FinalProject.dto.MemberPasswordUpdateDto;
+import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
-import Backend.FinalProject.dto.request.LoginRequestDto;
-import Backend.FinalProject.dto.request.MemberUpdateDto;
-import Backend.FinalProject.dto.request.SignupRequestDto;
-import Backend.FinalProject.dto.response.ReIssueMessageDto;
+import Backend.FinalProject.dto.request.member.LoginRequestDto;
+import Backend.FinalProject.dto.request.member.MemberUpdateDto;
+import Backend.FinalProject.dto.request.member.SignupRequestDto;
+import Backend.FinalProject.dto.response.member.ReIssueMessageDto;
 import Backend.FinalProject.repository.*;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static Backend.FinalProject.domain.SignUpRoot.normal;
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
@@ -38,6 +36,7 @@ import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DIS
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
+import static Backend.FinalProject.domain.enums.SignUpRoot.normal;
 
 @Slf4j
 @Service
@@ -97,12 +96,12 @@ public class MemberService {
             return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
         }
         // 아이디 중복검사
-        if (!isPresentId(userId).isSuccess()) {
+        if (!checkDuplicateId(userId).isSuccess()) {
             log.info("MemberService createMember ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 아이디 입니다.");
         }
         // 닉네임 중복검사
-        if (!isPresentNickname(nickname).isSuccess()) {
+        if (!checkDuplicateNickname(nickname).isSuccess()) {
             log.info("MemberService createMember ALREADY EXIST-NICKNAME");
             return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
         }
@@ -173,7 +172,7 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) throws UnsupportedEncodingException {
+    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         Member member = isPresentMember(loginRequestDto.getUserId());
 
         if (member == null) {
@@ -200,8 +199,8 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> updateMember(MemberUpdateDto request, HttpServletRequest httpServletRequest,
-                                       HttpServletResponse response) {
+    public ResponseDto<?> editProfile(MemberUpdateDto request, HttpServletRequest httpServletRequest,
+                                      HttpServletResponse response) {
         String imgUrl;
 
         String nickname = request.getNickname();
@@ -258,7 +257,7 @@ public class MemberService {
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
     @Transactional
-    public ResponseDto<?> updateMemberPassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> updatePassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
         String password = request.getPassword();
         String updatePassword = request.getUpdatePassword();
         String UpdatePasswordCheck = request.getUpdatePasswordCheck();
@@ -363,7 +362,7 @@ public class MemberService {
                 .build();
         signOutRepository.save(signOutMember);
 
-        member.deleteMember();
+        member.signOut();
         em.merge(member);
 
 
@@ -373,7 +372,7 @@ public class MemberService {
 
 
     // 회원 아이디 중복 검사 method
-    public ResponseDto<String> isPresentId(String id) {
+    public ResponseDto<String> checkDuplicateId(String id) {
         Optional<Member> userId = memberRepository.findByUserId(id);
         if (userId.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-ID");
@@ -386,7 +385,7 @@ public class MemberService {
     }
 
     // 닉네임 중복 검사 method
-    public ResponseDto<String> isPresentNickname(String nickname) {
+    public ResponseDto<String> checkDuplicateNickname(String nickname) {
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
         if (findNickname.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-NICKNAME");
@@ -405,37 +404,35 @@ public class MemberService {
         return findMember.orElse(null);
     }
 
-    public ResponseDto<?> reissue(HttpServletRequest request, HttpServletResponse response) throws ParseException, ParseException {
-        if (tokenProvider.getMemberIdByToken(request.getHeader("Authorization") ) != null) {
-            Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
-            Date now = new Date(System.currentTimeMillis());
-            long diff = expirationTime.getTime() - now.getTime();
-            long restTime = TimeUnit.MILLISECONDS.convert(diff, TimeUnit.MILLISECONDS);
-            return ResponseDto.success(ReIssueMessageDto.builder().message("아직 유효한 토큰입니다.").expiresAt(restTime).build());
-        }
-        if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
-            return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
-        }
-        String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);
-        if (null == memberId) {
-            return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
-        }
-        Member member = memberRepository.findByUserId(memberId).orElse(null);
+    public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException {
+            if (tokenProvider.getUserIdByToken(request.getHeader("Authorization")) != null) {
+                Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
+                Date now = new Date(System.currentTimeMillis());
+                long diff = expirationTime.getTime() - now.getTime();
+                long restTime = TimeUnit.MILLISECONDS.convert(diff, TimeUnit.MILLISECONDS);
+                return ResponseDto.success(ReIssueMessageDto.builder().message("아직 유효한 토큰입니다.").expiresAt(restTime).build());
+            }
+            if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
+                return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
+            }
+            String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);
+            if (null == memberId) {
+                return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
+            }
+            Member member = memberRepository.findByUserId(memberId).orElse(null);
 
-        RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
+            RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
 
-        if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
-            log.info("refreshToken : "+refreshToken.getKeyValue());
-            log.info("header rft : "+request.getHeader("RefreshToken"));
-            return ResponseDto.fail("INVALID REFRESH TOKEN","토큰이 일치하지 않습니다.");
-        }
-        assert member != null;
-        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
-        refreshToken.updateValue(tokenDto.getRefreshToken());
-        tokenToHeaders(tokenDto, response);
+            if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
+                return ResponseDto.fail("INVALID REFRESH TOKEN", "토큰이 일치하지 않습니다.");
+            }
+            assert member != null;
+            TokenDto tokenDto = tokenProvider.generateTokenDto(member);
+            refreshToken.updateValue(tokenDto.getRefreshToken());
+            tokenToHeaders(tokenDto, response);
 
 
-        return ResponseDto.success("재발급 완료");
+            return ResponseDto.success("재발급 완료");
 
     }
 

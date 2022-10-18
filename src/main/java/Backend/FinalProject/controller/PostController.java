@@ -2,8 +2,8 @@ package Backend.FinalProject.controller;
 
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.SearchDto;
-import Backend.FinalProject.dto.request.PostRequestDto;
-import Backend.FinalProject.dto.request.PostUpdateRequestDto;
+import Backend.FinalProject.dto.request.post.PostRequestDto;
+import Backend.FinalProject.dto.request.post.PostUpdateRequestDto;
 import Backend.FinalProject.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +14,19 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class PostController {
 
+    //== Dependency Injection ==//
     private final PostService postService;
-
 
     /**
      * 게시글 작성
-     * @param postRequestDto 작성에 필요한 데이터
-     * @param request Token 이 담긴 데이터
+     * @param postRequestDto : 작성에 필요한 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @PostMapping("/post")
-    public ResponseDto<?> createPost(
+    public ResponseDto<?> writePost(
             @ModelAttribute PostRequestDto postRequestDto,
-            HttpServletRequest request) {
-        return postService.createPost(postRequestDto, request);
+            HttpServletRequest httpServletRequest) {
+        return postService.writePost(postRequestDto, httpServletRequest);
     }
 
     /**
@@ -34,8 +34,8 @@ public class PostController {
      * @param pageNum : 페이지 장 수
      */
     @GetMapping("/post/all")
-    public ResponseDto<?> getAllPost(@RequestParam("page") Integer pageNum) {
-        return postService.getAllPost(pageNum);
+    public ResponseDto<?> getPostList(@RequestParam("page") Integer pageNum) {
+        return postService.getPostList(pageNum);
     }
 
     /**
@@ -43,37 +43,37 @@ public class PostController {
      * @param postId : 게시글 아이디
      */
     @GetMapping("/post/detail/{postId}")
-    public ResponseDto<?> getPost(@PathVariable Long postId) {
-        return postService.getPost(postId);
+    public ResponseDto<?> getDetailPost(@PathVariable Long postId) {
+        return postService.getDetailPost(postId);
     }
 
     /**
      * 게시글 업데이트
      * @param postId : 게시글 아이디
      * @param requestDto : 업데이트에 필요한 데이터
-     * @param request : Token 이 담긴 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @PutMapping("/post/{postId}")
     public ResponseDto<?> updatePost(@PathVariable Long postId,
                                      @ModelAttribute PostUpdateRequestDto requestDto,
-                                     HttpServletRequest request) {
-        return postService.updatePost(postId, requestDto, request);
+                                     HttpServletRequest httpServletRequest) {
+        return postService.updatePost(postId, requestDto, httpServletRequest);
     }
 
     /**
      * 게시글 삭제
      * @param postId : 게시글 아이디
-     * @param request : Token 이 담긴 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @DeleteMapping("/post/{postId}")
     public ResponseDto<?> deletePost(@PathVariable Long postId,
-                                     HttpServletRequest request){
-        return postService.deletePost(postId, request);
+                                     HttpServletRequest httpServletRequest){
+        return postService.deletePost(postId, httpServletRequest);
     }
 
     /**
      * 게시글 검색
-     * @param searchDto : keyword 및 category
+     * @param searchDto : keyword 및 category 검색
      * @param pageNum : 페이지네이션을 위한 page 숫자.
      */
     @PostMapping("/post/search")
@@ -85,23 +85,22 @@ public class PostController {
     /**
      * 게시글 찜
      * @param postId : 게시글 아이디
-     * @param request : Token 이 담긴 데이터
+     * @param httpServletRequest : HttpServlet Request
      */
     @PostMapping("/post/add/wish/{postId}")
-    public ResponseDto<?> addWish(@PathVariable Long postId,
-                                  HttpServletRequest request) {
-
-        return postService.addWish(postId, request);
+    public ResponseDto<?> addWishList(@PathVariable Long postId,
+                                      HttpServletRequest httpServletRequest) {
+        return postService.addWishList(postId, httpServletRequest);
     }
 
     /**
      * 게시글 찜 삭제
-      * @param postId : 게시글 아이디
-     * @param request : Token 이 담긴 데이터
+     * @param postId : 게시글 아이디
+     * @param httpServletRequest : HttpServlet Request
      */
     @PostMapping("/post/remove/wish/{postId}")
-    public ResponseDto<?> removeWish(@PathVariable Long postId,
-                                  HttpServletRequest request){
-        return postService.removeWish(postId, request);
+    public ResponseDto<?> removeWishList(@PathVariable Long postId,
+                                  HttpServletRequest httpServletRequest){
+        return postService.removeWishList(postId, httpServletRequest);
     }
 }

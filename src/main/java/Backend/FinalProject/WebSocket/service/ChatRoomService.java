@@ -18,7 +18,6 @@ import Backend.FinalProject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,89 +33,94 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ChatRoomService {
-    // Dependency Injection
+
+    //== Dependency Injection ==//
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final Validation validation;
     private final ChatMemberRepository chatMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    public ResponseDto<?> findById(Long roomId, HttpServletRequest request) {
-        validation.checkAccessToken(request);
+    /**
+     * 방 정보 조회
+     * @param roomId : 채팅방 아이디
+     * @param httpServletRequest : HttpServlet Request
+     */
+    public ResponseDto<?> getRoomInfo(Long roomId, HttpServletRequest httpServletRequest) {
 
-        // 방 정보 내어주자
+        // Token 검증
+        validation.checkAccessToken(httpServletRequest);
+
+        // TODO orElse 수정
+        // 채팅방 정보 조회
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
         if (chatRoom == null) {
             return ResponseDto.fail("NO CHAT ROOM", "해당 방이 존재하지 않습니다.");
         }
-
-        return ResponseDto.success(ChatRoomDto.builder()
-                .id(chatRoom.getId())
-                .roomId(chatRoom.getId())
-                .name(chatRoom.getName())
-                .build());
-
+        return chatRoomInformation(chatRoom);
     }
 
+    /**
+     * 채팅방 관련 메세지 조회
+     * @param roomId : 채팅방 아이디 조회
+     * @param pageNum : 페이지 수
+     * @param httpServletRequest : HttpServlet Request
+     */
+    public ResponseDto<?> getMessageList(Long roomId, Integer pageNum, HttpServletRequest httpServletRequest) {
+        ResponseDto<?> resultOfValidation = validation.checkAccessToken(httpServletRequest);
+        if (!resultOfValidation.isSuccess())
+            return resultOfValidation;
 
-    public ResponseDto<?> getMessage(Long roomId, Integer pageNum, Pageable pageable, HttpServletRequest request) {
-        ResponseDto<?> chkResponse = validation.checkAccessToken(request);
-        if (!chkResponse.isSuccess())
-            return chkResponse;
-        Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
+        //TODO orElse 수정
+        Member member = memberRepository.findById(((Member) resultOfValidation.getData()).getId()).orElse(null);
         assert member != null;
 
+        // TODO orElse 수정
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
         if (chatRoom == null) {
             return ResponseDto.fail("NOT FOUNT", "채팅방을 찾을 수 없습니다.");
         }
 
+        // TODO orElse 수정
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
         if (chatMember == null) {
             return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
         }
 
         PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
-        List<ChatMessage> chatMessageList =  chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageable);
-        Page<ChatMessage> chatPage =  chatMessageRepository.findAllByChatRoomAndModifiedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getModifiedAt(),pageable);
-//        Page<ChatMessage> chatPage = chatMessageRepository.findByChatRoom(chatRoom, pageRequest);
+
+        //== 채팅방 관련 정보 조회 ==//
+        Page<ChatMessage> pageOfChat =  chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageRequest);
+        List<ChatMessage> contentOfChat = pageOfChat.getContent();
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
-        for (ChatMessage chatMessage : chatMessageList) {
-            chatMessageResponses.add(
-                    ChatMessageResponse.builder()
-                            .sender(chatMessage.getMember().getNickname())
-                            .senderId(chatMessage.getMember().getUserId())
-                            .message(chatMessage.getMessage())
-                            .sendTime(chatMessage.getSendTime())
-                            .img(chatMessage.getMember().getImgUrl())
-                            .build()
-            );
-        }
-        ChatMessageInfoDto chatMessageInfoDto = ChatMessageInfoDto.builder()
-                .chatRoomTitle(chatRoom.getName())
-                .chatMessageList(chatMessageResponses)
-                .currentPage(pageNum)
-                .totalPage(chatPage.getTotalPages() - 1)
-                .isFirstPage(chatPage.isFirst())
-                .totalMessage(chatPage.getTotalElements())
-                .hasNextPage(chatPage.hasNext())
-                .hasPreviousPage(chatPage.hasPrevious())
-                .build();
-        return ResponseDto.success(chatMessageInfoDto);
+        getMessageInformation(contentOfChat, chatMessageResponses);
+        return ResponseDto.success(getChatRoomInformation(pageNum, chatRoom, pageOfChat, chatMessageResponses));
     }
 
-    public ResponseDto<?> getRooms(HttpServletRequest request) {
-        ResponseDto<?> chkResponse = validation.checkAccessToken(request);
+    /**
+     * 채팅방 목록 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
+    public ResponseDto<?> getRoomList(HttpServletRequest httpServletRequest) {
+        ResponseDto<?> chkResponse = validation.checkAccessToken(httpServletRequest);
         if (!chkResponse.isSuccess())
             return chkResponse;
+
         Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
         assert member != null;
+
         List<ChatMember> chatList = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
-        if (chatList.isEmpty() || chatList == null) {
+        if (chatList.isEmpty()) {
             return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
         }
+
         List<ChatRoomListDto> chatRoomDtoList = new ArrayList<>();
+        getChatRoomListInfo(chatList, chatRoomDtoList);
+        return ResponseDto.success(chatRoomDtoList);
+    }
+
+    private static void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
         for (ChatMember chat : chatList) {
             String address;
             if (chat.getChatRoom().getPost().getDetailAddress().equals("undefined") ||
@@ -136,7 +140,6 @@ public class ChatRoomService {
                             .build()
             );
         }
-        return ResponseDto.success(chatRoomDtoList);
     }
 
     public ResponseDto<?> getRoomMemberInfo(Long roomId, HttpServletRequest request) {
@@ -168,5 +171,40 @@ public class ChatRoomService {
             );
         }
         return ResponseDto.success(chatMemberInfo);
+    }
+
+    private static ResponseDto<ChatRoomDto> chatRoomInformation(ChatRoom chatRoom) {
+        return ResponseDto.success(ChatRoomDto.builder()
+                .id(chatRoom.getId())
+                .roomId(chatRoom.getId())
+                .name(chatRoom.getName())
+                .build());
+    }
+
+    private static void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
+        for (ChatMessage chatMessage : contentOfChat) {
+            chatMessageResponses.add(
+                    ChatMessageResponse.builder()
+                            .sender(chatMessage.getMember().getNickname())
+                            .senderId(chatMessage.getMember().getUserId())
+                            .message(chatMessage.getMessage())
+                            .sendTime(chatMessage.getSendTime())
+                            .img(chatMessage.getMember().getImgUrl())
+                            .build()
+            );
+        }
+    }
+
+    private static ChatMessageInfoDto getChatRoomInformation(Integer pageNum, ChatRoom chatRoom, Page<ChatMessage> pageOfChat, List<ChatMessageResponse> chatMessageResponses) {
+        return ChatMessageInfoDto.builder()
+                .chatRoomTitle(chatRoom.getName())
+                .chatMessageList(chatMessageResponses)
+                .currentPage(pageNum)
+                .totalPage(pageOfChat.getTotalPages() - 1)
+                .isFirstPage(pageOfChat.isFirst())
+                .totalMessage(pageOfChat.getTotalElements())
+                .hasNextPage(pageOfChat.hasNext())
+                .hasPreviousPage(pageOfChat.hasPrevious())
+                .build();
     }
 }

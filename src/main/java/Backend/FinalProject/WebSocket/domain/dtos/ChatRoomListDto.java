@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRoomListDto {
+    
     private Long roomId;
     private String name;
     private int numOfMember;

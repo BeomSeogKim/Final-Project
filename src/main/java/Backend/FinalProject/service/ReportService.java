@@ -6,7 +6,7 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.Report;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.ReportDto;
+import Backend.FinalProject.dto.request.report.ReportDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static Backend.FinalProject.domain.ReportStatus.UNDONE;
+import static Backend.FinalProject.domain.enums.ReportStatus.UNDONE;
 import static Backend.FinalProject.domain.enums.ShowStatus.SHOW;
 
 @Service

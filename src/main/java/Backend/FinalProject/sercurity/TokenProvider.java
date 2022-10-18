@@ -35,7 +35,7 @@ public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30 ;            //30분
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            //30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;     //7일
 
     private final Key key;
@@ -168,23 +168,6 @@ public class TokenProvider {
         } else {
             return null;
         }
-        Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
-    }
-
-    public String getMemberIdByToken(String accessToken) {
-        String token = "";
-        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
-            token = accessToken.substring(7);
-        } else {
-            return null;
-        }
         Claims claims;
         try {
             claims = Jwts
@@ -193,11 +176,10 @@ public class TokenProvider {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        }
-        catch (ExpiredJwtException e) {
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 Token 입니다.");
             return null;
         }
-
         return claims.getSubject();
     }
 
@@ -224,7 +206,7 @@ public class TokenProvider {
         return claims.getExpiration();
     }
 
-    public String getMemberFromExpiredAccessToken(HttpServletRequest request) throws ParseException, ParseException {
+    public String getMemberFromExpiredAccessToken(HttpServletRequest request) throws ParseException {
         String jwt = getAccessToken(request);
 
         Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -232,8 +214,6 @@ public class TokenProvider {
         String[] parts = jwt.split("\\.");
 
         JSONParser parser = new JSONParser();
-        log.info(String.valueOf(parser.parse(new String(decoder.decode(parts[0])))));
-        log.info(String.valueOf(parser.parse(new String(decoder.decode(parts[1])))));
         JSONObject jsonObject = (JSONObject) parser.parse(new String(decoder.decode(parts[1])));
 
 

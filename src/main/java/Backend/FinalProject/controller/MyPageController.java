@@ -13,46 +13,65 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class MyPageController {
 
+    //== Dependency Injection ==//
     private final MyPageService myPageService;
 
+    /**
+     * 참여중인 모임 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/participation")
-    public ResponseDto<?> participation(HttpServletRequest request) {
-        return myPageService.participation(request);
+    public ResponseDto<?> getParticipationList(HttpServletRequest httpServletRequest) {
+        return myPageService.getParticipationList(httpServletRequest);
     }
 
-
-    @GetMapping("/mypage/application")
-    public ResponseDto<?> application(HttpServletRequest request) {
-        return myPageService.application(request);
-    }
-
+    /**
+     * 찜한 모임 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/wish")
-    public ResponseDto<?> wish(HttpServletRequest request) {
-        return myPageService.addWish(request);
+    public ResponseDto<?> getWishList(HttpServletRequest httpServletRequest) {
+        return myPageService.getWishList(httpServletRequest);
     }
 
+    /**
+     * 내가 주최한 모임 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/leader")
-    public ResponseDto<?> leader(HttpServletRequest request) {
-        return myPageService.leader(request);
+    public ResponseDto<?> getPostLedByMe(HttpServletRequest httpServletRequest) {
+        return myPageService.getPostLedByMe(httpServletRequest);
     }
 
+    /**
+     * 내 정보 조회
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/info")
-    public ResponseDto<?> getInfo(HttpServletRequest request) {
-        return myPageService.getInfo(request);
+    public ResponseDto<?> getMyInfo(HttpServletRequest httpServletRequest) {
+        return myPageService.getMyInfo(httpServletRequest);
     }
-    // 회원 정보 상세조회
+
+    /**
+     * 회원 정보 조회
+     * @param memberId : 회원 아이디
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/{memberId}")
-    public ResponseDto<?> getMemberMypage(@PathVariable Long memberId,
-                                        HttpServletRequest request) {
-        return myPageService.getMemberMypage(memberId,request);
+    public ResponseDto<?> getMemberInfo(@PathVariable Long memberId,
+                                        HttpServletRequest httpServletRequest) {
+        return myPageService.getMemberInfo(memberId,httpServletRequest);
     }
-    // 해당 회원이 작성한 게시글 조회
+
+    /**
+     * 해당 회원이 작성한 게시글 조회
+     * @param memberId : 회원 아이디
+     * @param httpServletRequest : HttpServlet Request
+     */
     @GetMapping("/mypage/leader/{memberId}")
-    public ResponseDto<?> getMemberPost(@PathVariable Long memberId,
-                                          HttpServletRequest request) {
-        return myPageService.getMemberPost(memberId,request);
+    public ResponseDto<?> getMemberPostList(@PathVariable Long memberId,
+                                            HttpServletRequest httpServletRequest) {
+        return myPageService.getMemberPostList(memberId,httpServletRequest);
     }
-
-
 }
 

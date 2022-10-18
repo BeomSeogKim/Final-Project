@@ -43,7 +43,6 @@ public class AutomatedChatService {
                 .build();
         chatMemberRepository.save(chatMember);
         ChatRoom updateChatRoom = chatRoomRepository.findById(chatRoom.getId()).get();
-        assert updateChatRoom != null;
         updateChatRoom.addMember();
         return chatMember;
     }

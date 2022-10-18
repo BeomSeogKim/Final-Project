@@ -11,14 +11,14 @@ import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.Category;
 import Backend.FinalProject.domain.enums.Regulation;
-import Backend.FinalProject.dto.CommentResponseDto;
-import Backend.FinalProject.dto.PostResponseDto;
+import Backend.FinalProject.dto.response.comment.CommentResponseDto;
+import Backend.FinalProject.dto.response.post.PostResponseDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.SearchDto;
-import Backend.FinalProject.dto.request.PostRequestDto;
-import Backend.FinalProject.dto.request.PostUpdateRequestDto;
-import Backend.FinalProject.dto.response.AllPostResponseDto;
-import Backend.FinalProject.dto.response.PostResponseDtoPage;
+import Backend.FinalProject.dto.request.post.PostRequestDto;
+import Backend.FinalProject.dto.request.post.PostUpdateRequestDto;
+import Backend.FinalProject.dto.response.post.AllPostResponseDto;
+import Backend.FinalProject.dto.response.post.PostResponseDtoPage;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.FilesRepository;
 import Backend.FinalProject.repository.PostRepository;
@@ -83,7 +83,7 @@ public class PostService{
 
     // 게시글 등록
     @Transactional
-    public ResponseDto<?> createPost(PostRequestDto request, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> writePost(PostRequestDto request, HttpServletRequest httpServletRequest) {
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
@@ -221,7 +221,7 @@ public class PostService{
 
 
     // 게시글 전체 조회
-    public ResponseDto<?> getAllPost(Integer pageNum) {
+    public ResponseDto<?> getPostList(Integer pageNum) {
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
         Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest);
@@ -270,7 +270,7 @@ public class PostService{
     }
 
     // 게시글 상세 조회
-    public ResponseDto<?> getPost(Long postId) {
+    public ResponseDto<?> getDetailPost(Long postId) {
 
         boolean isWish = false;     // 회원이 좋아요를 눌렀는지 안눌렀는지 Check
 
@@ -403,7 +403,7 @@ public class PostService{
         assert chatRoom != null;
         chatRoom.updateName(title);
 
-        post.updateJson(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
+        post.updatePost(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
 
         if (imgFile == null || imgFile.isEmpty()) {
             return ResponseDto.success("업데이트가 완료되었습니다.");
@@ -416,14 +416,14 @@ public class PostService{
                 ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
                 ImageFile imageFile = (ImageFile) image.getData();
                 imgUrl = imageFile.getUrl();
-                post.updateImgUrl(imgUrl);
+                post.updateImg(imgUrl);
             } else {
                 ImageFile findImageFile = filesRepository.findByUrl(post.getImgUrl());
                 amazonS3Service.removeFile(findImageFile.getImageName(), folderName);
                 ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
                 ImageFile imageFile = (ImageFile) image.getData();
                 imgUrl = imageFile.getUrl();
-                post.updateImgUrl(imgUrl);
+                post.updateImg(imgUrl);
             }
         }
 
@@ -468,7 +468,7 @@ public class PostService{
 
     // 찜 추가
     @Transactional
-    public ResponseDto<?> addWish(Long postId, HttpServletRequest request) {
+    public ResponseDto<?> addWishList(Long postId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -506,7 +506,7 @@ public class PostService{
 
     // 찜 삭제
     @Transactional
-    public ResponseDto<?> removeWish(Long postId, HttpServletRequest request) {
+    public ResponseDto<?> removeWishList(Long postId, HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         if (!responseDto.isSuccess()) {
             return responseDto;
@@ -603,10 +603,7 @@ public class PostService{
         if (pageNum == 0) {
             firstPage = true;
             previousPage = false;
-            nextPage = true;
-            if (totalPage == 0) {
-                nextPage = false;
-            }
+            nextPage = totalPage != 0;
         }
 
         PostResponseDtoPage informationOfPost = PostResponseDtoPage.builder()

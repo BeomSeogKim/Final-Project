@@ -6,8 +6,8 @@ import Backend.FinalProject.domain.Application;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.response.ApplicantResponseDto;
-import Backend.FinalProject.dto.response.MyActPostResponseDto;
+import Backend.FinalProject.dto.response.application.ApplicantResponseDto;
+import Backend.FinalProject.dto.response.mypage.MyActPostResponseDto;
 import Backend.FinalProject.repository.ApplicationRepository;
 import Backend.FinalProject.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class MyActService {
     private final Validation validation;
 
 
-    public ResponseDto<?> applicantList(HttpServletRequest request) {
+    public ResponseDto<?> getApplicantList(HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
         if (!responseDto.isSuccess()) {
@@ -61,7 +61,7 @@ public class MyActService {
         return ResponseDto.success(applicants);
     }
 
-    public ResponseDto<?> postList(HttpServletRequest request) {
+    public ResponseDto<?> getApplicationList(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 

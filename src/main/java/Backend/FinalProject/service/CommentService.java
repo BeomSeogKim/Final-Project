@@ -5,8 +5,8 @@ import Backend.FinalProject.domain.Comment;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.dto.request.CommentRequestDto;
-import Backend.FinalProject.dto.response.AllCommentResponseDto;
+import Backend.FinalProject.dto.request.comment.CommentRequestDto;
+import Backend.FinalProject.dto.response.comment.AllCommentResponseDto;
 import Backend.FinalProject.repository.CommentRepository;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.sse.service.NotificationService;
@@ -35,13 +35,8 @@ public class CommentService {
     private final NotificationService notificationService;
 
 
-    public ResponseDto<?> getComments(Long postId) {
+    public ResponseDto<?> getCommentList(Long postId) {
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
-//        List<Comment> commentList = commentRepository.findAllByPostIdTest(UNREGULATED, postId);
-        if (commentList.isEmpty()) {
-            log.info("CommentService getComments NO CONTENT");
-            return ResponseDto.fail("NO CONTENT", "댓글이 존재하지 않습니다.");
-        }
         List<AllCommentResponseDto> commentResponseDto = new ArrayList<>();
         for (Comment comment : commentList) {
             if (comment.getRegulation().equals(UNREGULATED)) {
@@ -128,7 +123,7 @@ public class CommentService {
             return ResponseDto.fail("EMPTY COMMENT", "내용을 기입해주세요");
         }
 
-        comment.update(commentDto);
+        comment.editComment(commentDto);
 
         return ResponseDto.success("댓글 수정이 완료되었습니다.");
 

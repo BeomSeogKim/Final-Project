@@ -87,7 +87,8 @@ public class Post extends Timestamped{
     private List<WishList> wishLists = new ArrayList<>();
 
 
-    public void updateJson(String title, String address, String content, int maxNum,
+    //== 게시글 업데이트 ==//
+    public void updatePost(String title, String address, String content, int maxNum,
                            String placeX, String placeY, String placeUrl, String placeName, String detailAddress,
                            LocalDate startDate, LocalDate endDate, LocalDate dDay){
         this.title = title;
@@ -110,19 +111,23 @@ public class Post extends Timestamped{
         member.getPostList().add(this);
     }
 
-    public void updateImgUrl(String imgUrl) {
+    //== 게시글 이미지 변경 ==//
+    public void updateImg(String imgUrl) {
         this.imgUrl = imgUrl;
     }
 
+    //== 모집 상태 변경 ==//
     @Transactional
     public void updateStatus() {
         this.status = DONE;
     }
 
+    //== 모집 상태 변경 ==//
     public void closeStatus() {
         this.status = CLOSURE;
     }
 
+    //== 게시글 참여 인원 증가 ==//
     public void plusCurrentNum() {
         this.currentNum++;
         if (currentNum == this.maxNum) {
@@ -130,6 +135,7 @@ public class Post extends Timestamped{
         }
     }
 
+    //== 게시글 참여 인원 감소 ==//
     public void minusCurrentNum() {
         if (this.status != CLOSURE) {
             this.currentNum--;
@@ -140,18 +146,22 @@ public class Post extends Timestamped{
 
     }
 
+    //== 게시글 찜하기 ==//
     public void addWish() {
         numOfWish++;
     }
 
+    //== 게시글 찜하기 취소 ==//
     public void removeWish() {
         numOfWish--;
     }
 
+    //== 게시글 마감 (모임 진행 X) ==//
     public void disclose() {
         this.status = CLOSURE;
     }
 
+    //== 게시글 제재 가하기 ==//
     @Transactional
     public void executeRegulation() {
         this.regulation = REGULATED;
