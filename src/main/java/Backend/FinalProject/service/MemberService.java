@@ -424,8 +424,6 @@ public class MemberService {
             RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
 
             if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
-                log.info("refreshToken : " + refreshToken.getKeyValue());
-                log.info("header rft : " + request.getHeader("RefreshToken"));
                 return ResponseDto.fail("INVALID REFRESH TOKEN", "토큰이 일치하지 않습니다.");
             }
             assert member != null;

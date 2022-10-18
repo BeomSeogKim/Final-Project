@@ -66,7 +66,6 @@ public class NotificationController {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
-        log.info(String.valueOf(member.getId()));
 
         return notificationService.countUnReadNotifications(member.getId());
     }
@@ -77,7 +76,6 @@ public class NotificationController {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
-        log.info(String.valueOf(member.getId()));
         return notificationService.deleteAllByNotifications(member);
 
     }

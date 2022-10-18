@@ -73,8 +73,6 @@ public class NotificationService {
 
     @Async
     public void send(Member receiver, NotificationType notificationType, String notificationContent, String url) throws Exception {
-        log.info("send 실행");
-        log.info("receiver : {} , type : {} , content : {}, url : {}", receiver.getNickname(), notificationType, notificationContent, url );
 
         Notification notification = notificationRepository.save(createNotification(receiver, notificationType, notificationContent, url));
 
@@ -96,7 +94,6 @@ public class NotificationService {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
-        log.info(String.valueOf(member.getId()));
         // 알림을 받은 사람의 id 와 알림의 id 를 받아와서 해당 알림을 찾는다.
         Optional<Notification> notification = notificationRepository.findById(notificationId);
         Notification checkNotification = notification.orElseThrow(Exception::new);

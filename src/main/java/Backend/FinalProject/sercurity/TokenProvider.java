@@ -214,8 +214,6 @@ public class TokenProvider {
         String[] parts = jwt.split("\\.");
 
         JSONParser parser = new JSONParser();
-        log.info(String.valueOf(parser.parse(new String(decoder.decode(parts[0])))));
-        log.info(String.valueOf(parser.parse(new String(decoder.decode(parts[1])))));
         JSONObject jsonObject = (JSONObject) parser.parse(new String(decoder.decode(parts[1])));
 
 
