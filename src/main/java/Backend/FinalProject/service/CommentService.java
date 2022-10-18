@@ -37,11 +37,6 @@ public class CommentService {
 
     public ResponseDto<?> getCommentList(Long postId) {
         List<Comment> commentList = commentRepository.findAllByPostId(postId);
-//        List<Comment> commentList = commentRepository.findAllByPostIdTest(UNREGULATED, postId);
-        if (commentList.isEmpty()) {
-            log.info("CommentService getComments NO CONTENT");
-            return ResponseDto.fail("NO CONTENT", "댓글이 존재하지 않습니다.");
-        }
         List<AllCommentResponseDto> commentResponseDto = new ArrayList<>();
         for (Comment comment : commentList) {
             if (comment.getRegulation().equals(UNREGULATED)) {
