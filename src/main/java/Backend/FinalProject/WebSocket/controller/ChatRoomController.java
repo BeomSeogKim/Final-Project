@@ -3,8 +3,6 @@ package Backend.FinalProject.WebSocket.controller;
 import Backend.FinalProject.WebSocket.service.ChatRoomService;
 import Backend.FinalProject.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,15 +31,13 @@ public class ChatRoomController {
      * 전체 채팅 내역 조회
      * @param roomId : 채팅방 아이디
      * @param pageNum : 페이지 번호
-     * @param pageable : pageable
      * @param httpServletRequest : HttpServlet Request
      */
     @GetMapping("/message")
     public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId,
                                          @RequestParam("page") Integer pageNum,
-                                         @PageableDefault(size = 10) Pageable pageable,
                                          HttpServletRequest httpServletRequest) {
-        return chatRoomService.getMessageList(roomId, pageNum, pageable, httpServletRequest);
+        return chatRoomService.getMessageList(roomId, pageNum, httpServletRequest);
     }
 
     /**
