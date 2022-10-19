@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static Backend.FinalProject.Tool.Validation.*;
+import static Backend.FinalProject.domain.enums.ErrorCode.*;
 import static Backend.FinalProject.domain.enums.PostState.CLOSURE;
 import static Backend.FinalProject.domain.enums.PostState.DONE;
 import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
@@ -63,56 +65,37 @@ public class ApplicationService {
         Optional<Post> optionalPost = postRepository.findById(postId);
 
         Post post = optionalPost.orElse(null);
-        if (post == null) {
-            log.info("ApplicationService submitApplication NOT FOUND");
-            return ResponseDto.fail("NOT FOUND", "해당 게시글을 찾을 수 없습니다.");
-        }
-        if (post.getMaxNum() == post.getCurrentNum()) {
-            log.info("ApplicationService submitApplication MAX NUM");
-            return ResponseDto.fail("MAX NUM", "이미 정원이 다 찼습니다");
-        }
 
+        ResponseDto<Object> checkSubmitApplication = handleNull(post, APPLICATION_NOTFOUND);
+        if (checkSubmitApplication != null) return checkSubmitApplication;
 
+        ResponseDto<Object> checkMaxNum = handleBoolean(post.getMaxNum() == post.getCurrentNum(), APPLICATION_MAX_NUM);
+        if (checkMaxNum !=null) return checkMaxNum;
 
-        String content = applicationContent.getContent();
-        if (content == null) {
-            log.info("ApplicationService submitApplication EMPTY");
-            return ResponseDto.fail("EMPTY CONTENT", "내용을 적어주세요");
-        }
+        ResponseDto<Object> checkContent = handleNull(applicationContent.getContent(), APPLICATION_EMPTY_CONTENT);
+        if (checkContent != null) return checkContent;
 
         // 기존에 참여 신청한 회원의 경우 신청 거절
         Optional<Application> optionalForm = applicationRepository.findByPostIdAndMemberId(postId, member.getId());
-        Application form = optionalForm.orElse(null);
-        if (form != null) {
-            log.info("ApplicationService submitApplication ALREADY SUBMIT");
-            return ResponseDto.fail("ALREADY SUBMIT", "이미 신청을 하셨습니다.");
-        }
+
+        ResponseDto<Object> checkSubmit = handleNotNull(optionalForm.orElse(null), APPLICATION_ALREADY_SUBMIT);
+        if (checkSubmit != null) return checkSubmit;
 
         // 게시글 작성자가 신청을 할 경우 거절
-        if (post.getMember().getId().equals(member.getId())) {
-            log.info("ApplicationService submitApplication INVALID ACCESS");
-            return ResponseDto.fail("INVALID ACCESS", "모임 주최자는 신청할 수 없습니다.");
-        }
+        ResponseDto<Object> checkAccess = handleBoolean(post.getMember().getId().equals(member.getId()), APPLICATION_INVALID_ACCESS);
+        if (checkAccess !=null) return checkAccess;
 
         // 제재먹은 게시글의 경우 신청 불가
-        if (post.getRegulation().equals(REGULATED)) {
-            log.info("ApplicationService submitApplication REGULATED POST");
-            return ResponseDto.fail("REGULATED POST", "관리자에 의해 제재당한 게시글입니다.");
-        }
+        ResponseDto<Object> checkRegulated = handleBoolean(post.getRegulation().equals(REGULATED), APPLICATION_REGULATED_POST);
+        if (checkRegulated != null) return checkRegulated;
 
 
-        Application application = Application.builder()
-                .status(ApplicationState.WAIT)
-                .content(content)
-                .member(member)
-                .post(post)
-                .build();
-
-        applicationRepository.save(application);
+        applicationRepository.save(buildApplication(applicationContent, member, post));
         return ResponseDto.success("성공적으로 참여신청을 완료했습니다.");
     }
 
     // 지원 취소
+
     @Transactional
     public ResponseDto<?> cancelApplication(Long postId, HttpServletRequest request) {
 
@@ -139,8 +122,8 @@ public class ApplicationService {
 
         return ResponseDto.success("참여 신청이 취소 되었습니다.");
     }
-
     // 게시글 참여 수락
+
     @Transactional
     public ResponseDto<?> approveApplication(Long applicationId, HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
@@ -197,7 +180,6 @@ public class ApplicationService {
 
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
     }
-
     @Transactional
     public ResponseDto<?> disapproveApplication(Long applicationId, HttpServletRequest request) throws Exception {
 
@@ -228,6 +210,7 @@ public class ApplicationService {
     }
 
     // 지원자 보기
+
     @Transactional(readOnly = true)
     public ResponseDto<?> getApplicationList(Long postId, HttpServletRequest request) {
 
@@ -281,8 +264,8 @@ public class ApplicationService {
                         .build()
         );
     }
-
     // 모집 관련 로직
+
     public ResponseDto<?> changePostStatus(Long postId, HttpServletRequest request) {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
@@ -308,5 +291,14 @@ public class ApplicationService {
         postRepository.flush();
         return ResponseDto.success("모집이 마감 되었습니다.");
 
+    }
+    private static Application buildApplication(ApplicationRequestDto applicationContent, Member member, Post post) {
+        Application application = Application.builder()
+                .status(ApplicationState.WAIT)
+                .content(applicationContent.getContent())
+                .member(member)
+                .post(post)
+                .build();
+        return application;
     }
 }
