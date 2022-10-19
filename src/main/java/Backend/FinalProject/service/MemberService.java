@@ -429,6 +429,8 @@ public class MemberService {
             RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
             if (refreshToken == null) return ResponseDto.fail("NEED LOGIN", "재 로그인 부탁드립니다.");
 
+            log.info("비교값 1 : {}",refreshToken.getKeyValue());
+            log.info("비교값 2 : {}",request.getHeader("RefreshToken"));
             if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
                 return ResponseDto.fail("INVALID REFRESH TOKEN", "토큰이 일치하지 않습니다.");
             }
