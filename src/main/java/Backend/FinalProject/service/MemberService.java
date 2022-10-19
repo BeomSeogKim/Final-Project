@@ -422,6 +422,7 @@ public class MemberService {
             Member member = memberRepository.findByUserId(memberId).orElse(null);
 
             RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
+            if (refreshToken == null) return ResponseDto.fail("NEED LOGIN", "재 로그인 부탁드립니다.");
 
             if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
                 return ResponseDto.fail("INVALID REFRESH TOKEN", "토큰이 일치하지 않습니다.");
