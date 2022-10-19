@@ -13,6 +13,7 @@ import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.enums.ErrorCode;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static Backend.FinalProject.Tool.Validation.handleBoolean;
+import static Backend.FinalProject.Tool.Validation.handleNull;
+import static Backend.FinalProject.domain.enums.ErrorCode.CHATROOM_NO_ACTIVEROOM;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
@@ -54,9 +58,10 @@ public class ChatRoomService {
         // TODO orElse 수정
         // 채팅방 정보 조회
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
-        if (chatRoom == null) {
-            return ResponseDto.fail("NO CHAT ROOM", "해당 방이 존재하지 않습니다.");
-        }
+        ResponseDto<Object> checkChatRoom = handleNull(chatRoom, ErrorCode.CHATROOM_NO_CHATROOM);
+        if (checkChatRoom != null) return checkChatRoom;
+
+        assert chatRoom != null;
         return chatRoomInformation(chatRoom);
     }
 
@@ -77,15 +82,17 @@ public class ChatRoomService {
 
         // TODO orElse 수정
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
-        if (chatRoom == null) {
-            return ResponseDto.fail("NOT FOUNT", "채팅방을 찾을 수 없습니다.");
-        }
+        handleNull(chatRoom,ErrorCode.CHATROOM_NOTFOUND);
+//        if (chatRoom == null) {
+//            return ResponseDto.fail("NOT FOUNT", "채팅방을 찾을 수 없습니다.");
+//        }
 
         // TODO orElse 수정
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
-        if (chatMember == null) {
-            return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
-        }
+        handleNull(chatMember, ErrorCode.CHATROOM_NO_CHATMEMBER);
+//        if (chatMember == null) {
+//            return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
+//        }
 
         PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
 
@@ -103,17 +110,19 @@ public class ChatRoomService {
      * @param httpServletRequest : HttpServlet Request
      */
     public ResponseDto<?> getRoomList(HttpServletRequest httpServletRequest) {
-        ResponseDto<?> chkResponse = validation.checkAccessToken(httpServletRequest);
-        if (!chkResponse.isSuccess())
-            return chkResponse;
+        ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
+        if (!validateToken.isSuccess())
+            return validateToken;
 
-        Member member = memberRepository.findById(((Member) chkResponse.getData()).getId()).orElse(null);
+        Member member = memberRepository.findById(((Member) validateToken.getData()).getId()).orElse(null);
         assert member != null;
 
         List<ChatMember> chatList = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
-        if (chatList.isEmpty()) {
-            return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
-        }
+
+        handleBoolean(chatList.isEmpty(), CHATROOM_NO_ACTIVEROOM);
+//        if (chatList.isEmpty()) {
+//            return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
+//        }
 
         List<ChatRoomListDto> chatRoomDtoList = new ArrayList<>();
         getChatRoomListInfo(chatList, chatRoomDtoList);
@@ -157,19 +166,7 @@ public class ChatRoomService {
         List<ChatMember> chatMemberList = chatMemberRepository.findAllByChatRoomId(roomId);
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
 
-        for (ChatMember chatMember : chatMemberList) {
-            boolean isLeader;
-            assert chatRoom != null;
-            isLeader = Objects.equals(chatMember.getMember().getId(), chatRoom.getPost().getMember().getId());
-            chatMemberInfo.add(
-                    ChatMemberResponseDto.builder()
-                            .imgUrl(chatMember.getMember().getImgUrl())
-                            .nickname(chatMember.getMember().getNickname())
-                            .memberId(chatMember.getMember().getId())
-                            .isLeader(isLeader)
-                            .build()
-            );
-        }
+        getMemberInformation(chatMemberInfo, chatMemberList, chatRoom);
         return ResponseDto.success(chatMemberInfo);
     }
 
@@ -206,5 +203,21 @@ public class ChatRoomService {
                 .hasNextPage(pageOfChat.hasNext())
                 .hasPreviousPage(pageOfChat.hasPrevious())
                 .build();
+    }
+
+    private static void getMemberInformation(List<ChatMemberResponseDto> chatMemberInfo, List<ChatMember> chatMemberList, ChatRoom chatRoom) {
+        for (ChatMember chatMember : chatMemberList) {
+            boolean isLeader;
+            assert chatRoom != null;
+            isLeader = Objects.equals(chatMember.getMember().getId(), chatRoom.getPost().getMember().getId());
+            chatMemberInfo.add(
+                    ChatMemberResponseDto.builder()
+                            .imgUrl(chatMember.getMember().getImgUrl())
+                            .nickname(chatMember.getMember().getNickname())
+                            .memberId(chatMember.getMember().getId())
+                            .isLeader(isLeader)
+                            .build()
+            );
+        }
     }
 }
