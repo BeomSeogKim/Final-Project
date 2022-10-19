@@ -3,8 +3,8 @@ package Backend.FinalProject.WebSocket.service;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
-import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageDto;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatInformationDto;
+import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
@@ -20,14 +20,17 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static Backend.FinalProject.Tool.Validation.handleNull;
+import static Backend.FinalProject.domain.enums.ErrorCode.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService {
 
-    // Dependency Injection
-    private final SimpMessageSendingOperations messageTemplate;
+    //== Dependency Injection ==//
     private final TokenProvider tokenProvider;
+    private final SimpMessageSendingOperations messageTemplate;
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -39,52 +42,57 @@ public class ChatService {
         // 토큰으로 유저 찾기
         String nickname = tokenProvider.getUserIdByToken(token);        // 닉네임이 받아와짐
         Member member = memberRepository.findByNickname(nickname).orElse(null);
-        if (member == null) {
-            log.info("Invalid Token");
-            return ResponseDto.fail("INVALID TOKEN", "유효하지 않은 토큰입니다.");
-        }
+
+        ResponseDto<Object> checkToken = handleNull(member, CHAT_INVALID_TOKEN);
+        if (checkToken != null) return checkToken;
 
         ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId()).orElse(null);
 
         // 해당 채팅방에 있는 회원인지 검증
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
-        if (chatMember == null) {
-            log.info("Invalid Member");
-            return ResponseDto.fail("NO AUTHORIZATION", "해당 권한이 없습니다.");
-        }
 
-        if (chatRoom == null) {
-            log.info("Invalid RoomNumber");
-            return ResponseDto.fail("INVALID ROOM NUMBER", "잘못된 방 번호입니다.");
-        }
+        ResponseDto<Object> checkAuth = handleNull(chatMember, CHAT_NO_AUTHOR);
+        if (checkAuth != null) return checkAuth;
 
+        ResponseDto<Object> checkValidRoom = handleNull(chatRoom, CHAT_INVALID_ROOM);
+        if (checkValidRoom!=null) return checkValidRoom;
 
 
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
 
-        ChatMessageDto chatMessageDto = ChatMessageDto.builder()
+        assert member != null;
+        ChatMessageDto chatMessageDto = makeMessage(message, member, now);
+        if (message.getMessage() != null) {
+
+            // 메세지 송부
+            messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
+
+            // 보낸 메세지 저장
+            ChatMessage chatMessage = buildMessage(message, member, chatRoom, now);
+            chatMessageRepository.save(chatMessage);
+
+            assert chatRoom != null;
+            chatRoom.updateTime(LocalDateTime.now());
+        }
+        return ResponseDto.success("메세지 보내기 성공");
+    }
+
+    private static ChatMessageDto makeMessage(ChatInformationDto message, Member member, String now) {
+        return ChatMessageDto.builder()
                 .sender(member.getNickname())
                 .senderId(member.getUserId())
                 .imgUrl(member.getImgUrl())
                 .message(message.getMessage())
                 .sendTime(now)
                 .build();
-        if (message.getMessage() != null) {
-            // 메세지 송부
-            messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
+    }
 
-            // 보낸 메세지 저장
-            ChatMessage chatMessage = ChatMessage.builder()
-                    .chatRoom(chatRoom)
-                    .member(member)
-                    .sendTime(now)
-                    .message(message.getMessage())
-                    .build();
-            chatMessageRepository.save(chatMessage);
-
-            LocalDateTime lastChatTime = LocalDateTime.now();
-            chatRoom.updateTime(lastChatTime);
-        }
-        return ResponseDto.success("메세지 보내기 성공");
+    private static ChatMessage buildMessage(ChatInformationDto message, Member member, ChatRoom chatRoom, String now) {
+        return ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .member(member)
+                .sendTime(now)
+                .message(message.getMessage())
+                .build();
     }
 }

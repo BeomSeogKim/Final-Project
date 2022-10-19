@@ -1,16 +1,19 @@
 package Backend.FinalProject.Tool;
 
 import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.enums.ErrorCode;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class Validation {
 
     private final TokenProvider tokenProvider;
@@ -29,6 +32,30 @@ public class Validation {
         return ResponseDto.success(member);
     }
 
+
+    public static ResponseDto<Object> handleNull(Object object, ErrorCode errorCode) {
+        if (object == null) {
+            log.info(errorCode.getLog());
+            return ResponseDto.fail(errorCode.getCode(), errorCode.getMessage());
+        }
+        return null;
+    }
+    public static ResponseDto<Object> handleNotNull(Object object, ErrorCode errorCode) {
+        if (object != null) {
+            log.info(errorCode.getLog());
+            return ResponseDto.fail(errorCode.getCode(), errorCode.getMessage());
+        }
+        return null;
+    }
+
+
+    public static ResponseDto<Object> handleBoolean(Boolean condition,ErrorCode errorCode) {
+        if (condition) {
+            log.info(errorCode.getLog());
+            return ResponseDto.fail(errorCode.getCode(), errorCode.getMessage());
+        }
+        return null;
+    }
 
 
 
