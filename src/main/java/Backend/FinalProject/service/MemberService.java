@@ -423,9 +423,6 @@ public class MemberService {
             Member member = memberRepository.findByNickname(memberId).orElse(null);
             log.info("AccessToken : {} " ,request.getHeader("Authorization"));
             log.info("RefreshToken : {}", request.getHeader("RefreshToken"));
-            log.info("memberId : {}",memberId);
-            log.info("member : {}", member);
-            log.info("검증 로직 : {} ", tokenProvider.isPresentRefreshToken(member));
 
             RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
             if (refreshToken == null) return ResponseDto.fail("NEED LOGIN", "재 로그인 부탁드립니다.");
@@ -441,6 +438,7 @@ public class MemberService {
             tokenToHeaders(tokenDto, response);
 
 
+
             return ResponseDto.success("재발급 완료");
 
     }
@@ -449,6 +447,7 @@ public class MemberService {
     public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+        log.info("tokenToHeaders : {}" ,tokenDto.getRefreshToken());
     }
 
 }

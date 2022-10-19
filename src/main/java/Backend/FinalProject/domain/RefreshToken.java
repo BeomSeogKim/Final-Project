@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 
@@ -27,6 +28,7 @@ public class RefreshToken extends Timestamped {
     private String keyValue;
 
     //== Refresh Token 재발급 ==//
+    @Transactional
     public void updateValue(String token) {
         this.keyValue = token;
     }
