@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class rTokenProvider {
+public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
