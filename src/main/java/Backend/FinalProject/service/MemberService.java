@@ -420,6 +420,11 @@ public class MemberService {
                 return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
             }
             Member member = memberRepository.findByUserId(memberId).orElse(null);
+            log.info("AccessToken : {} " ,request.getHeader("Authorization"));
+            log.info("RefreshToken : {}", request.getHeader("RefreshToken"));
+            log.info("memberId : {}",memberId);
+            log.info("member : {}", member);
+            log.info("검증 로직 : {} ", tokenProvider.isPresentRefreshToken(member));
 
             RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
             if (refreshToken == null) return ResponseDto.fail("NEED LOGIN", "재 로그인 부탁드립니다.");
