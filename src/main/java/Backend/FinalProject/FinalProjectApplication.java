@@ -24,7 +24,7 @@ public class FinalProjectApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://localhost:3000", "15.164.221.23", "3355.world")
+						.allowedOrigins("http://localhost:3000", "http://15.164.221.23", "https://3355.world")
 						.exposedHeaders("Authorization", "RefreshToken", "ImgUrl", "Id", "nickname", "role")
 						.allowedMethods("*")
 						.allowedHeaders("*")
