@@ -404,6 +404,7 @@ public class MemberService {
         return findMember.orElse(null);
     }
 
+    @Transactional
     public ResponseDto<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ParseException {
             if (tokenProvider.getUserIdByToken(request.getHeader("Authorization")) != null) {
                 Date expirationTime = tokenProvider.getExpirationTime(request.getHeader("Authorization"));
