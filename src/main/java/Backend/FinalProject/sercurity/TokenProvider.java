@@ -113,6 +113,8 @@ public class TokenProvider {
 
     @Transactional(readOnly = true)
     public RefreshToken isPresentRefreshToken(Member member) {
+        log.info("Provider 에서 member : {} ", member);
+        log.info("provider 에서 optional : {}", refreshTokenRepository.findByMember(member));
         Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByMember(member);
         return optionalRefreshToken.orElse(null);
     }
