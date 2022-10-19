@@ -415,11 +415,11 @@ public class MemberService {
             if (!tokenProvider.validateToken((request.getHeader("RefreshToken")))) {
                 return ResponseDto.fail("INVALID REFRESH TOKEN", "RefreshToken 이 유효하지 않습니다.");
             }
-            String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);
+            String memberId = tokenProvider.getMemberFromExpiredAccessToken(request);           // 닉네임이 들어옴
             if (null == memberId) {
                 return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
             }
-            Member member = memberRepository.findByUserId(memberId).orElse(null);
+            Member member = memberRepository.findByNickname(memberId).orElse(null);
             log.info("AccessToken : {} " ,request.getHeader("Authorization"));
             log.info("RefreshToken : {}", request.getHeader("RefreshToken"));
             log.info("memberId : {}",memberId);
