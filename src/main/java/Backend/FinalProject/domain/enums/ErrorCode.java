@@ -15,6 +15,12 @@ public enum ErrorCode {
     APPLICATION_INVALID_ACCESS("ApplicationService submitApplication INVALID ACCESS", "INVALID ACCESS", "모임 주최자는 신청할 수 없습니다."),
     APPLICATION_REGULATED_POST("ApplicationService submitApplication REGULATED POST", "REGULATED POST", "관리자에 의해 제재당한 게시글입니다."),
 
+    //== POSTService ==//
+    POST_OVER_RECRUITMENT("PostService createPost MAXIMUM ERROR", "MAXIMUM ERROR", "모집 정원을 다시 확인해주세요"),
+    POST_WRONG_DATE("PostService createPost WRONG DATE","WRONG DATE", "날짜 선택을 다시해주세요"),
+    POST_NOT_FOUND("PostService NOT_FOUND", "NOT_FOUND", "존재하지 않는 게시글 id 입니다."),
+    POST_REGULATED("PostService REGULATED POST", "REGULATED POST", "관리자에 의해 제재당한 게시글입니다."),
+
     //== ChatService ==//
     CHAT_INVALID_TOKEN("Invalid Token", "INVALID TOKEN", "유효하지 않은 토큰입니다."),
     CHAT_NO_AUTHOR("Invalid Member", "NO AUTHORIZATION", "해당 권한이 없습니다."),
