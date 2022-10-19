@@ -1,38 +1,76 @@
 # 프로젝트 명 : 삼삼오오(3355) 
 ### 원하는 활동이 비슷한 사람들 끼리 모여서 소통하고 모임 계획을 잡을 수 있는 플랫폼
+### [플랫폼 바로가기](https://3355.world/)
 
 #### Front-End GitHub : https://github.com/hyerriimm/Final_Project
+
 
 ## Code Convention
 - Naming Convention ⇒ 변수, 함수, 인스턴스를 작성할 때는 Camel Case를 사용.
 - 글자의 길이 : 20자 이내로 제한
 - 약칭은 되도록이면 사용하지 않기
 - else-if 는 되도록이면 사용 지양
+- 
+
+## Git Flow 
+- main branch : 실 서버 배포 전용 (백엔드 전용) branch
+  - main branch 에 push 혹은 pull-request 가 될 시에 ec2 서버에 자동 업로드 
+  - leader 외에는 push 혹은 merge 를 함부로 할 수 없음
+- develop : 서버 테스트 전용 
+  - 각 기술 개발 branch 에서 개발 한 내용들을 합쳐 local 에서 test 하는 전용 branch
+  - leader 외에는 push 혹은 merge 를 함부로 할 수 없음 
+  - 기술 개발 후 pull-request 
+  - 코드 리뷰 후 문제 없을 시 pull-request 허용 
+- other : 각 기술 개발 전용 branch
+  - 각자 맡은 기술 개발하는 branch 
+  - branch 명은 최대한 기술 개발 주제와 맞게 설정
+- 맡은 기술 개발 전 develop branch pull 받은 후 개발 진행 
+
 
 ## 기술 스택
-<img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"/>
-<img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white"/>
-<img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"/>
-<img src="https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white"/>
-<img src="https://img.shields.io/badge/kakaotalk-ffcd00.svg?style=for-the-badge&logo=kakaotalk&logoColor=000000"/>
-<img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white"/>
-![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
-<img src="https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white"/>
-<img src="https://img.shields.io/badge/Amazon Web Service-232F3E?style=for-the-badge&logo=Amazon%20AWS&logoColor=white"/>
+
+### CI / CD
+|     Name      |                                                                 Badge                                                                 | 
+|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------:|
+| Github Action | ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) |
+|  Code Deploy  |                                                                                                                                       |
+|      S3       |                                                                                                                                       |
+
+### Version Control
+
+|    Name     |                                                                     Badge                                                                     | 
+|:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------:|
+|   Github    |                 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)                  |
+
+### Frameworks, Platforms and Libraries
+|      Name       |                                                                    Badge                                                                     | 
+|:---------------:|:--------------------------------------------------------------------------------------------------------------------------------------------:|
+|     Spring      |                 ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)                 | 
+|   Spring Boot   |              <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"/>               | 
+| Spring Security |          <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white"/>           |
+|  IntelliJ IDEA  |        ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white)         |
+|    Socket.io    |               ![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)                |
 
 
-<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub Actions</title><path d="M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"/></svg>
+### Social
+|     Name      |                                                                 Badge                                                                 | 
+|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------:|
+|   KakaoTalk   |          ![KakaoTalk](https://img.shields.io/badge/kakaotalk-ffcd00.svg?style=for-the-badge&logo=kakaotalk&logoColor=000000)          |
+| Github Action | ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white) |
 
-* SpringBot
-* Java
-* S3
-* EC2
-* CodeDeploy
-* STOMP
-* MYSQL
-* OAUTH
-* REDIS
-* NginX
+
+### Database
+|     Name     |                                                  Badge                                                   | 
+|:------------:|:--------------------------------------------------------------------------------------------------------:|
+|    MySQL     |  ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)  |
+
+
+
+
+### Other
+|     Name      |                                                                 Badge                                                                 | 
+|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------:|
+|    Gradle     |               ![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)               |
 
 # 기능 구현 사항  
 1. 회원가입 및 로그인
