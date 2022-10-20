@@ -101,13 +101,8 @@ public class ChatRoomService {
         List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(roomId);
         for (ChatMessage chatMessage : chatMessageList) {
             // 읽은 회원 인지 아닌지 검증
-            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
-            List<Member> testList = readCheckRepository.findAllChatMemberByChatMessageId(chatMessage.getId());
-            log.info("contain : {} ", String.valueOf(checkMemberList.contains(member)));
-            log.info("contain2 : {}", testList.contains(member));
-            for (Member member1 : testList) {
-                log.info("for member : {} ", member1.getNickname());
-            }
+//            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
+            List<Member> checkMemberList = readCheckRepository.findAllChatMemberByChatMessageId(chatMessage.getId());
 
             if (!checkMemberList.contains(member)) {
                 chatMessage.addNumOfRead();
