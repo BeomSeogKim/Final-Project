@@ -16,6 +16,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.service.AutomatedChatService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,7 +34,7 @@ import static Backend.FinalProject.domain.enums.ErrorCode.CHATROOM_NO_ACTIVEROOM
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
-@Transactional(readOnly = true)
+@Slf4j
 @RequiredArgsConstructor
 public class ChatRoomService {
 
@@ -51,6 +52,7 @@ public class ChatRoomService {
      * @param roomId : 채팅방 아이디
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional(readOnly = true)
     public ResponseDto<?> getRoomInfo(Long roomId, HttpServletRequest httpServletRequest) {
 
         // Token 검증
@@ -72,6 +74,7 @@ public class ChatRoomService {
      * @param pageNum : 페이지 수
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional
     public ResponseDto<?> getMessageList(Long roomId, Integer pageNum, HttpServletRequest httpServletRequest) {
         ResponseDto<?> resultOfValidation = validation.checkAccessToken(httpServletRequest);
         if (!resultOfValidation.isSuccess())
@@ -121,6 +124,7 @@ public class ChatRoomService {
      * 채팅방 목록 조회
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional(readOnly = true)
     public ResponseDto<?> getRoomList(HttpServletRequest httpServletRequest) {
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
         if (!validateToken.isSuccess())
@@ -163,6 +167,7 @@ public class ChatRoomService {
         }
     }
 
+    @Transactional
     public ResponseDto<?> getRoomMemberInfo(Long roomId, HttpServletRequest request) {
         ChatRoom validation = chatRoomRepository.findById(roomId).orElse(null);
         if (validation == null) {
@@ -217,7 +222,8 @@ public class ChatRoomService {
                 .build();
     }
 
-    private static void getMemberInformation(List<ChatMemberResponseDto> chatMemberInfo, List<ChatMember> chatMemberList, ChatRoom chatRoom) {
+    @Transactional
+    void getMemberInformation(List<ChatMemberResponseDto> chatMemberInfo, List<ChatMember> chatMemberList, ChatRoom chatRoom) {
         for (ChatMember chatMember : chatMemberList) {
             boolean isLeader;
             assert chatRoom != null;

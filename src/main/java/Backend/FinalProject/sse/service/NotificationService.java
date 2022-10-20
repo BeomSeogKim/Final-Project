@@ -87,7 +87,6 @@ public class NotificationService {
             emitters.forEach(
                     (key, emitter) -> {
                         emitterRepository.saveEventCache(key, notification);
-                        log.info("Chat Send ");
                         sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
                     }
             );
@@ -96,7 +95,6 @@ public class NotificationService {
             emitters.forEach(
                     (key, emitter) -> {
                         emitterRepository.saveEventCache(key, notification);
-                        log.info("Etc Send");
                         sendNotification(emitter, eventId, key, NotificationDto.create(notification));
                     }
             );
