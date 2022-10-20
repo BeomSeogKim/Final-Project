@@ -102,6 +102,10 @@ public class ChatRoomService {
         for (ChatMessage chatMessage : chatMessageList) {
             // 읽은 회원 인지 아닌지 검증
             List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
+            for (ReadCheck readCheck : checkMemberList) {
+                log.info(String.valueOf(readCheck.getChatMember()));
+            }
+            log.info(String.valueOf(member));
             if (!checkMemberList.contains(member)) {
                 chatMessage.addNumOfRead();
                 automatedChatService.createReadCheck(chatMember, chatMessage);
