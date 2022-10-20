@@ -1,6 +1,8 @@
 package Backend.FinalProject.service;
 
 import Backend.FinalProject.Tool.Validation;
+import Backend.FinalProject.WebSocket.domain.ChatMember;
+import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.domain.Application;
@@ -169,9 +171,10 @@ public class ApplicationService {
             return ResponseDto.fail("NO CHAT ROOM", "입장 가능한 채팅방이 존재하지 않습니다.");
         }
         // 채팅방 참여
-        automatedChatService.createChatMember(application.getMember(), chatRoom);
+        ChatMember chatMember = automatedChatService.createChatMember(application.getMember(), chatRoom);
         // 채팅 메세지
-        automatedChatService.createChatMessage(application.getMember(), chatRoom);
+        ChatMessage chatMessage = automatedChatService.createChatMessage(application.getMember(), chatRoom);
+        automatedChatService.createReadCheck(chatMember, chatMessage);
 
         // TODO
         // 수락이 될 경우 참여한 모임 조회 url 로 이동 시키기
