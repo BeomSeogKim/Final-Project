@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -30,6 +31,8 @@ public class ChatMember extends Timestamped {
     @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 
+    @OneToMany(fetch = LAZY, mappedBy = "chatMember")
+    private List<ReadCheck> readCheckList;
     //== 연관관계 메서드 ==//
     public void setMember(Member member) {
         this.member = member;

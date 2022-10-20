@@ -2,20 +2,19 @@ package Backend.FinalProject.WebSocket.service;
 
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.ChatRoomDto;
-import Backend.FinalProject.WebSocket.domain.ChatMember;
-import Backend.FinalProject.WebSocket.domain.ChatMemberResponseDto;
-import Backend.FinalProject.WebSocket.domain.ChatMessage;
-import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.WebSocket.domain.*;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageInfoDto;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageResponse;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatRoomListDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
+import Backend.FinalProject.WebSocket.repository.ReadCheckRepository;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.enums.ErrorCode;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
+import Backend.FinalProject.service.AutomatedChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +43,8 @@ public class ChatRoomService {
     private final Validation validation;
     private final ChatMemberRepository chatMemberRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ReadCheckRepository readCheckRepository;
+    private final AutomatedChatService automatedChatService;
 
     /**
      * 방 정보 조회
@@ -93,6 +94,17 @@ public class ChatRoomService {
 //        if (chatMember == null) {
 //            return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
 //        }
+        // 채팅 메세지 읽음 조회
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(roomId);
+        for (ChatMessage chatMessage : chatMessageList) {
+            // 읽은 회원 인지 아닌지 검증
+            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
+            if (!checkMemberList.contains(member)) {
+                chatMessage.addNumOfRead();
+                automatedChatService.createReadCheck(chatMember, chatMessage);
+            }
+        }
+
 
         PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
 

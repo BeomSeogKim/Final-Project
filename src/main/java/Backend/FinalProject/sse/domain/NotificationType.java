@@ -6,7 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum NotificationType {
-    APPLY, ACCEPT, ALARM,
-    REJECT, REPLY
+
+    REPLY, APPLY, REJECT, CHAT,
+
+     ACCEPT, ALARM
 
 }
