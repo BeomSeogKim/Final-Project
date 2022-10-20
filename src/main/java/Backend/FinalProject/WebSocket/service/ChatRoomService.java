@@ -105,6 +105,7 @@ public class ChatRoomService {
             List<Member> checkMemberList = readCheckRepository.findAllChatMemberByChatMessageId(chatMessage.getId());
 
             if (!checkMemberList.contains(member)) {
+                log.info("addNumOfRead");
                 chatMessage.addNumOfRead();
                 automatedChatService.createReadCheck(chatMember, chatMessage);
             }
