@@ -85,9 +85,6 @@ public class ChatService {
             assert chatRoom != null;
             chatRoom.updateTime(LocalDateTime.now());
             List<ChatMember> chatMemberList = chatMemberRepository.findAllByChatRoomId(chatRoom.getId());
-            for (ChatMember chatMember1 : chatMemberList) {
-
-            }
 
             chatMemberList.forEach((c) -> {
                 try {
