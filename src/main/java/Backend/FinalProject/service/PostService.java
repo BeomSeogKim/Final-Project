@@ -5,6 +5,7 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.WebSocket.domain.ReadCheck;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
@@ -135,6 +136,8 @@ public class PostService{
         ChatMember chatMember = automatedChatService.createChatMember(member, chatRoom);
         // 방장 알림 메세지 자동 기입
         ChatMessage chatMessage = automatedChatService.createChatMessage(member, chatRoom);
+        // readCheck 추적
+        ReadCheck readCheck = automatedChatService.createReadCheck(chatMember, chatMessage);
         return ResponseDto.success("게시글 작성이 완료되었습니다.");
     }
 

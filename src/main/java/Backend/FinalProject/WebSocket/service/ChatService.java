@@ -12,6 +12,8 @@ import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
+import Backend.FinalProject.service.AutomatedChatService;
+import Backend.FinalProject.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -19,9 +21,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static Backend.FinalProject.Tool.Validation.handleNull;
 import static Backend.FinalProject.domain.enums.ErrorCode.*;
+import static Backend.FinalProject.sse.domain.NotificationType.CHAT;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +34,8 @@ public class ChatService {
 
     //== Dependency Injection ==//
     private final TokenProvider tokenProvider;
+    private final NotificationService notificationService;
+    private final AutomatedChatService automatedChatService;
     private final SimpMessageSendingOperations messageTemplate;
     private final MemberRepository memberRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -71,9 +77,25 @@ public class ChatService {
             ChatMessage chatMessage = buildMessage(message, member, chatRoom, now);
             chatMessageRepository.save(chatMessage);
 
+            assert chatMember != null;
+            automatedChatService.createReadCheck(chatMember, chatMessage);
+
             assert chatRoom != null;
             chatRoom.updateTime(LocalDateTime.now());
+            List<ChatMember> chatMemberList = chatMemberRepository.findAllByChatRoomId(chatRoom.getId());
+            for (ChatMember chatMember1 : chatMemberList) {
+
+            }
+
+            chatMemberList.forEach((c) -> {
+                try {
+                    notificationService.send(c.getMember(), CHAT, "새로운 알림이 있습니다.", "testURL");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
+
         return ResponseDto.success("메세지 보내기 성공");
     }
 
@@ -93,6 +115,7 @@ public class ChatService {
                 .member(member)
                 .sendTime(now)
                 .message(message.getMessage())
+                .numOfRead(1)
                 .build();
     }
 }
