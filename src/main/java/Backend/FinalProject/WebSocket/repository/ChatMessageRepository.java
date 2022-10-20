@@ -20,7 +20,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findAllByChatRoomId(Long roomId);
 
     @Modifying
-    @Query(value = "update ChatMessage c set c.numOfRead = c.numOfRead +1 where c.createdAt < :createdAt")
-    void bulkNumOfReadPlus(@Param("createdAt") LocalDateTime createdAt);
+    @Query(value = "update ChatMessage c set c.numOfRead = c.numOfRead +1 where c.modifiedAt < :modifiedAt")
+    void bulkNumOfReadPlus(@Param("modifiedAt") LocalDateTime modifiedAt);
 
 }

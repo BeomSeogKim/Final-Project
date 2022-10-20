@@ -66,7 +66,7 @@ public class AutomatedChatService {
                 .sendTime(now)
                 .build();
         chatMessageRepository.save(chatMessage);
-        chatMessageRepository.bulkNumOfReadPlus(chatMessage.getCreatedAt());
+        chatMessageRepository.bulkNumOfReadPlus(chatMessage.getModifiedAt());
         chatRoom.updateTime(LocalDateTime.now());
         return chatMessage;
     }
