@@ -7,6 +7,7 @@ import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationContent;
 import Backend.FinalProject.sse.domain.NotificationType;
 import Backend.FinalProject.sse.domain.RelatedUrl;
+import Backend.FinalProject.sse.dto.NotificationChatDto;
 import Backend.FinalProject.sse.dto.NotificationCountDto;
 import Backend.FinalProject.sse.dto.NotificationDto;
 import Backend.FinalProject.sse.dto.StatusResponseDto;
@@ -29,6 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static Backend.FinalProject.sse.domain.NotificationType.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,7 +49,7 @@ public class NotificationService {
         String emitterId = memberId + "_" + System.currentTimeMillis();
 
         // 1시간 설정
-        Long timeout = 60L * 1000L * 60L;
+        Long timeout = 1000L * 60  * 60 ;
 
         // 생성된 emitterId 를 기반으로 emitter 를 저장
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(timeout));
@@ -80,12 +83,30 @@ public class NotificationService {
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
-        emitters.forEach(
-                (key, emitter) -> {
-                    emitterRepository.saveEventCache(key, notification);
-                    sendNotification(emitter, eventId, key, NotificationDto.create(notification));
-                }
-        );
+        if (notificationType.equals(CHAT)) {
+            emitters.forEach(
+                    (key, emitter) -> {
+                        emitterRepository.saveEventCache(key, notification);
+                        log.info("Chat Send ");
+                        sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
+                    }
+            );
+        }
+        else{
+            emitters.forEach(
+                    (key, emitter) -> {
+                        emitterRepository.saveEventCache(key, notification);
+                        log.info("Etc Send");
+                        sendNotification(emitter, eventId, key, NotificationDto.create(notification));
+                    }
+            );
+        }
+//        emitters.forEach(
+//                (key, emitter) -> {
+//                    emitterRepository.saveEventCache(key, notification);
+//                    sendNotification(emitter, eventId, key, NotificationDto.create(notification));
+//                }
+//        );
 
 
     }
