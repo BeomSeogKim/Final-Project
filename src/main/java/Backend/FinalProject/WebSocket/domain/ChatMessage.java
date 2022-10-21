@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 
+import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.*;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -38,7 +39,7 @@ public class ChatMessage extends Timestamped {
     @Column
     private int numOfRead;
 
-    @OneToOne(fetch = LAZY, mappedBy = "chatMessage")
+    @OneToOne(fetch = LAZY, mappedBy = "chatMessage", cascade = ALL)
     private ReadCheck readCheck;
 
     public void setReadCheck(ReadCheck readCheck) {
