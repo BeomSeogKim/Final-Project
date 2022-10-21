@@ -148,7 +148,7 @@ public class ChatRoomService {
         getChatRoomListInfo(chatList, chatRoomDtoList);
         return ResponseDto.success(chatRoomDtoList);
     }
-
+    @Transactional
     public synchronized ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
         Long messageId = chatRequestDto.getMessageId();
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
