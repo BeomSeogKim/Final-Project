@@ -49,4 +49,9 @@ public class ChatMessage extends Timestamped {
     public void addNumOfRead() {
         this.numOfRead++;
     }
+
+    @Transactional
+    public void setNumOfRead() {
+        this.numOfRead = 1;
+    }
 }

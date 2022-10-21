@@ -65,17 +65,18 @@ public class AutomatedChatService {
                 .numOfRead(1)
                 .sendTime(now)
                 .build();
+        chatMessageRepository.bulkNumOfReadPlus(chatMessage.getModifiedAt(), chatRoom);
+        if (chatMessage.getNumOfRead() == 2) {
+            chatMessage.setNumOfRead();
+        }
         chatMessageRepository.save(chatMessage);
-        chatMessageRepository.bulkNumOfReadPlus(chatMessage.getModifiedAt());
         chatRoom.updateTime(LocalDateTime.now());
         return chatMessage;
     }
 
     @Transactional
     public ReadCheck createReadCheck(ChatMember chatMember, ChatMessage chatMessage) {
-
-        log.info(chatMember.toString());
-        log.info(chatMessage.toString());
+        log.info("게시글 멤버 저장 ");
         ReadCheck readCheck = ReadCheck.builder()
                 .id(chatMessage.getId())
                 .chatMessage(chatMessage)
