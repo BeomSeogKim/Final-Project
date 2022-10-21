@@ -25,7 +25,7 @@ public class ApplicationController {
     public ResponseDto<?> submitApplication(
             @PathVariable Long postId,
             @RequestBody ApplicationRequestDto applicationRequestDto,
-            HttpServletRequest httpServletRequest) {
+            HttpServletRequest httpServletRequest) throws Exception {
         return applicationService.submitApplication(postId, applicationRequestDto, httpServletRequest);
     }
 

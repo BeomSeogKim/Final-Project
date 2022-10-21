@@ -32,8 +32,7 @@ import static Backend.FinalProject.domain.enums.ErrorCode.*;
 import static Backend.FinalProject.domain.enums.PostState.CLOSURE;
 import static Backend.FinalProject.domain.enums.PostState.DONE;
 import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
-import static Backend.FinalProject.sse.domain.NotificationType.ACCEPT;
-import static Backend.FinalProject.sse.domain.NotificationType.REJECT;
+import static Backend.FinalProject.sse.domain.NotificationType.*;
 
 @Slf4j
 @Service
@@ -54,7 +53,7 @@ public class ApplicationService {
      * @param applicationContent : 참여 신청 메세지
      * @param httpServletRequest : HttpServlet Request
      */
-    public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationContent, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationContent, HttpServletRequest httpServletRequest) throws Exception {
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
@@ -90,7 +89,8 @@ public class ApplicationService {
         // 제재먹은 게시글의 경우 신청 불가
         ResponseDto<Object> checkRegulated = handleBoolean(post.getRegulation().equals(REGULATED), APPLICATION_REGULATED_POST);
         if (checkRegulated != null) return checkRegulated;
-
+        // 실시간 알림
+        notificationService.send(post.getMember(),APPLY, "새로운 지원 신청이 있습니다.","https://3355.world/detail/" + post.getId()+"/check");
 
         applicationRepository.save(buildApplication(applicationContent, member, post));
         return ResponseDto.success("성공적으로 참여신청을 완료했습니다.");
@@ -178,7 +178,7 @@ public class ApplicationService {
 
         // TODO
         // 수락이 될 경우 참여한 모임 조회 url 로 이동 시키기
-        String url = "http://localhost:3000/mypage";
+        String url = "https://3355.world/mypage";
         notificationService.send(application.getMember(), ACCEPT, application.getPost().getTitle() + " 모임 신청이 수락되었습니다.", url);
 
         return ResponseDto.success("성공적으로 승인이 되었습니다.");
@@ -207,7 +207,7 @@ public class ApplicationService {
         }
         application.disapprove();
         // TODO
-        String url = "http://localhost:3000/mypage/activity";
+        String url = "https://3355.world/mypage/activity";
         notificationService.send(application.getMember(), REJECT, application.getPost().getTitle() + " 모임 신청이 거절되었습니다.", url);
         return ResponseDto.success("성공적으로 거절 되었습니다.");
     }
