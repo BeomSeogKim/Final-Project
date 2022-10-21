@@ -38,14 +38,21 @@ public class NotificationController {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
         Member member = (Member) responseDto.getData();
+        long id = 0L;
+        try {
+            id = member.getId();
+        } catch (Exception e) {
+            log.info("INVALID ACCESS");
+        }
         //추가
         response.setCharacterEncoding("UTF-8");
 
-        return notificationService.subscribe(member.getId(), lastEventId);
+        return notificationService.subscribe(id, lastEventId);
 
     }
 
     //알림조회
+    // TODO 채팅은 빼고 조회
     @GetMapping(value = "/notifications")
     public List<NotificationDto> findAllNotifications(HttpServletRequest request) throws Exception {
         // 토큰 유효성 검사
@@ -61,6 +68,7 @@ public class NotificationController {
     }
 
     //알림 조회 - 구독자가 현재 읽지않은 알림 갯수
+    // TODO CHAT은 빼고 조회
     @GetMapping(value = "/notifications/count")
     public NotificationCountDto countUnReadNotifications(HttpServletRequest request) {
         // 토큰 유효성 검사
