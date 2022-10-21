@@ -28,18 +28,20 @@ public class ReadCheck extends Timestamped {
     @JoinColumn(name = "chat_member", nullable = false)
     private ChatMember chatMember;
 
-    @OneToOne(fetch = LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "chat_message_id")
     private ChatMessage chatMessage;
 
 
     //== 연관관계 메서드 ==//
-    public void setChatMessage(ChatMessage chatMessage) {
-        this.chatMessage = chatMessage;
-    }
 
     public void setChatMember(ChatMember chatMember) {
         this.chatMember = chatMember;
         chatMember.getReadCheckList().add(this);
+    }
+
+    public void setChatMessage(ChatMessage chatMessage) {
+        this.chatMessage = chatMessage;
+        chatMessage.getReadCheckList().add(this);
     }
 }

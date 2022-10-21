@@ -2,13 +2,17 @@ package Backend.FinalProject.WebSocket.domain;
 
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Timestamped;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import java.util.List;
 
 import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.*;
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Getter
@@ -39,12 +43,9 @@ public class ChatMessage extends Timestamped {
     @Column
     private int numOfRead;
 
-    @OneToOne(fetch = LAZY, mappedBy = "chatMessage", cascade = ALL)
-    private ReadCheck readCheck;
+    @OneToMany(fetch = LAZY, mappedBy = "chatMessage", cascade = ALL)
+    private List<ReadCheck> readCheckList;
 
-    public void setReadCheck(ReadCheck readCheck) {
-        this.readCheck = readCheck;
-    }
 
     @Transactional
     public void addNumOfRead() {
