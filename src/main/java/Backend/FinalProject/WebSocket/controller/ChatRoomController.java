@@ -1,7 +1,9 @@
 package Backend.FinalProject.WebSocket.controller;
 
+import Backend.FinalProject.WebSocket.domain.dtos.ChatRequestDto;
 import Backend.FinalProject.WebSocket.service.ChatRoomService;
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.dto.request.application.ApplicationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,9 +63,9 @@ public class ChatRoomController {
     }
 
     @PostMapping("/chat/read")
-    public ResponseDto<?> checktest(Long messageId, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> checktest(@RequestBody ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
 
-        return chatRoomService.readMessage(messageId, httpServletRequest);
+        return chatRoomService.readMessage(chatRequestDto, httpServletRequest);
 
     }
 }
