@@ -101,41 +101,13 @@ public class ChatRoomService {
         // 채팅 메세지 읽음 조회
         List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(roomId);
         for (ChatMessage chatMessage : chatMessageList) {
-            log.info("message : {}",chatMessage.getMessage());
-            log.info("message sender: {}",chatMessage.getMember().getNickname());
-            List<ReadCheck> CheckList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
-            for (ReadCheck readCheck : CheckList) {
-                log.info("readcheck member: {}",readCheck.getChatMember().getMember().getNickname());
+            // 로그인 한 회원이 메세지 읽었는지 검증
+            Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+            if (validateMember == null) {           // 안읽은 회원일 경우
+                chatMessage.addNumOfRead();
+                automatedChatService.createReadCheck(chatMember, chatMessage);
             }
 
-
-            // 읽은 회원 인지 아닌지 검증
-//            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
-//            List<ReadCheck> readCheckList = readCheckRepository.findAllChatMemberByChatMessageId(chatMessage.getId());
-//            log.info("list class : {}",String.valueOf(readCheckList.getClass()));
-//            for (ReadCheck readCheck : readCheckList) {
-//                log.info("for 문 member class : {}", readCheck.getChatMember().getMember().getClass());
-//                log.info("for문 bool : {}", readCheck.getChatMember().getMember().getNickname().equals(member.getNickname()));
-//                log.info("for 문 bool2 : {}", readCheck.getChatMember().getMember().equals(member));
-//                log.info("for member nickname : {}", member.getNickname());
-//                log.info("for member1 nickname : {}", readCheck.getChatMember().getMember().getNickname());
-//            }
-
-
-//
-//            checkMemberList.forEach((m) -> {
-//                if (!m.equals(member)) {
-//                    log.info(m.getNickname());
-//                    log.info("add Num Of Read");
-//                    chatMessage.addNumOfRead();
-//                    automatedChatService.createReadCheck(chatMember, chatMessage);
-//                }
-//            });
-//            if (!checkMemberList.contains(member)) {
-//                log.info("addNumOfRead");
-//                chatMessage.addNumOfRead();
-//                automatedChatService.createReadCheck(chatMember, chatMessage);
-//            }
         }
 
 
