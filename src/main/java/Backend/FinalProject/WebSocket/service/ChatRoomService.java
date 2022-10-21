@@ -211,8 +211,6 @@ public class ChatRoomService {
     private void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
         for (ChatMessage chatMessage : contentOfChat) {
             int total = chatMemberRepository.countOfAllMember(chatMessage.getChatRoom());
-            log.info("numOfTotal: {}",String.valueOf(total));
-            log.info("numOfRead : {}",String.valueOf(chatMessage.getNumOfRead()));
             chatMessageResponses.add(
                     ChatMessageResponse.builder()
                             .sender(chatMessage.getMember().getNickname())
