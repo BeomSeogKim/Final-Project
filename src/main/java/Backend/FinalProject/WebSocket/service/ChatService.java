@@ -69,15 +69,16 @@ public class ChatService {
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 E요일 - a hh:mm"));
 
         assert member != null;
-        ChatMessageDto chatMessageDto = makeMessage(message, member, now);
+
         if (message.getMessage() != null) {
-
-            // 메세지 송부
-            messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
-
-            // 보낸 메세지 저장
+            // 보낼 메세지 저장
             ChatMessage chatMessage = buildMessage(message, member, chatRoom, now);
             chatMessageRepository.save(chatMessage);
+
+            // 메세지 송부
+            ChatMessageDto chatMessageDto = makeMessage(message, member, now, chatMessage);
+            messageTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageDto);
+
 
             assert chatMember != null;
             automatedChatService.createReadCheck(chatMember, chatMessage);
@@ -98,8 +99,9 @@ public class ChatService {
         return ResponseDto.success("메세지 보내기 성공");
     }
 
-    private static ChatMessageDto makeMessage(ChatInformationDto message, Member member, String now) {
+    private static ChatMessageDto makeMessage(ChatInformationDto message, Member member, String now, ChatMessage chatMessage) {
         return ChatMessageDto.builder()
+                .messageId(chatMessage.getId())
                 .sender(member.getNickname())
                 .senderId(member.getUserId())
                 .imgUrl(member.getImgUrl())
