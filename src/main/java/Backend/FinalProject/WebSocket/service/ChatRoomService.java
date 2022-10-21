@@ -104,7 +104,7 @@ public class ChatRoomService {
 //            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
             List<Member> checkMemberList = readCheckRepository.findAllChatMemberByChatMessageId(chatMessage.getId());
             checkMemberList.forEach((m) -> {
-                if (m.equals(member)) {
+                if (!m.equals(member)) {
                     log.info(m.getNickname());
                     log.info("add Num Of Read");
                     chatMessage.addNumOfRead();
