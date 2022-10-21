@@ -5,6 +5,7 @@ import Backend.FinalProject.WebSocket.ChatRoomDto;
 import Backend.FinalProject.WebSocket.domain.*;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageInfoDto;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageResponse;
+import Backend.FinalProject.WebSocket.domain.dtos.ChatRequestDto;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatRoomListDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
@@ -148,7 +149,8 @@ public class ChatRoomService {
         return ResponseDto.success(chatRoomDtoList);
     }
 
-    public synchronized ResponseDto<?> readMessage(Long messageId, HttpServletRequest httpServletRequest) {
+    public synchronized ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
+        Long messageId = chatRequestDto.getMessageId();
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
         if (!validateToken.isSuccess())
             return validateToken;
