@@ -59,4 +59,11 @@ public class ChatRoomController {
                                             HttpServletRequest httpServletRequest) {
         return chatRoomService.getRoomMemberInfo(roomId, httpServletRequest);
     }
+
+    @PostMapping("/chat/read")
+    public ResponseDto<?> checktest(Long messageId, HttpServletRequest httpServletRequest) {
+
+        return chatRoomService.readMessage(messageId, httpServletRequest);
+
+    }
 }

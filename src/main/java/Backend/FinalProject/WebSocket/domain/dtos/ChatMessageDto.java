@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ChatMessageDto {
-
+    private Long messageId;
     private String sender;
     private String message;
     private String sendTime;
