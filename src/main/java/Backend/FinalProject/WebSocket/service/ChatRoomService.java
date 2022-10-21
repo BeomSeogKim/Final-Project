@@ -103,12 +103,19 @@ public class ChatRoomService {
             // 읽은 회원 인지 아닌지 검증
 //            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
             List<Member> checkMemberList = readCheckRepository.findAllChatMemberByChatMessageId(chatMessage.getId());
-
-            if (!checkMemberList.contains(member)) {
-                log.info("addNumOfRead");
-                chatMessage.addNumOfRead();
-                automatedChatService.createReadCheck(chatMember, chatMessage);
-            }
+            checkMemberList.forEach((m) -> {
+                if (m.equals(member)) {
+                    log.info(m.getNickname());
+                    log.info("add Num Of Read");
+                    chatMessage.addNumOfRead();
+                    automatedChatService.createReadCheck(chatMember, chatMessage);
+                }
+            });
+//            if (!checkMemberList.contains(member)) {
+//                log.info("addNumOfRead");
+//                chatMessage.addNumOfRead();
+//                automatedChatService.createReadCheck(chatMember, chatMessage);
+//            }
         }
 
 
