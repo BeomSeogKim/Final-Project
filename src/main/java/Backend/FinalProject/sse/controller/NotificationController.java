@@ -3,6 +3,7 @@ package Backend.FinalProject.sse.controller;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.sse.dto.NotificationChatCountDto;
 import Backend.FinalProject.sse.dto.NotificationCountDto;
 import Backend.FinalProject.sse.dto.NotificationDto;
 import Backend.FinalProject.sse.service.NotificationService;
@@ -76,6 +77,12 @@ public class NotificationController {
         Member member = (Member) responseDto.getData();
 
         return notificationService.countUnReadNotifications(member.getId());
+    }
+
+    // 채팅 관련 읽지 않은 메세지 확인
+    @GetMapping("/notifications/chat")
+    public NotificationChatCountDto countUnReadChatNotifications(HttpServletRequest httpServletRequest) {
+        return notificationService.checkUnReadNotifications(httpServletRequest);
     }
 
     //알림 전체 삭제

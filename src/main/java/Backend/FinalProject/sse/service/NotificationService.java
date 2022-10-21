@@ -1,16 +1,19 @@
 package Backend.FinalProject.sse.service;
 
 import Backend.FinalProject.Tool.Validation;
+import Backend.FinalProject.WebSocket.domain.ChatMember;
+import Backend.FinalProject.WebSocket.domain.ChatMessage;
+import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
+import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
+import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
+import Backend.FinalProject.WebSocket.repository.ReadCheckRepository;
 import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationContent;
 import Backend.FinalProject.sse.domain.NotificationType;
 import Backend.FinalProject.sse.domain.RelatedUrl;
-import Backend.FinalProject.sse.dto.NotificationChatDto;
-import Backend.FinalProject.sse.dto.NotificationCountDto;
-import Backend.FinalProject.sse.dto.NotificationDto;
-import Backend.FinalProject.sse.dto.StatusResponseDto;
+import Backend.FinalProject.sse.dto.*;
 import Backend.FinalProject.sse.repository.EmitterRepository;
 import Backend.FinalProject.sse.repository.EmitterRepositoryImpl;
 import Backend.FinalProject.sse.repository.NotificationRepository;
@@ -30,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static Backend.FinalProject.sse.domain.NotificationType.*;
+import static Backend.FinalProject.sse.domain.NotificationType.CHAT;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +42,10 @@ import static Backend.FinalProject.sse.domain.NotificationType.*;
 public class NotificationService {
 
     private final EmitterRepository emitterRepository = new EmitterRepositoryImpl();
-
+    private final ChatMemberRepository chatMemberRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ReadCheckRepository readCheckRepository;
     private final NotificationRepository notificationRepository;
     private final Validation validation;
 
@@ -49,7 +55,7 @@ public class NotificationService {
         String emitterId = memberId + "_" + System.currentTimeMillis();
 
         // 1시간 설정
-        Long timeout = 1000L * 60  * 60 ;
+        Long timeout = 1000L * 60 * 60;
 
         // 생성된 emitterId 를 기반으로 emitter 를 저장
         SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(timeout));
@@ -90,8 +96,7 @@ public class NotificationService {
                         sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
                     }
             );
-        }
-        else{
+        } else {
             emitters.forEach(
                     (key, emitter) -> {
                         emitterRepository.saveEventCache(key, notification);
@@ -161,7 +166,7 @@ public class NotificationService {
         List<Notification> notifications = notificationRepository.findAllByUserId(userId);
         try {
             return notifications.stream()
-                    .filter(notification ->!notification.getNotificationType().equals(CHAT))
+                    .filter(notification -> !notification.getNotificationType().equals(CHAT))
                     .map(NotificationDto::create)
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -181,13 +186,14 @@ public class NotificationService {
                 .count(count)
                 .build();
     }
+
     @Transactional
     public ResponseEntity<Object> deleteAllByNotifications(Member member) {
         Long receiverId = member.getId();
         try {
             notificationRepository.deleteAllByMemberId(receiverId);
             return new ResponseEntity<>(new StatusResponseDto("알림 목록 전체삭제 성공", true), HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Error();
         }
 
@@ -195,17 +201,31 @@ public class NotificationService {
 
     @Transactional
     public ResponseEntity<Object> deleteByNotifications(Long notificationId) {
-        try{
+        try {
             Optional<Notification> notification = notificationRepository.findById(notificationId);
-            if(notification.isPresent()){
+            if (notification.isPresent()) {
                 notificationRepository.deleteById(notificationId);
                 return new ResponseEntity<>(new StatusResponseDto("알림 삭제 완료", true), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(new StatusResponseDto("존재하지 않는 알림입니다",false ), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new StatusResponseDto("존재하지 않는 알림입니다", false), HttpStatus.BAD_REQUEST);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Error();
         }
     }
 
+    public NotificationChatCountDto checkUnReadNotifications(HttpServletRequest httpServletRequest) {
+        // 토큰 유효성 검사
+        ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
+        Member member = (Member) responseDto.getData();
+        List<ChatMember> all = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
+            List<ChatMessage> chatMessageList = chatMessageRepository.findAllByMember(member);
+            for (ChatMessage chatMessage : chatMessageList) {
+                Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+                if (validateMember == null) {
+                    return NotificationChatCountDto.builder().unreadMessage(true).build();
+                }
+            }
+        return NotificationChatCountDto.builder().unreadMessage(false).build();
+    }
 }
