@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
 
 
 @RequiredArgsConstructor
@@ -30,12 +29,4 @@ public class ChatController {
         return chatService.sendMessage(message, accessToken);
     }
 
-    @PostMapping("/test")
-    public ResponseDto<?> checktest() {
-
-        log.info("test 성공");
-
-
-        return ResponseDto.success("테스트 성공");
-    }
 }

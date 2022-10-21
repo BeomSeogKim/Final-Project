@@ -148,6 +148,30 @@ public class ChatRoomService {
         return ResponseDto.success(chatRoomDtoList);
     }
 
+    public synchronized ResponseDto<?> readMessage(Long messageId, HttpServletRequest httpServletRequest) {
+        ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
+        if (!validateToken.isSuccess())
+            return validateToken;
+
+        Member member = memberRepository.findById(((Member) validateToken.getData()).getId()).orElse(null);
+        assert member != null;
+        ChatMessage chatMessage = chatMessageRepository.findById(messageId).orElse(null);
+        if (chatMessage == null) {
+            return ResponseDto.fail("NEED RELOAD", "다시 접속 부탁드립니다.");
+        }
+        ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatMessage.getChatRoom()).orElse(null);
+        if (chatMember == null) {
+            return ResponseDto.fail("INVALID ACCESS", "잘못된 접근입니다.");
+        }
+
+        Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+        if (validateMember == null) {
+            chatMessage.addNumOfRead();
+            automatedChatService.createReadCheck(chatMember, chatMessage);
+        }
+        return ResponseDto.success("조회 성공");
+    }
+
     private  void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
         for (ChatMember chat : chatList) {
             String address;
