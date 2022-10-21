@@ -77,8 +77,12 @@ public class AutomatedChatService {
     @Transactional
     public ReadCheck createReadCheck(ChatMember chatMember, ChatMessage chatMessage) {
         log.info("게시글 멤버 저장 ");
+//        ReadCheck readCheck = ReadCheck.builder()
+//                .id(chatMessage.getId())
+//                .chatMessage(chatMessage)
+//                .chatMember(chatMember)
+//                .build();
         ReadCheck readCheck = ReadCheck.builder()
-                .id(chatMessage.getId())
                 .chatMessage(chatMessage)
                 .chatMember(chatMember)
                 .build();
