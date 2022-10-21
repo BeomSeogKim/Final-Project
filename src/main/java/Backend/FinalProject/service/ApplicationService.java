@@ -53,6 +53,7 @@ public class ApplicationService {
      * @param applicationContent : 참여 신청 메세지
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional
     public ResponseDto<?> submitApplication(Long postId, ApplicationRequestDto applicationContent, HttpServletRequest httpServletRequest) throws Exception {
 
         // 토큰 유효성 검사
