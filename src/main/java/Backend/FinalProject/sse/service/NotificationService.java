@@ -161,6 +161,7 @@ public class NotificationService {
         List<Notification> notifications = notificationRepository.findAllByUserId(userId);
         try {
             return notifications.stream()
+                    .filter(notification ->!notification.getNotificationType().equals(CHAT))
                     .map(NotificationDto::create)
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -175,7 +176,7 @@ public class NotificationService {
 
     public NotificationCountDto countUnReadNotifications(Long userId) {
         //유저의 알람리스트에서 ->isRead(false)인 갯수를 측정 ,
-        Long count = notificationRepository.countUnReadNotifications(userId);
+        Long count = notificationRepository.countUnReadNotifications(userId, CHAT);
         return NotificationCountDto.builder()
                 .count(count)
                 .build();
