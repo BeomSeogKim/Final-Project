@@ -16,6 +16,7 @@ public class ChatRoomListDto {
     private Long roomId;
     private String name;
     private int numOfMember;
+    private int numOfUnread;
     private LocalDate dDay;
     private String address;
 }

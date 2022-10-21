@@ -137,7 +137,8 @@ public class ChatRoomService {
 
         List<ChatMember> chatList = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
 
-        handleBoolean(chatList.isEmpty(), CHATROOM_NO_ACTIVEROOM);
+        ResponseDto<Object> checkActiveRoom = handleBoolean(chatList.isEmpty(), CHATROOM_NO_ACTIVEROOM);
+        if (checkActiveRoom != null) return checkActiveRoom;
 //        if (chatList.isEmpty()) {
 //            return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
 //        }
@@ -147,7 +148,7 @@ public class ChatRoomService {
         return ResponseDto.success(chatRoomDtoList);
     }
 
-    private static void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
+    private  void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
         for (ChatMember chat : chatList) {
             String address;
             if (chat.getChatRoom().getPost().getDetailAddress().equals("undefined") ||
@@ -157,11 +158,21 @@ public class ChatRoomService {
                 address = chat.getChatRoom().getPost().getAddress() + " "
                         + chat.getChatRoom().getPost().getDetailAddress();
             }
+            int count = 0;
+            List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(chat.getChatRoom().getId());
+            for (ChatMessage chatMessage : messageList) {
+
+                Member readCheck = readCheckRepository.validateReadMember(chatMessage, chat.getMember()).orElse(null);
+                if (readCheck == null) {
+                    count++;
+                }
+            }
             chatRoomDtoList.add(
                     ChatRoomListDto.builder()
                             .roomId(chat.getChatRoom().getId())
                             .name(chat.getChatRoom().getName())
                             .numOfMember(chat.getChatRoom().getNumOfMember())
+                            .numOfUnread(count)
                             .dDay(chat.getChatRoom().getPost().getDDay())
                             .address(address)
                             .build()
@@ -197,8 +208,11 @@ public class ChatRoomService {
                 .build());
     }
 
-    private static void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
+    private void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
         for (ChatMessage chatMessage : contentOfChat) {
+            int total = chatMemberRepository.countOfAllMember(chatMessage.getChatRoom());
+            log.info("numOfTotal: {}",String.valueOf(total));
+            log.info("numOfRead : {}",String.valueOf(chatMessage.getNumOfRead()));
             chatMessageResponses.add(
                     ChatMessageResponse.builder()
                             .sender(chatMessage.getMember().getNickname())
@@ -206,6 +220,7 @@ public class ChatRoomService {
                             .message(chatMessage.getMessage())
                             .sendTime(chatMessage.getSendTime())
                             .img(chatMessage.getMember().getImgUrl())
+                            .numOfUnread(total - chatMessage.getNumOfRead())
                             .build()
             );
         }

@@ -13,4 +13,5 @@ public class ChatMessageResponse {
     private String message;
     private String sendTime;
     private String img;
+    private int numOfUnread;
 }
