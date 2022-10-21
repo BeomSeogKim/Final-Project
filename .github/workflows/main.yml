@@ -14,8 +14,8 @@ on:
 env:
   PROJECT_NAME: Final_Project
   BUCKET_NAME: tommy-bucket-final
-  CODE_DEPLOY_APP_NAME: final-backend
-  DEPLOYMENT_GROUP_NAME: final-backend-group
+  CODE_DEPLOY_APP_NAME: real-server
+  DEPLOYMENT_GROUP_NAME: real-server-group
   
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
