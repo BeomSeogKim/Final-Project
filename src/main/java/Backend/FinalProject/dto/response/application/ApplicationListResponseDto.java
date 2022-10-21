@@ -17,4 +17,5 @@ public class ApplicationListResponseDto {
     private String content;
     private Long applicationId;
     private Long postId;
+    private Long applicationMemberId;
 }

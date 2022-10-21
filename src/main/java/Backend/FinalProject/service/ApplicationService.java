@@ -255,6 +255,7 @@ public class ApplicationService {
                             .state(application.getStatus())
                             .postId(application.getPost().getId())
                             .content(application.getContent())
+                            .applicationMemberId(application.getMember().getId())
                             .build()
             );
 
