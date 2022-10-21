@@ -3,6 +3,7 @@ package Backend.FinalProject.WebSocket.repository;
 
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
+import Backend.FinalProject.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     void deleteAllByChatRoom(ChatRoom chatRoom);
 
     List<ChatMessage> findAllByChatRoomId(Long roomId);
+
+    List<ChatMessage> findAllByMember(Member member);
 
     @Modifying
     @Query(value = "update ChatMessage c set c.numOfRead = c.numOfRead +1 where c.modifiedAt <= :modifiedAt and c.chatRoom = :chatRoom")

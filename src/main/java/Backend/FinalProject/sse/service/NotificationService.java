@@ -3,7 +3,6 @@ package Backend.FinalProject.sse.service;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
-import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
@@ -34,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static Backend.FinalProject.sse.domain.NotificationType.*;
+import static Backend.FinalProject.sse.domain.NotificationType.CHAT;
 
 @Service
 @RequiredArgsConstructor
@@ -220,17 +219,13 @@ public class NotificationService {
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
         Member member = (Member) responseDto.getData();
         List<ChatMember> all = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
-        for (ChatMember chatMember : all) {
-            List<ChatRoom> chatRoomList = chatRoomRepository.findAllByChatMember(chatMember);
-            for (ChatRoom chatRoom : chatRoomList) {
-                List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(chatRoom.getId());
-                for (ChatMessage chatMessage : chatMessageList) {
-                    Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
-                    if (validateMember == null) return NotificationChatCountDto.builder().unreadMessage(true).build();
+            List<ChatMessage> chatMessageList = chatMessageRepository.findAllByMember(member);
+            for (ChatMessage chatMessage : chatMessageList) {
+                Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+                if (validateMember == null) {
+                    return NotificationChatCountDto.builder().unreadMessage(true).build();
                 }
             }
-
-        }
         return NotificationChatCountDto.builder().unreadMessage(false).build();
     }
 }
