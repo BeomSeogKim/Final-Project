@@ -47,6 +47,7 @@ public class CommentService {
                                 .memberNickname(comment.getMember().getNickname())
                                 .content(comment.getContent())
                                 .memberId(comment.getMember().getUserId())
+                                .commentMemberId(comment.getMember().getId())
                                 .build()
                 );
             }
