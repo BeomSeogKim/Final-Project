@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +45,7 @@ public class ChatService {
 
 
     // 채팅방으로 메세지 보내기
+    @Transactional
     public ResponseDto<?> sendMessage(ChatInformationDto message, String token) {
         // 토큰으로 유저 찾기
         String nickname = tokenProvider.getUserIdByToken(token);        // 닉네임이 받아와짐
@@ -83,9 +85,6 @@ public class ChatService {
             assert chatRoom != null;
             chatRoom.updateTime(LocalDateTime.now());
             List<ChatMember> chatMemberList = chatMemberRepository.findAllByChatRoomId(chatRoom.getId());
-            for (ChatMember chatMember1 : chatMemberList) {
-
-            }
 
             chatMemberList.forEach((c) -> {
                 try {

@@ -13,6 +13,7 @@ import Backend.FinalProject.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class MyActService {
     private final PostRepository postRepository;
     private final Validation validation;
 
-
+    @Transactional(readOnly = true)
     public ResponseDto<?> getApplicantList(HttpServletRequest request) {
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
 
@@ -61,6 +62,7 @@ public class MyActService {
         return ResponseDto.success(applicants);
     }
 
+    @Transactional(readOnly = true)
     public ResponseDto<?> getApplicationList(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -36,6 +37,6 @@ public class PostRequestDto {
     private String placeName;
     private String detailAddress;
     private String category;
-
+    @Nullable
     private MultipartFile imgFile;
 }

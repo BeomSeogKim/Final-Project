@@ -93,7 +93,7 @@ public class PostService{
         }
         Member member = (Member) responseDto.getData();
 
-        MultipartFile imgFile = request.getImgFile();
+
 
         ResponseDto<Object> nullCheck = checkNullAndEmpty(request);
         if (nullCheck != null) return nullCheck;
@@ -125,7 +125,7 @@ public class PostService{
 
 
 //        String imgUrl = baseImageEtc;
-        String imgUrl = uploadImage(request, imgFile);
+        String imgUrl = uploadImage(request);
         Category category = setCategory(request);
         Post post = buildPost(request, member, imgUrl, startDate, endDate, dDay, category);
         postRepository.save(post);
@@ -487,7 +487,8 @@ public class PostService{
         return null;
     }
 
-    private String uploadImage(PostRequestDto request, MultipartFile imgFile) {
+    private String uploadImage(PostRequestDto request) {
+        MultipartFile imgFile = request.getImgFile();
         String imgUrl = ETC.getUrl();
         // 이미지 업로드 관련 로직
         if (imgFile == null || imgFile.isEmpty()) {

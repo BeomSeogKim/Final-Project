@@ -16,6 +16,7 @@ import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.service.AutomatedChatService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,7 +34,7 @@ import static Backend.FinalProject.domain.enums.ErrorCode.CHATROOM_NO_ACTIVEROOM
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
-@Transactional(readOnly = true)
+@Slf4j
 @RequiredArgsConstructor
 public class ChatRoomService {
 
@@ -51,6 +52,7 @@ public class ChatRoomService {
      * @param roomId : 채팅방 아이디
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional(readOnly = true)
     public ResponseDto<?> getRoomInfo(Long roomId, HttpServletRequest httpServletRequest) {
 
         // Token 검증
@@ -72,6 +74,7 @@ public class ChatRoomService {
      * @param pageNum : 페이지 수
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional
     public ResponseDto<?> getMessageList(Long roomId, Integer pageNum, HttpServletRequest httpServletRequest) {
         ResponseDto<?> resultOfValidation = validation.checkAccessToken(httpServletRequest);
         if (!resultOfValidation.isSuccess())
@@ -90,19 +93,21 @@ public class ChatRoomService {
 
         // TODO orElse 수정
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
-        handleNull(chatMember, ErrorCode.CHATROOM_NO_CHATMEMBER);
+        ResponseDto<Object> checkMember = handleNull(chatMember, ErrorCode.CHATROOM_NO_CHATMEMBER);
+        if (checkMember!=null) return checkMember;
 //        if (chatMember == null) {
 //            return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
 //        }
         // 채팅 메세지 읽음 조회
         List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(roomId);
         for (ChatMessage chatMessage : chatMessageList) {
-            // 읽은 회원 인지 아닌지 검증
-            List<ReadCheck> checkMemberList = readCheckRepository.findAllByChatMessageId(chatMessage.getId());
-            if (!checkMemberList.contains(member)) {
+            // 로그인 한 회원이 메세지 읽었는지 검증
+            Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+            if (validateMember == null) {           // 안읽은 회원일 경우
                 chatMessage.addNumOfRead();
                 automatedChatService.createReadCheck(chatMember, chatMessage);
             }
+
         }
 
 
@@ -121,6 +126,7 @@ public class ChatRoomService {
      * 채팅방 목록 조회
      * @param httpServletRequest : HttpServlet Request
      */
+    @Transactional(readOnly = true)
     public ResponseDto<?> getRoomList(HttpServletRequest httpServletRequest) {
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
         if (!validateToken.isSuccess())
@@ -131,7 +137,8 @@ public class ChatRoomService {
 
         List<ChatMember> chatList = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
 
-        handleBoolean(chatList.isEmpty(), CHATROOM_NO_ACTIVEROOM);
+        ResponseDto<Object> checkActiveRoom = handleBoolean(chatList.isEmpty(), CHATROOM_NO_ACTIVEROOM);
+        if (checkActiveRoom != null) return checkActiveRoom;
 //        if (chatList.isEmpty()) {
 //            return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
 //        }
@@ -141,7 +148,7 @@ public class ChatRoomService {
         return ResponseDto.success(chatRoomDtoList);
     }
 
-    private static void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
+    private  void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
         for (ChatMember chat : chatList) {
             String address;
             if (chat.getChatRoom().getPost().getDetailAddress().equals("undefined") ||
@@ -151,11 +158,21 @@ public class ChatRoomService {
                 address = chat.getChatRoom().getPost().getAddress() + " "
                         + chat.getChatRoom().getPost().getDetailAddress();
             }
+            int count = 0;
+            List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(chat.getChatRoom().getId());
+            for (ChatMessage chatMessage : messageList) {
+
+                Member readCheck = readCheckRepository.validateReadMember(chatMessage, chat.getMember()).orElse(null);
+                if (readCheck == null) {
+                    count++;
+                }
+            }
             chatRoomDtoList.add(
                     ChatRoomListDto.builder()
                             .roomId(chat.getChatRoom().getId())
                             .name(chat.getChatRoom().getName())
                             .numOfMember(chat.getChatRoom().getNumOfMember())
+                            .numOfUnread(count)
                             .dDay(chat.getChatRoom().getPost().getDDay())
                             .address(address)
                             .build()
@@ -163,6 +180,7 @@ public class ChatRoomService {
         }
     }
 
+    @Transactional
     public ResponseDto<?> getRoomMemberInfo(Long roomId, HttpServletRequest request) {
         ChatRoom validation = chatRoomRepository.findById(roomId).orElse(null);
         if (validation == null) {
@@ -190,8 +208,9 @@ public class ChatRoomService {
                 .build());
     }
 
-    private static void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
+    private void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
         for (ChatMessage chatMessage : contentOfChat) {
+            int total = chatMemberRepository.countOfAllMember(chatMessage.getChatRoom());
             chatMessageResponses.add(
                     ChatMessageResponse.builder()
                             .sender(chatMessage.getMember().getNickname())
@@ -199,6 +218,7 @@ public class ChatRoomService {
                             .message(chatMessage.getMessage())
                             .sendTime(chatMessage.getSendTime())
                             .img(chatMessage.getMember().getImgUrl())
+                            .numOfUnread(total - chatMessage.getNumOfRead())
                             .build()
             );
         }
@@ -217,7 +237,8 @@ public class ChatRoomService {
                 .build();
     }
 
-    private static void getMemberInformation(List<ChatMemberResponseDto> chatMemberInfo, List<ChatMember> chatMemberList, ChatRoom chatRoom) {
+    @Transactional
+    void getMemberInformation(List<ChatMemberResponseDto> chatMemberInfo, List<ChatMember> chatMemberList, ChatRoom chatRoom) {
         for (ChatMember chatMember : chatMemberList) {
             boolean isLeader;
             assert chatRoom != null;

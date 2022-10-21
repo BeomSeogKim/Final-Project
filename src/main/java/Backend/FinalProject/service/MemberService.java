@@ -421,14 +421,10 @@ public class MemberService {
                 return ResponseDto.fail("INCORRECT ACESSTOKEN", "Access Token 값이 유효하지 않습니다.");
             }
             Member member = memberRepository.findByNickname(memberId).orElse(null);
-            log.info("AccessToken : {} " ,request.getHeader("Authorization"));
-            log.info("RefreshToken : {}", request.getHeader("RefreshToken"));
 
             RefreshToken refreshToken = tokenProvider.isPresentRefreshToken(member);
             if (refreshToken == null) return ResponseDto.fail("NEED LOGIN", "재 로그인 부탁드립니다.");
 
-            log.info("비교값 1 : {}",refreshToken.getKeyValue());
-            log.info("비교값 2 : {}",request.getHeader("RefreshToken"));
             if (!refreshToken.getKeyValue().equals(request.getHeader("RefreshToken"))) {
                 return ResponseDto.fail("INVALID REFRESH TOKEN", "토큰이 일치하지 않습니다.");
             }
@@ -447,7 +443,6 @@ public class MemberService {
     public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
-        log.info("tokenToHeaders : {}" ,tokenDto.getRefreshToken());
     }
 
 }

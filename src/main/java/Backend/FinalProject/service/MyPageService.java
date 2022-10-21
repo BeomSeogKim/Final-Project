@@ -123,6 +123,7 @@ public class MyPageService {
 
 
     // 내가 주최한 모임 조회
+    @Transactional(readOnly = true)
     public ResponseDto<?> getPostLedByMe(HttpServletRequest request) {
 
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
@@ -140,7 +141,7 @@ public class MyPageService {
 
         List<MyPageDto> postList = new ArrayList<>();
         for (Post post : postListById) {
-            if (post.getMember().equals(member.getId())) {
+            if (post.getMember().equals(member)) {
                 postList.add(
                         MyPageDto.builder()
                                 .postId(post.getId())
