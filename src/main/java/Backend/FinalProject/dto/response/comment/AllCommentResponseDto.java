@@ -15,4 +15,5 @@ public class AllCommentResponseDto {
     private String memberNickname;
     private String content;
     private String memberId;
+    private Long commentMemberId;
 }
