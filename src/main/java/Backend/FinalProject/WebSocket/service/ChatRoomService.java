@@ -149,7 +149,7 @@ public class ChatRoomService {
         return ResponseDto.success(chatRoomDtoList);
     }
     @Transactional
-    public synchronized ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
+    public  ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
         Long messageId = chatRequestDto.getMessageId();
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
         if (!validateToken.isSuccess())
