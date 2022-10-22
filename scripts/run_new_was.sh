@@ -37,6 +37,6 @@ fi
 
 echo "$TIME_NOW > $JAR_FILE 파일 실행" >> $DEPLOY_LOG
 nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ec2-user/app/application-aws.properties \
-                -Dserver.port=${TARGET_PORT} $JAR_FILE > "$APP_LOG/${TARGET_PORT}" 2> $ERROR_LOG &
+                -Dserver.port=${TARGET_PORT} $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
 echo "> Now new WAS runs at ${TARGET_PORT}."
 exit 0
