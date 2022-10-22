@@ -88,29 +88,27 @@ public class NotificationService {
         String receiverId = String.valueOf(receiver.getId());
         String eventId = receiverId + "_" + System.currentTimeMillis();
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(receiverId);
-//        if (notificationType.equals(CHAT)) {
-//            emitters.forEach(
-//                    (key, emitter) -> {
-//                        log.info("Chat Emitter Send");
-//                        emitterRepository.saveEventCache(key, notification);
-//                        sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
-//                    }
-//            );
-//        } else {
-//            emitters.forEach(
-//                    (key, emitter) -> {
-//                        log.info("ETC Emitter Send");
-//                        emitterRepository.saveEventCache(key, notification);
-//                        sendNotification(emitter, eventId, key, NotificationDto.create(notification));
-//                    }
-//            );
-//        }
-        emitters.forEach(
-                (key, emitter) -> {
-                    emitterRepository.saveEventCache(key, notification);
-                    sendNotification(emitter, eventId, key, NotificationDto.create(notification));
-                }
-        );
+        if (notificationType.equals(CHAT)) {
+            emitters.forEach(
+                    (key, emitter) -> {
+                        emitterRepository.saveEventCache(key, notification);
+                        sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
+                    }
+            );
+        } else {
+            emitters.forEach(
+                    (key, emitter) -> {
+                        emitterRepository.saveEventCache(key, notification);
+                        sendNotification(emitter, eventId, key, NotificationDto.create(notification));
+                    }
+            );
+        }
+//        emitters.forEach(
+//                (key, emitter) -> {
+//                    emitterRepository.saveEventCache(key, notification);
+//                    sendNotification(emitter, eventId, key, NotificationDto.create(notification));
+//                }
+//        );
 
 
     }
@@ -130,13 +128,10 @@ public class NotificationService {
     // 유효시간이 다 지난다면 503 에러가 발생하기 때문에 더미데이터를 발행
 
     private void sendNotification(SseEmitter emitter, String eventId, String emitterId, Object data) {
-        log.info("전송 시작");
-        log.info(emitter.toString());
         try {
             emitter.send(SseEmitter.event()
                     .id(eventId)
                     .data(data));
-            log.info(String.valueOf(SseEmitter.event().id(eventId).data(data)));
         } catch (IOException exception) {
             emitterRepository.deleteById(emitterId);
         }
