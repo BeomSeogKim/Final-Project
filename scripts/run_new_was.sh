@@ -2,10 +2,10 @@
 
 #!/bin/bash
 
-CURRENT_PORT=$(cat /home/ubuntu/service_url.inc | grep -Po '[0-9]+' | tail -1)
+CURRENT_PORT=$(cat /home/ec2-user/service_url.inc | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
-PROJECT_ROOT="/home/ubuntu/app2"
+PROJECT_ROOT="/home/ec2-user/app"
 JAR_FILE="$PROJECT_ROOT/spring-app.jar"
 
 APP_LOG="$PROJECT_ROOT/application.log"
@@ -36,7 +36,7 @@ if [ ! -z ${TARGET_PID} ]; then
 fi
 
 echo "$TIME_NOW > $JAR_FILE 파일 실행" >> $DEPLOY_LOG
-nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ubuntu/app2/application-aws.properties \
+nohup java -jar -Dspring.config.location=classpath:application.properties,/home/ec2-user/app/application-aws.properties \
                 -Dserver.port=${TARGET_PORT} $JAR_FILE > $APP_LOG 2> $ERROR_LOG &
 echo "> Now new WAS runs at ${TARGET_PORT}."
 exit 0
