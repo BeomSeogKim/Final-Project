@@ -1,22 +1,27 @@
+# appspec.yml
+
 version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu/app2/
+    destination: /home/ec2-user/app/
     overwrite: yes
 
 permissions:
   - object: /
     pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+    owner: ec2-user
+    group: ec2-user
 
+### 새로 추가한 부분 ###
 hooks:
-  AfterInstall:
-    - location: scripts/stop.sh
-      timeout: 60
-      runas: ubuntu
   ApplicationStart:
-    - location: scripts/start.sh
-      timeout: 60
-      runas: ubuntu
+    - location: scripts/run_new_was.sh
+      timeout: 180
+      runas: ec2-user
+    - location: scripts/health_check.sh
+      timeout: 180
+      runas: ec2-user
+    - location: scripts/switch.sh
+      timeout: 180
+      runas: ec2-user

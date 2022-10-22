@@ -38,7 +38,6 @@ import static Backend.FinalProject.sse.domain.NotificationType.CHAT;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
 public class NotificationService {
 
     private final EmitterRepository emitterRepository = new EmitterRepositoryImpl();
@@ -92,7 +91,6 @@ public class NotificationService {
         if (notificationType.equals(CHAT)) {
             emitters.forEach(
                     (key, emitter) -> {
-                        log.info("Chat Emitter Send");
                         emitterRepository.saveEventCache(key, notification);
                         sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
                     }
@@ -100,7 +98,6 @@ public class NotificationService {
         } else {
             emitters.forEach(
                     (key, emitter) -> {
-                        log.info("ETC Emitter Send");
                         emitterRepository.saveEventCache(key, notification);
                         sendNotification(emitter, eventId, key, NotificationDto.create(notification));
                     }
@@ -180,7 +177,7 @@ public class NotificationService {
             }
         }
     }
-
+    @Transactional(readOnly = true)
     public NotificationCountDto countUnReadNotifications(Long userId) {
         //유저의 알람리스트에서 ->isRead(false)인 갯수를 측정 ,
         Long count = notificationRepository.countUnReadNotifications(userId, CHAT);
@@ -215,7 +212,7 @@ public class NotificationService {
             throw new Error();
         }
     }
-
+    @Transactional(readOnly = true)
     public NotificationChatCountDto checkUnReadNotifications(HttpServletRequest httpServletRequest) {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);

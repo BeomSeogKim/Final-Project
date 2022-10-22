@@ -18,7 +18,9 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findById(Long id);
     List<Post> findAllByMemberId(Long memberId);
-    Page<Post> findAllByOrderByModifiedAtDesc(Pageable pageable);
+
+    @Query(value = "select p from Post p where p.regulation = :regulation and p.status =:status")
+    Page<Post> findAllByOrderByModifiedAtDesc(Pageable pageable, @Param("regulation") Regulation regulation, @Param("status") PostState postState);
 
     @Query(value = "select count(p) from Post p where p.regulation = :regulation or p.status =:status or p.status = :status2")
     long findAllHiddenPost(@Param("regulation") Regulation regulation, @Param("status") PostState postState, @Param("status2") PostState postState2);
