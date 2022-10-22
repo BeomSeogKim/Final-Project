@@ -149,13 +149,12 @@ public class PostService{
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
-        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest);
-        long count = postRepository.findAllHiddenPost(REGULATED, DONE, CLOSURE);
+        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest, UNREGULATED, RECRUIT);
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         List<Post> contentOfPost = pageOfPost.getContent();
         makeListOfPostDetail(PostResponseDtoList, contentOfPost);
-        return ResponseDto.success(makeListOfTotalPost(pageNum, pageOfPost, count, PostResponseDtoList));
+        return ResponseDto.success(makeListOfTotalPost(pageNum, pageOfPost, PostResponseDtoList));
     }
 
     /**
@@ -585,12 +584,12 @@ public class PostService{
         }
     }
 
-    private static PostResponseDtoPage makeListOfTotalPost(Integer pageNum, Page<Post> pageOfPost, long count, List<AllPostResponseDto> PostResponseDtoList) {
+    private static PostResponseDtoPage makeListOfTotalPost(Integer pageNum, Page<Post> pageOfPost, List<AllPostResponseDto> PostResponseDtoList) {
         return PostResponseDtoPage.builder()
                 .postList(PostResponseDtoList)
                 .totalPage(pageOfPost.getTotalPages() - 1)
                 .currentPage(pageNum)
-                .totalPost(pageOfPost.getTotalElements() - count)       // 현재 페이지에 보여야 하는 갯수로 카운트를 진행.
+                .totalPost(pageOfPost.getTotalElements())       // 현재 페이지에 보여야 하는 갯수로 카운트를 진행.
                 .isFirstPage(pageOfPost.isFirst())
                 .hasNextPage(pageOfPost.hasNext())
                 .hasPreviousPage(pageOfPost.hasPrevious())
