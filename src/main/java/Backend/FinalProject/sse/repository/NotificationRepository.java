@@ -1,5 +1,6 @@
 package Backend.FinalProject.sse.repository;
 
+import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     void deleteById(Long notificationId);
 
 //    void deleteAllByReceiverId(Long receiverId);
+
+    @Query(value = "select n from Notification n where n.url = :url and n.member = :member")
+    Notification findByUrlAndMember(@Param("url") String url, @Param("member") Member member);
 }

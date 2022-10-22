@@ -89,7 +89,11 @@ public class ChatService {
 
             chatMemberList.forEach((c) -> {
                 try {
-                    notificationService.send(c.getMember(), CHAT, "새로운 알림이 있습니다.", "testURL");
+                    if (c.getMember().getNickname() != chatMessage.getMember().getNickname()) {
+                        notificationService.send(c.getMember(), CHAT, "새로운 알림이 있습니다.", String.valueOf(chatMessage.getId()));
+                        log.info("ChatService Url 확인 : {}", String.valueOf(chatMessage.getId()));
+                    }
+//                    notificationService.send(c.getMember(), CHAT, "새로운 알림이 있습니다.", "testURL");
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
