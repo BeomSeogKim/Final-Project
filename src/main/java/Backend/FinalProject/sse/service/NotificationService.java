@@ -92,6 +92,7 @@ public class NotificationService {
         if (notificationType.equals(CHAT)) {
             emitters.forEach(
                     (key, emitter) -> {
+                        log.info("Chat Emitter Send");
                         emitterRepository.saveEventCache(key, notification);
                         sendNotification(emitter, eventId, key, NotificationChatDto.create(notification));
                     }
@@ -99,6 +100,7 @@ public class NotificationService {
         } else {
             emitters.forEach(
                     (key, emitter) -> {
+                        log.info("ETC Emitter Send");
                         emitterRepository.saveEventCache(key, notification);
                         sendNotification(emitter, eventId, key, NotificationDto.create(notification));
                     }
