@@ -62,7 +62,7 @@ public class ChatRoomController {
     }
 
     @PostMapping("/read")
-    public ResponseDto<?> checktest(@RequestBody ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> checktest(@RequestBody ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) throws Exception {
 
         return chatRoomService.readMessage(chatRequestDto, httpServletRequest);
 

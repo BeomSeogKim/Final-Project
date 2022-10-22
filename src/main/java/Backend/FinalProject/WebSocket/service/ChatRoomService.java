@@ -16,6 +16,8 @@ import Backend.FinalProject.domain.enums.ErrorCode;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.service.AutomatedChatService;
+import Backend.FinalProject.sse.repository.NotificationRepository;
+import Backend.FinalProject.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -47,6 +49,8 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final ReadCheckRepository readCheckRepository;
     private final AutomatedChatService automatedChatService;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
     /**
      * 방 정보 조회
@@ -149,7 +153,7 @@ public class ChatRoomService {
         return ResponseDto.success(chatRoomDtoList);
     }
     @Transactional
-    public  ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) {
+    public  ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) throws Exception {
         Long messageId = chatRequestDto.getMessageId();
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
         if (!validateToken.isSuccess())
@@ -170,6 +174,8 @@ public class ChatRoomService {
         if (validateMember == null) {
             chatMessage.addNumOfRead();
             automatedChatService.createReadCheck(chatMember, chatMessage);
+            log.info("readMessage Error 전 ");
+            notificationService.readNotification(notificationRepository.findByUrlAndMember(String.valueOf(chatMessage.getId()), member).getId(), httpServletRequest);
         }
         return ResponseDto.success("조회 성공");
     }
