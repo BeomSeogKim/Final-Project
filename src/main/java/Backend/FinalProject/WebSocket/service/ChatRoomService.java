@@ -2,7 +2,10 @@ package Backend.FinalProject.WebSocket.service;
 
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.ChatRoomDto;
-import Backend.FinalProject.WebSocket.domain.*;
+import Backend.FinalProject.WebSocket.domain.ChatMember;
+import Backend.FinalProject.WebSocket.domain.ChatMemberResponseDto;
+import Backend.FinalProject.WebSocket.domain.ChatMessage;
+import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageInfoDto;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageResponse;
 import Backend.FinalProject.WebSocket.domain.dtos.ChatRequestDto;
@@ -16,6 +19,7 @@ import Backend.FinalProject.domain.enums.ErrorCode;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.repository.MemberRepository;
 import Backend.FinalProject.service.AutomatedChatService;
+import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.repository.NotificationRepository;
 import Backend.FinalProject.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +58,8 @@ public class ChatRoomService {
 
     /**
      * 방 정보 조회
-     * @param roomId : 채팅방 아이디
+     *
+     * @param roomId             : 채팅방 아이디
      * @param httpServletRequest : HttpServlet Request
      */
     @Transactional(readOnly = true)
@@ -75,12 +80,13 @@ public class ChatRoomService {
 
     /**
      * 채팅방 관련 메세지 조회
-     * @param roomId : 채팅방 아이디 조회
-     * @param pageNum : 페이지 수
+     *
+     * @param roomId             : 채팅방 아이디 조회
+     * @param pageNum            : 페이지 수
      * @param httpServletRequest : HttpServlet Request
      */
     @Transactional
-    public ResponseDto<?> getMessageList(Long roomId, Integer pageNum, HttpServletRequest httpServletRequest) {
+    public ResponseDto<?> getMessageList(Long roomId, Integer pageNum, HttpServletRequest httpServletRequest) throws Exception {
         ResponseDto<?> resultOfValidation = validation.checkAccessToken(httpServletRequest);
         if (!resultOfValidation.isSuccess())
             return resultOfValidation;
@@ -91,7 +97,7 @@ public class ChatRoomService {
 
         // TODO orElse 수정
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
-        handleNull(chatRoom,ErrorCode.CHATROOM_NOTFOUND);
+        handleNull(chatRoom, ErrorCode.CHATROOM_NOTFOUND);
 //        if (chatRoom == null) {
 //            return ResponseDto.fail("NOT FOUNT", "채팅방을 찾을 수 없습니다.");
 //        }
@@ -99,7 +105,7 @@ public class ChatRoomService {
         // TODO orElse 수정
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
         ResponseDto<Object> checkMember = handleNull(chatMember, ErrorCode.CHATROOM_NO_CHATMEMBER);
-        if (checkMember!=null) return checkMember;
+        if (checkMember != null) return checkMember;
 //        if (chatMember == null) {
 //            return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
 //        }
@@ -116,14 +122,14 @@ public class ChatRoomService {
         }
 
 
-        PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC,"createdAt"));
+        PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC, "createdAt"));
 
         //== 채팅방 관련 정보 조회 ==//
-        Page<ChatMessage> pageOfChat =  chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom,chatMember.getCreatedAt(),pageRequest);
+        Page<ChatMessage> pageOfChat = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom, chatMember.getCreatedAt(), pageRequest);
         List<ChatMessage> contentOfChat = pageOfChat.getContent();
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
-        getMessageInformation(contentOfChat, chatMessageResponses);
+        getMessageInformation(contentOfChat, chatMessageResponses, member, httpServletRequest);
         return ResponseDto.success(getChatRoomInformation(pageNum, chatRoom, pageOfChat, chatMessageResponses));
     }
 
@@ -149,11 +155,12 @@ public class ChatRoomService {
 //        }
 
         List<ChatRoomListDto> chatRoomDtoList = new ArrayList<>();
-        getChatRoomListInfo(chatList, chatRoomDtoList);
+        getChatRoomListInfo(chatList, chatRoomDtoList, member);
         return ResponseDto.success(chatRoomDtoList);
     }
+
     @Transactional
-    public  ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) throws Exception {
+    public ResponseDto<?> readMessage(ChatRequestDto chatRequestDto, HttpServletRequest httpServletRequest) throws Exception {
         Long messageId = chatRequestDto.getMessageId();
         ResponseDto<?> validateToken = validation.checkAccessToken(httpServletRequest);
         if (!validateToken.isSuccess())
@@ -182,7 +189,7 @@ public class ChatRoomService {
         return ResponseDto.success("조회 성공");
     }
 
-    private  void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList) {
+    private void getChatRoomListInfo(List<ChatMember> chatList, List<ChatRoomListDto> chatRoomDtoList, Member member) {
         for (ChatMember chat : chatList) {
             String address;
             if (chat.getChatRoom().getPost().getDetailAddress().equals("undefined") ||
@@ -196,9 +203,17 @@ public class ChatRoomService {
             List<ChatMessage> messageList = chatMessageRepository.findAllByChatRoomId(chat.getChatRoom().getId());
             for (ChatMessage chatMessage : messageList) {
 
-                Member readCheck = readCheckRepository.validateReadMember(chatMessage, chat.getMember()).orElse(null);
-                if (readCheck == null) {
-                    count++;
+//                Member readCheck = readCheckRepository.validateReadMember(chatMessage, chat.getMember()).orElse(null);
+//                if (readCheck == null) {
+//                    count++;
+//                }
+                if (chat.getCreatedAt().isBefore(chatMessage.getCreatedAt())) {
+                    Notification notification = notificationRepository.findAllByMember(String.valueOf(chatMessage.getId()), member).orElse(null);
+                    if (notification != null) {
+                        if (!notification.getIsRead()) {
+                            count++;
+                        }
+                    }
                 }
             }
             chatRoomDtoList.add(
@@ -242,9 +257,13 @@ public class ChatRoomService {
                 .build());
     }
 
-    private void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses) {
+    private void getMessageInformation(List<ChatMessage> contentOfChat, List<ChatMessageResponse> chatMessageResponses, Member member, HttpServletRequest httpServletRequest) throws Exception {
         for (ChatMessage chatMessage : contentOfChat) {
             int total = chatMemberRepository.countOfAllMember(chatMessage.getChatRoom());
+            Notification notification = notificationRepository.findByUrlAndMember(String.valueOf(chatMessage.getId()), member);
+            if (notification != null) {
+                notificationService.readNotification(notification.getId(), httpServletRequest);
+            }
             chatMessageResponses.add(
                     ChatMessageResponse.builder()
                             .sender(chatMessage.getMember().getNickname())
