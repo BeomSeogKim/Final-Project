@@ -126,7 +126,8 @@ public class PostService{
 
 //        String imgUrl = baseImageEtc;
         String imgUrl = uploadImage(request);
-        Category category = setCategory(request);
+        String setCategory = request.getCategory();
+        Category category = setCategory(setCategory);
         Post post = buildPost(request, member, imgUrl, startDate, endDate, dDay, category);
         postRepository.save(post);
 
@@ -257,8 +258,9 @@ public class PostService{
         ChatRoom chatRoom = chatRoomRepository.findByPostId(postId).orElse(null);
         assert chatRoom != null;
         chatRoom.updateName(title);
+        Category category = setCategory(postUpdateRequestDto.getCategory());
 
-        post.updatePost(title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
+        post.updatePost(category, title, address, content, maxNum, placeX, placeY, placeUrl, placeName, detailAddress, startDate, endDate, dDay);
 
         if (imgFile == null || imgFile.isEmpty()) {
             return ResponseDto.success("업데이트가 완료되었습니다.");
@@ -513,21 +515,21 @@ public class PostService{
         }
         return imgUrl;
     }
-    private static Category setCategory(PostRequestDto request) {
+    private static Category setCategory(String setCategory) {
         Category category = Category.ETC;
-        if (request.getCategory() == null || request.getCategory().equals("etc")) {
+        if (setCategory == null || setCategory.trim().equals("ETC")) {
             category = Category.ETC;
-        } else if (request.getCategory().equals("exercise")) {
+        } else if (setCategory.trim().equals("EXERCISE")) {
             category = Category.EXERCISE;
-        } else if (request.getCategory().equals("travel")) {
+        } else if (setCategory.trim().equals("TRAVEL")) {
             category = Category.TRAVEL;
-        } else if (request.getCategory().equals("reading")) {
+        } else if (setCategory.trim().equals("READING")) {
             category = Category.READING;
-        } else if (request.getCategory().equals("study")) {
+        } else if (setCategory.trim().equals("STUDY")) {
             category = Category.STUDY;
-        } else if (request.getCategory().equals("religion")) {
+        } else if (setCategory.trim().equals("RELIGION")) {
             category = Category.RELIGION;
-        } else if (request.getCategory().equals("online")) {
+        } else if (setCategory.trim().equals("ONLINE")) {
             category = Category.ONLINE;
         }
         return category;

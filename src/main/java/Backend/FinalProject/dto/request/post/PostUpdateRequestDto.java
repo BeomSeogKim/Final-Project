@@ -25,6 +25,7 @@ public class PostUpdateRequestDto {
     private String placeUrl;
     private String placeName;
     private String detailAddress;
+    private String category;
 
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
     private String startDate;

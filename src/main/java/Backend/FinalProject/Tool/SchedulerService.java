@@ -5,6 +5,7 @@ import Backend.FinalProject.domain.SignOutMember;
 import Backend.FinalProject.repository.PostRepository;
 import Backend.FinalProject.repository.SignOutRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SchedulerService {
@@ -29,6 +31,7 @@ public class SchedulerService {
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     public void run() {
+        log.info("게시글 상태 업데이트 시작 ");
         LocalDate now = LocalDate.now();
 
         List<Post> postList = postRepository.findAll();
@@ -47,12 +50,12 @@ public class SchedulerService {
     @Scheduled(cron = "0 0 1 * * *")
     @Transactional
     public void deleteInformation() {
+
+        log.info("회원 탈퇴 검증 시작");
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime criticalLimit = now.minusYears(5);
-        System.out.println("criticalLimit = " + criticalLimit);
 
         List<SignOutMember> signOutMemberList = signOutRepository.findAll();
-        System.out.println("signOutMemberList = " + signOutMemberList);
         for (SignOutMember signOutMember : signOutMemberList) {
             if (criticalLimit.isAfter(signOutMember.getCreatedAt())) {
                 signOutRepository.delete(signOutMember);

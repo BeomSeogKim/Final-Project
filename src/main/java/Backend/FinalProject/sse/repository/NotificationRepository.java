@@ -30,4 +30,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Query(value = "select n from Notification n where n.url.url = :url and n.member = :member")
     Notification findByUrlAndMember(@Param("url") String url, @Param("member") Member member);
+
+    @Query(value = "select n from Notification n where n.url.url = :messageId and n.member =:member")
+    Optional<Notification> findAllByMember(@Param("messageId") String messageId, @Param("member") Member member);
+
 }

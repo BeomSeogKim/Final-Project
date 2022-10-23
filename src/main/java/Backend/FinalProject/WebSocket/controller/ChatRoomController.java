@@ -37,7 +37,7 @@ public class ChatRoomController {
     @GetMapping("/message")
     public ResponseDto<?> getMessageList(@RequestParam("roomId") Long roomId,
                                          @RequestParam("page") Integer pageNum,
-                                         HttpServletRequest httpServletRequest) {
+                                         HttpServletRequest httpServletRequest) throws Exception {
         return chatRoomService.getMessageList(roomId, pageNum, httpServletRequest);
     }
 
