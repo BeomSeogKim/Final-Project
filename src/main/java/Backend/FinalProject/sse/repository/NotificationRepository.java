@@ -28,6 +28,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 //    void deleteAllByReceiverId(Long receiverId);
 
-    @Query(value = "select n from Notification n where n.url = :url and n.member = :member")
+    @Query(value = "select n from Notification n where n.url.url = :url and n.member = :member")
     Notification findByUrlAndMember(@Param("url") String url, @Param("member") Member member);
 }
