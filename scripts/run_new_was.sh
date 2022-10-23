@@ -5,6 +5,7 @@
 CURRENT_PORT=$(cat /home/ec2-user/service_url.inc | grep -Po '[0-9]+' | tail -1)
 TARGET_PORT=0
 
+
 PROJECT_ROOT="/home/ec2-user/app"
 JAR_FILE="$PROJECT_ROOT/spring-app.jar"
 
@@ -22,8 +23,10 @@ echo "> Current port of running WAS is ${CURRENT_PORT}."
 
 if [ ${CURRENT_PORT} -eq 8081 ]; then
   TARGET_PORT=8082
+  APP_LOG="$PROJECT_ROOT_8081/application.log"
 elif [ ${CURRENT_PORT} -eq 8082 ]; then
   TARGET_PORT=8081
+  APP_LOG="$PROJECT_ROOT_8082/application.log"
 else
   echo "> No WAS is connected to nginx"
 fi
