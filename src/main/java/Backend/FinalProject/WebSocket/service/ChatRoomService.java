@@ -174,8 +174,10 @@ public class ChatRoomService {
         if (validateMember == null) {
             chatMessage.addNumOfRead();
             automatedChatService.createReadCheck(chatMember, chatMessage);
-            log.info("readMessage Error 전 ");
             notificationService.readNotification(notificationRepository.findByUrlAndMember(String.valueOf(chatMessage.getId()), member).getId(), httpServletRequest);
+        }
+        if (chatMessage.getMember() != member) {
+            chatMessage.addNumOfRead();
         }
         return ResponseDto.success("조회 성공");
     }
