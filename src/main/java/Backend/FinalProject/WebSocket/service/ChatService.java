@@ -120,7 +120,7 @@ public class ChatService {
                 .member(member)
                 .sendTime(now)
                 .message(message.getMessage())
-                .numOfRead(1)
+                .numOfRead(0)
                 .build();
     }
 }
