@@ -23,10 +23,10 @@ echo "> Current port of running WAS is ${CURRENT_PORT}."
 
 if [ ${CURRENT_PORT} -eq 8081 ]; then
   TARGET_PORT=8082
-  APP_LOG="$PROJECT_ROOT/application_8081.log"
+  APP_LOG="$PROJECT_ROOT/application_8082.log"
 elif [ ${CURRENT_PORT} -eq 8082 ]; then
   TARGET_PORT=8081
-  APP_LOG="$PROJECT_ROOT/application_8082.log"
+  APP_LOG="$PROJECT_ROOT/application_8081.log"
 else
   echo "> No WAS is connected to nginx"
 fi
