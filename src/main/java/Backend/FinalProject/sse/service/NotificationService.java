@@ -132,6 +132,7 @@ public class NotificationService {
             emitter.send(SseEmitter.event()
                     .id(eventId)
                     .data(data));
+            log.info("알림보내기");
         } catch (IOException exception) {
             emitterRepository.deleteById(emitterId);
         }
