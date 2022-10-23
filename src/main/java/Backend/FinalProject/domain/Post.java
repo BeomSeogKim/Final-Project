@@ -88,9 +88,10 @@ public class Post extends Timestamped{
 
 
     //== 게시글 업데이트 ==//
-    public void updatePost(String title, String address, String content, int maxNum,
+    public void updatePost(Category category, String title, String address, String content, int maxNum,
                            String placeX, String placeY, String placeUrl, String placeName, String detailAddress,
                            LocalDate startDate, LocalDate endDate, LocalDate dDay){
+        this.category = category;
         this.title = title;
         this.address = address;
         this.content = content;
