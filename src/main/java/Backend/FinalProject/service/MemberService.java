@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
@@ -65,8 +66,13 @@ public class MemberService {
     @Transactional
     public ResponseDto<String> createMember(SignupRequestDto request) {
 
+        String regexp = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
+
         String userId = request.getUserId();
         String password = request.getPassword();
+        if (!Pattern.matches(regexp, password)) {
+            return ResponseDto.fail("INVALID PASSWORD", "비밀번호 양식을 다시 확인해주세요");
+        }
         String passwordCheck = request.getPasswordCheck();
         String nickname = request.getNickname();
         MultipartFile imgFile = request.getImgFile();
@@ -177,7 +183,7 @@ public class MemberService {
 
         if (member == null) {
             log.info("MemberService login ");
-            return ResponseDto.fail("", "존재하지 않는 아이디입니다.");
+            return ResponseDto.fail("INVALID ID", "존재하지 않는 아이디입니다.");
         }
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
             log.info("MemberService login INVALID_PASSWORD");
