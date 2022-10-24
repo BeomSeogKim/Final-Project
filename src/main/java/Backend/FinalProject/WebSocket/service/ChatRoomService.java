@@ -183,9 +183,9 @@ public class ChatRoomService {
             automatedChatService.createReadCheck(chatMember, chatMessage);
             notificationService.readNotification(notificationRepository.findByUrlAndMember(String.valueOf(chatMessage.getId()), member).getId(), httpServletRequest);
         }
-        if (chatMessage.getMember() != member) {
-            chatMessage.addNumOfRead();
-        }
+//        if (chatMessage.getMember() != member) {
+//            chatMessage.addNumOfRead();
+//        }
         return ResponseDto.success("조회 성공");
     }
 
