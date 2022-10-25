@@ -1,2 +1,9 @@
-package Backend.FinalProject.dto;public class ResignDto {
+package Backend.FinalProject.dto;
+
+import lombok.Getter;
+
+@Getter
+public class ResignDto {
+    private String userId;
+    private String password;
 }

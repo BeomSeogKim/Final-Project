@@ -1,5 +1,6 @@
 package Backend.FinalProject.controller;
 
+import Backend.FinalProject.dto.ResignDto;
 import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.request.checkduplication.IdCheckDuplicateDto;
@@ -121,6 +122,11 @@ public class MemberController {
     public ResponseDto<?> reissueAccessToken(HttpServletRequest httpServletRequest,
                                              HttpServletResponse httpServletResponse) throws ParseException {
         return memberService.reissueAccessToken(httpServletRequest, httpServletResponse);
+    }
+
+    @PostMapping("/member/rejoin")
+    public ResponseDto<?> resign(@RequestBody ResignDto resignDto) {
+        return memberService.rejoin(resignDto);
     }
 
 }

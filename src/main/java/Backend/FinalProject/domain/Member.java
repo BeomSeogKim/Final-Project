@@ -100,7 +100,7 @@ public class Member extends Timestamped{
 
     //== 회원 탈퇴 ==//
     public void signOut() {
-        this.userId = UUID.randomUUID().toString();
+//        this.userId = UUID.randomUUID().toString();
         this.password = UUID.randomUUID().toString();
         this.nickname = "탈퇴한 회원입니다.";
         this.minAge = 0;
@@ -129,5 +129,13 @@ public class Member extends Timestamped{
         }
         Member member = (Member) o;
         return id != null && Objects.equals(id, member.id);
+    }
+
+    @Transactional
+    public void rejoin(String nickname, Integer minAge, String imgUrl, Regulation regulation) {
+        this.nickname = nickname;
+        this.minAge = minAge;
+        this.imgUrl = imgUrl;
+        this.regulation = regulation;
     }
 }
