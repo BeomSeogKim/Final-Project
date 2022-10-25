@@ -62,7 +62,7 @@ public class SecurityConfiguration {
                 .antMatchers("/h2-console/**", "/", "/subscribe").permitAll()
                 .antMatchers("/member/signup", "/member/login" ,"/member/id", "/member/nickname","/member/reissue", "/member/rejoin", "/oauth/**").permitAll()   // 회원 가입, 로그인 관련 페이지
                 .antMatchers("/ws/chat").permitAll()        // 웹 소켓 관련 페이지
-                .antMatchers("/post/all", "/post/detail/**").permitAll()       // 전체 게시글 관련
+                .antMatchers("/post/all/**", "/post/detail/**").permitAll()       // 전체 게시글 관련
                 .antMatchers("/chat/**", "/chat/user", "/ws-stomp/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")  // 관리자 페이지
                 .antMatchers("/health").permitAll()
