@@ -384,7 +384,12 @@ public class MemberService {
 
     // 회원 아이디 중복 검사 method
     public ResponseDto<String> checkDuplicateId(String id) {
+        String regexp= ".{5,12}$";
         Optional<Member> userId = memberRepository.findByUserId(id);
+        if (!Pattern.matches(regexp,id)) {
+            return ResponseDto.fail("INVALID ID", "아이디 양식을 다시 확인해주세요");
+        }
+
         if (userId.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 회원 아이디입니다.");
