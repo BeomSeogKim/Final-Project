@@ -54,6 +54,7 @@ import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.baseImage.*;
 import static java.time.LocalDate.now;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
@@ -150,7 +151,23 @@ public class PostService{
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"createdAt"));
-        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest, UNREGULATED, RECRUIT);
+        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest, UNREGULATED);
+        List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
+
+        List<Post> contentOfPost = pageOfPost.getContent();
+        makeListOfPostDetail(PostResponseDtoList, contentOfPost);
+        return ResponseDto.success(makeListOfTotalPost(pageNum, pageOfPost, PostResponseDtoList));
+    }
+
+    /**
+     * 게시글 전체 조회(D-day순으로)
+     * @param pageNum : 페이지 번호
+     */
+    public ResponseDto<?> getPostDdayList(Integer pageNum) {
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(ASC, "dDay"));
+        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtAsc(pageRequest, UNREGULATED);
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         List<Post> contentOfPost = pageOfPost.getContent();
@@ -561,7 +578,6 @@ public class PostService{
     private void makeListOfPostDetail(List<AllPostResponseDto> PostResponseDtoList, List<Post> contentOfPost) {
         for (Post post : contentOfPost) {
             int numOfComment = commentRepository.findAllCountByPost(post);
-            if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(RECRUIT)) {
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
                                 .id(post.getId())
@@ -584,7 +600,7 @@ public class PostService{
 
             }
         }
-    }
+
 
     private static PostResponseDtoPage makeListOfTotalPost(Integer pageNum, Page<Post> pageOfPost, List<AllPostResponseDto> PostResponseDtoList) {
         return PostResponseDtoPage.builder()
