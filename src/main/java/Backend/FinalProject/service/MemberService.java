@@ -68,12 +68,16 @@ public class MemberService {
     @Transactional
     public ResponseDto<String> createMember(SignupRequestDto request) {
 
-        String regexp = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
+        String regexpPassword = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
+        String regexpId="^(?=.*[a-zA-Z])(?=.*[0-9]).{5,12}$";
 
         String userId = request.getUserId();
         String password = request.getPassword();
-        if (!Pattern.matches(regexp, password)) {
+        if (!Pattern.matches(regexpPassword, password)) {
             return ResponseDto.fail("INVALID PASSWORD", "비밀번호 양식을 다시 확인해주세요");
+        }
+        if (!Pattern.matches(regexpId, userId)) {
+            return ResponseDto.fail("INVALID ID", "아이디 양식을 다시 확인해주세요");
         }
         String passwordCheck = request.getPasswordCheck();
         String nickname = request.getNickname();
@@ -384,12 +388,11 @@ public class MemberService {
 
     // 회원 아이디 중복 검사 method
     public ResponseDto<String> checkDuplicateId(String id) {
-        String regexp= ".{5,12}$";
         Optional<Member> userId = memberRepository.findByUserId(id);
+        String regexp= "^(?=.*[a-zA-Z])(?=.*[0-9]).{5,12}$";
         if (!Pattern.matches(regexp,id)) {
             return ResponseDto.fail("INVALID ID", "아이디 양식을 다시 확인해주세요");
         }
-
         if (userId.isPresent()) {
             log.info("MemberService isPresentId ALREADY EXIST-ID");
             return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 회원 아이디입니다.");
