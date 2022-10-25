@@ -173,12 +173,15 @@ public class OAuthService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
-        System.out.println(jsonNode.toString());
         Long id = jsonNode.get("id").asLong();
         String tempNick = jsonNode.get("properties")
                 .get("nickname").toString();
-        String imgUrl = jsonNode.get("properties")
-                .get("profile_image").asText();
+        String imgUrl = "https://tommy-bucket-final.s3.ap-northeast-2.amazonaws.com/memberImage/6c6c20cf-7490-4d9e-b6f6-73c185a417dd%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB%E1%84%8B%E1%85%B5%E1%84%86%E1%85%B5%E1%84%8C%E1%85%B5.webp";
+        if (jsonNode.get("properties").get("profile_image") != null) {
+            imgUrl = jsonNode.get("properties")
+                    .get("profile_image").asText();
+        }
+
         String tempGender = null;
         String gender = null;
         String age = null;
@@ -205,7 +208,6 @@ public class OAuthService {
             minAge = 0;
         }
         String nickname = tempNick.substring(1, tempNick.length() - 1);
-        System.out.println("id " + id + " nickname " + nickname + " imgUrl " + imgUrl + " gender" + gender + " minAge" + minAge);
         return new KakaoUserInfoDto(id.toString(), nickname, imgUrl, gender, minAge);
 
     }
