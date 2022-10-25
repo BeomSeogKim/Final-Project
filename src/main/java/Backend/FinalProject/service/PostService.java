@@ -150,7 +150,7 @@ public class PostService{
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
         PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"createdAt"));
-        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest, UNREGULATED, RECRUIT);
+        Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest, UNREGULATED);
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 
         List<Post> contentOfPost = pageOfPost.getContent();
@@ -561,7 +561,7 @@ public class PostService{
     private void makeListOfPostDetail(List<AllPostResponseDto> PostResponseDtoList, List<Post> contentOfPost) {
         for (Post post : contentOfPost) {
             int numOfComment = commentRepository.findAllCountByPost(post);
-            if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(RECRUIT)) {
+            if (post.getRegulation().equals(UNREGULATED) && post.getStatus().equals(RECRUIT) || post.getStatus().equals(DONE)) {
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
                                 .id(post.getId())
