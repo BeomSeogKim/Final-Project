@@ -35,7 +35,6 @@ public class NotificationController {
     public SseEmitter subscribe(HttpServletResponse response, HttpServletRequest request,
                                 @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
                                 String lastEventId) throws Exception {
-        log.info("구독 시작 ");
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);

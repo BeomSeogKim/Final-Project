@@ -23,4 +23,7 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember,Long> {
     int countOfAllMember(@Param("chatRoom") ChatRoom chatRoom);
 
     ChatMember findByMember(Member member);
+
+    @Query(value = "select c.chatRoom from ChatMember c where c.id =:id")
+    List<ChatRoom> findAllChatRoomById(@Param("id")Long id);
 }

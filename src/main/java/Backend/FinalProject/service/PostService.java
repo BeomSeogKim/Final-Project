@@ -149,7 +149,7 @@ public class PostService{
     public ResponseDto<?> getPostList(Integer pageNum) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
-        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"modifiedAt"));
+        PageRequest pageRequest = PageRequest.of(pageNum, 9, Sort.by(DESC,"createdAt"));
         Page<Post> pageOfPost = postRepository.findAllByOrderByModifiedAtDesc(pageRequest, UNREGULATED, RECRUIT);
         List<AllPostResponseDto> PostResponseDtoList = new ArrayList<>();
 

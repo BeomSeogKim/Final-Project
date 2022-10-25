@@ -3,6 +3,7 @@ package Backend.FinalProject.sse.service;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
+import Backend.FinalProject.WebSocket.domain.ChatRoom;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
@@ -217,14 +218,31 @@ public class NotificationService {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
         Member member = (Member) responseDto.getData();
-        List<ChatMember> all = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
-            List<ChatMessage> chatMessageList = chatMessageRepository.findAllByMember(member);
-            for (ChatMessage chatMessage : chatMessageList) {
-                Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
-                if (validateMember == null) {
-                    return NotificationChatCountDto.builder().unreadMessage(true).build();
+        List<ChatMember> chatMemberList = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
+        for (ChatMember chatMember : chatMemberList) {
+            List<ChatRoom> chatRoomList = chatMemberRepository.findAllChatRoomById(chatMember.getId());
+            for (ChatRoom chatRoom : chatRoomList) {
+                List<ChatMessage> chatMessageList = chatMessageRepository.findAllChatMessageByChatRoomOrderByModifiedAtDesc(chatRoom);
+                for (ChatMessage chatMessage : chatMessageList) {
+                    log.info(String.valueOf(chatMessage.getModifiedAt()));
+                    Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+                    if (validateMember == null) {
+                        return NotificationChatCountDto.builder().unreadMessage(true).build();
+                    }
                 }
+
             }
+        }
         return NotificationChatCountDto.builder().unreadMessage(false).build();
+
+//        List<ChatMember> all = chatMemberRepository.findAllByMemberOrderByChatRoom(member);
+//            List<ChatMessage> chatMessageList = chatMessageRepository.findAllByMember(member);
+//            for (ChatMessage chatMessage : chatMessageList) {
+//                Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+//                if (validateMember == null) {
+//                    return NotificationChatCountDto.builder().unreadMessage(true).build();
+//                }
+//            }
+//        return NotificationChatCountDto.builder().unreadMessage(false).build();
     }
 }
