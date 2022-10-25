@@ -3,6 +3,7 @@ package Backend.FinalProject.service;
 import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.*;
+import Backend.FinalProject.dto.ResignDto;
 import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
@@ -34,6 +35,7 @@ import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
+import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
 import static Backend.FinalProject.domain.enums.Regulation.UNREGULATED;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_AGREE;
 import static Backend.FinalProject.domain.enums.RequiredAgreement.REQUIRED_DISAGREE;
@@ -188,6 +190,9 @@ public class MemberService {
         if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
             log.info("MemberService login INVALID_PASSWORD");
             return ResponseDto.fail("INVALID_PASSWORD", "잘못된 비밀번호 입니다.");
+        }
+        if (member.getRegulation() == REGULATED) {
+            return ResponseDto.fail("REGULATED MEMBER", "활동이 제재되었습니다. 관리자에게 문의해주세요");
         }
 
         byte[] bytes = member.getNickname().getBytes();
@@ -445,10 +450,28 @@ public class MemberService {
 
     }
 
+    @Transactional
+    public ResponseDto<?> rejoin(ResignDto resignDto) {
+        String userId = resignDto.getUserId();
+        String password = resignDto.getPassword();
+        SignOutMember signOutMember = signOutRepository.findByUserId(userId).orElse(null);
+        if (signOutMember == null) {
+            return ResponseDto.fail("NOT FOUND", "해당 아이디를 찾을 수 없습니다. ");
+        }
+        if (!passwordEncoder.matches(password,signOutMember.getPassword())) {
+            return ResponseDto.fail("PASSWORD NOT MATCH", "비밀번호를 다시 확인해주세요");
+        }
+        log.info("signout : {}", signOutMember.getUserId());
+        log.info("member : {}", userId);
+        Member member = memberRepository.findByUserId(userId).orElse(null);
+        member.rejoin(signOutMember.getNickname(), signOutMember.getMinAge(), signOutMember.getImgUrl(), signOutMember.getRegulation());
+        return ResponseDto.success("재가입이 완료되었습니다.");
+
+    }
     // 헤더에 토큰담기
+
     public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
     }
-
 }
