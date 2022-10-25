@@ -25,6 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "select p from Post p where p.regulation = :regulation")
     Page<Post> findAllByOrderByModifiedAtAsc(Pageable pageable, @Param("regulation") Regulation regulation);
 
+
     @Query(value = "select count(p) from Post p where p.regulation = :regulation or p.status =:status or p.status = :status2")
     long findAllHiddenPost(@Param("regulation") Regulation regulation, @Param("status") PostState postState, @Param("status2") PostState postState2);
 }

@@ -578,6 +578,7 @@ public class PostService{
     private void makeListOfPostDetail(List<AllPostResponseDto> PostResponseDtoList, List<Post> contentOfPost) {
         for (Post post : contentOfPost) {
             int numOfComment = commentRepository.findAllCountByPost(post);
+
                 PostResponseDtoList.add(
                         AllPostResponseDto.builder()
                                 .id(post.getId())
