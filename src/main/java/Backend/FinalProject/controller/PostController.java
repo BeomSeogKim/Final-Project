@@ -39,6 +39,15 @@ public class PostController {
     }
 
     /**
+     * 전체 게시글 조회(D-day순으로 정렬)
+     * @param pageNum : 페이지 장 수
+     */
+    @GetMapping("/post/all/day")
+    public ResponseDto<?> getPostDdayList(@RequestParam("page") Integer pageNum) {
+        return postService.getPostDdayList(pageNum);
+    }
+
+    /**
      * 상세 게시글 조회
      * @param postId : 게시글 아이디
      */
