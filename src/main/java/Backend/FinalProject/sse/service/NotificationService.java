@@ -224,7 +224,6 @@ public class NotificationService {
             for (ChatRoom chatRoom : chatRoomList) {
                 List<ChatMessage> chatMessageList = chatMessageRepository.findAllChatMessageByChatRoomOrderByModifiedAtDesc(chatRoom);
                 for (ChatMessage chatMessage : chatMessageList) {
-                    log.info(String.valueOf(chatMessage.getModifiedAt()));
                     Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
                     if (validateMember == null) {
                         return NotificationChatCountDto.builder().unreadMessage(true).build();
