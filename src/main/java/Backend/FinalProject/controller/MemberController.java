@@ -30,7 +30,7 @@ public class MemberController {
      * @param signupRequestDto 회원 가입에 필요한 데이터
      */
     @PostMapping("/member/signup")
-    public ResponseDto<String> signUp(
+    public ResponseDto<Object> signUp(
             @ModelAttribute SignupRequestDto signupRequestDto) {
         return memberService.createMember(signupRequestDto);
     }
@@ -41,7 +41,7 @@ public class MemberController {
      * @param response        : HttpServlet Response
      */
     @PostMapping("/member/login")
-    public ResponseDto<String> login(
+    public ResponseDto<Object> login(
             @RequestBody LoginRequestDto loginRequestDto,
             HttpServletResponse response) throws UnsupportedEncodingException {
         return memberService.login(loginRequestDto, response);
