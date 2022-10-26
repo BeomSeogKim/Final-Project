@@ -20,6 +20,9 @@ public enum ErrorCode {
     MEMBER_PASSWORD_NOT_MATCH("MemberService signoutMember PASSWORD NOT MATCH", "PASSWORD NOT MATCH", "비밀번호를 다시 확인해주세요"),
     MEMBER_DO_NOT_EXIST("MemberService login ", "INVALID ID", "존재하지 않는 아이디입니다."),
     MEMBER_REGULATED("MemberService login Regulation", "REGULATED MEMBER", "활동이 제재되었습니다. 관리자에게 문의해주세요"),
+    MEMBER_ALREADY_LOGOUT("MemberService logout ALREADY LOGOUT", "ALREADY LOGOUT", "이미 로그아웃 하셨습니다."),
+    MEMBER_INVALID_TOKEN("MemberService logout INVALID TOKEN", "INVALID TOKEN", "토큰 값이 올바르지 않습니다."),
+    MEMBER_LOGIN_NOT_FOUND("MemberService logout MEMBER_NOT_FOUND", "MEMBER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
 
     // == Application Service == //
     APPLICATION_NOTFOUND("ApplicationService submitApplication NOT FOUND", "NOT FOUND", "해당 게시글을 찾을 수 없습니다."),
