@@ -118,7 +118,6 @@ public class Post extends Timestamped{
     }
 
     //== 모집 상태 변경 ==//
-    @Transactional
     public void updateStatus() {
         this.status = DONE;
     }

@@ -269,8 +269,9 @@ public class ApplicationService {
                         .build()
         );
     }
-    // 모집 관련 로직
 
+    // 모집 관련 로직
+    @Transactional
     public ResponseDto<?> changePostStatus(Long postId, HttpServletRequest request) {
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(request);
