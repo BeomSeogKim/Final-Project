@@ -27,7 +27,7 @@ public class FinalProjectApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
 						.allowedOrigins("http://localhost:3000","http://3355bucket.s3-website.ap-northeast-2.amazonaws.com/", "http://15.164.221.23", "https://3355.world")
-						.exposedHeaders("Authorization", "RefreshToken", "ImgUrl", "Id", "nickname", "role")
+						.exposedHeaders("Authorization", "RefreshToken", "ImgUrl", "Id", "role")
 						.allowedMethods("*")
 						.allowedHeaders("*")
 						.allowCredentials(true)

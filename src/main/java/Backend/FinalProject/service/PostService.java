@@ -491,16 +491,63 @@ public class PostService{
 
     //== Method Line ==//
     private static ResponseDto<Object> checkNullAndEmpty(PostRequestDto request) {
-        if (request.getTitle() == null || request.getAddress() == null || request.getContent() == null || request.getMaxNum() == 0 ||
-                request.getStartDate() == null || request.getEndDate() == null || request.getDDay() == null ||
-                request.getPlaceX() == null || request.getPlaceY() == null || request.getPlaceName() == null
-        ) {
-            log.info("PostService createPost NULL_DATA");
-            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (request.getTitle().trim().isEmpty() || request.getAddress().trim().isEmpty() || request.getContent().trim().isEmpty() ||
-                request.getPlaceName().trim().isEmpty()) {
-            log.info("PostService createPost EMPTY_DATA");
-            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
+        if (request.getTitle() == null) {
+            log.info("PostService checkNullAndEmpty NULL_TITLE");
+            return ResponseDto.fail("NULL_TITLE", "제목을 입력해주세요");
+        }else if (request.getTitle().trim().isEmpty()){
+            log.info("PostService checkNullAndEmpty EMPTY_TITLE");
+            return ResponseDto.fail("EMPTY_TITLE", "제목의 빈칸을 확인해주세요");
+        }
+        if (request.getAddress() == null) {
+            log.info("PostService checkNullAndEmpty NULL_ADDRESS");
+            return ResponseDto.fail("NULL_ADDRESS", "주소을 입력해주세요");
+        }else if (request.getAddress().trim().isEmpty()){
+            log.info("PostService checkNullAndEmpty EMPTY_ADDRESS");
+            return ResponseDto.fail("EMPTY_ADDRESS", "주소의 빈칸을 확인해주세요");
+        }
+        if (request.getContent() == null) {
+            log.info("PostService checkNullAndEmpty NULL_CONTENT");
+            return ResponseDto.fail("NULL_CONTENT", "내용을 입력해주세요");
+        }else if (request.getContent().trim().isEmpty()){
+            log.info("PostService checkNullAndEmpty EMPTY_CONTENT");
+            return ResponseDto.fail("EMPTY_CONTENT", "내용을 입력해주세요");
+        }
+        if (request.getMaxNum() == 0) {
+            log.info("PostService checkNullAndEmpty NULL_MAXNUM");
+            return ResponseDto.fail("NULL_MAXNUM", "모집인원을 입력해주세요");
+        }
+        if (request.getStartDate() == null) {
+            log.info("PostService checkNullAndEmpty NULL_STARTDATE");
+            return ResponseDto.fail("NULL_STARTDATE", "시작날짜를 선택해주세요");
+        }
+        if (request.getEndDate() == null) {
+            log.info("PostService checkNullAndEmpty NULL_ENDDATE");
+            return ResponseDto.fail("NULL_ENDDATE", "모집마감날짜를 선택해주세요");
+        }
+        if (request.getDDay() == null) {
+            log.info("PostService checkNullAndEmpty NULL_DDAYDATE");
+            return ResponseDto.fail("NULL_DDAYDATE", "모임날짜를 선택해주세요");
+        }
+        if (request.getPlaceX() == null) {
+            log.info("PostService checkNullAndEmpty NULL_PLACE");
+            return ResponseDto.fail("NULL_PLACE", "모임장소를 선택해주세요");
+        }else if (request.getPlaceX().trim().isEmpty()){
+            log.info("PostService checkNullAndEmpty EMPTY_PLACE");
+            return ResponseDto.fail("EMPTY_PLACE", "모임장소를 선택해주세요");
+        }
+        if (request.getPlaceY() == null) {
+            log.info("PostService checkNullAndEmpty NULL_PLACE");
+            return ResponseDto.fail("NULL_PLACE", "모임장소를 선택해주세요");
+        }else if (request.getPlaceY().trim().isEmpty()){
+            log.info("PostService checkNullAndEmpty EMPTY_PLACE");
+            return ResponseDto.fail("EMPTY_PLACE", "모임장소를 선택해주세요");
+        }
+        if (request.getPlaceName() == null) {
+            log.info("PostService checkNullAndEmpty NULL_PLACENAME");
+            return ResponseDto.fail("NULL_PLACENAME", "모임장소 이름을 입력해주세요");
+        }else if (request.getPlaceName().trim().isEmpty()){
+            log.info("PostService checkNullAndEmpty EMPTY_PLACENAME");
+            return ResponseDto.fail("EMPTY_PLACENAME", "모임장소 이름을 입력해주세요");
         }
         return null;
     }

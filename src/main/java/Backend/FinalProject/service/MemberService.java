@@ -4,12 +4,12 @@ import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.domain.*;
 import Backend.FinalProject.domain.enums.*;
 import Backend.FinalProject.dto.ResignDto;
-import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.ResponseDto;
 import Backend.FinalProject.dto.TokenDto;
 import Backend.FinalProject.dto.request.member.LoginRequestDto;
 import Backend.FinalProject.dto.request.member.MemberUpdateDto;
 import Backend.FinalProject.dto.request.member.SignupRequestDto;
+import Backend.FinalProject.dto.response.member.MemberPasswordUpdateDto;
 import Backend.FinalProject.dto.response.member.ReIssueMessageDto;
 import Backend.FinalProject.repository.*;
 import Backend.FinalProject.sercurity.TokenProvider;
@@ -30,9 +30,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static Backend.FinalProject.Tool.Validation.handleBoolean;
+import static Backend.FinalProject.Tool.Validation.handleNull;
 import static Backend.FinalProject.domain.enums.AgeCheck.CHECKED;
 import static Backend.FinalProject.domain.enums.AgeCheck.UNCHECKED;
 import static Backend.FinalProject.domain.enums.Authority.ROLE_MEMBER;
+import static Backend.FinalProject.domain.enums.ErrorCode.*;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_AGREE;
 import static Backend.FinalProject.domain.enums.MarketingAgreement.MARKETING_DISAGREE;
 import static Backend.FinalProject.domain.enums.Regulation.REGULATED;
@@ -64,151 +67,85 @@ public class MemberService {
     // S3에 회원 이미지 파일 저장 경로
     String folderName = "/memberImage";
 
+    // 아이디 및 비밀번호 정규식 검사
+    String regexpPassword = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
+    String regexpId="^(?=.*[a-zA-Z]).{5,12}$";
+
 
     @Transactional
-    public ResponseDto<String> createMember(SignupRequestDto request) {
-
-        String regexpPassword = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
-        String regexpId="^(?=.*[a-zA-Z]).{5,12}$";
-
-        String userId = request.getUserId();
-        String password = request.getPassword();
-        if (!Pattern.matches(regexpPassword, password)) {
-            return ResponseDto.fail("INVALID PASSWORD", "비밀번호 양식을 다시 확인해주세요");
-        }
-        if (!Pattern.matches(regexpId, userId)) {
-            return ResponseDto.fail("INVALID ID", "아이디 양식을 다시 확인해주세요");
-        }
-        String passwordCheck = request.getPasswordCheck();
-        String nickname = request.getNickname();
-        MultipartFile imgFile = request.getImgFile();
-        String gender = request.getGender();
-        Integer age = request.getAge();
-        String ageCheck = request.getAgeCheck();
-        String requiredAgreement = request.getRequiredAgreement();
-        String marketingAgreement = request.getMarketingAgreement();
-        String imgUrl;
-        int minAge;
-        Gender genderSet = Gender.NEUTRAL;
-        AgeCheck setAgeCheck = UNCHECKED;
-        RequiredAgreement setRequiredAgreement = REQUIRED_DISAGREE;
-        MarketingAgreement setMarketingAgreement = MARKETING_DISAGREE;
+    public ResponseDto<Object> createMember(SignupRequestDto request) {
 
         // null 값 및 공백이 있는 값 체크하기
-        if (userId == null || password == null || nickname == null) {
-            log.info("MemberService createMember NULL_DATA");
-            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (userId.trim().isEmpty() || password.trim().isEmpty() || nickname.trim().isEmpty()) {
-            log.info("MemberService createMember EMPTY_DATA");
-            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
-        }
+        ResponseDto<Object> checkNull = handleBoolean(request.getUserId() == null
+                || request.getPassword() == null || request.getNickname() == null, MEMBER__NULL_DATA);
+        if (checkNull != null) return checkNull;
+        ResponseDto<Object> checkEmpty = handleBoolean(request.getUserId().trim().isEmpty()
+                || request.getPassword().trim().isEmpty() || request.getNickname().trim().isEmpty(), MEMBER_EMPTY_DATA);
+        if (checkEmpty != null) return checkEmpty;
+
+        ResponseDto<Object> checkPassword = handleBoolean(!Pattern.matches(regexpPassword, request.getPassword()), MEMBER_INVALID_PASSWORD);
+        if (checkPassword != null) return checkPassword;
+
+        ResponseDto<Object> checkId = handleBoolean(!Pattern.matches(regexpId, request.getUserId()), MEMBER_INVALID_ID);
+        if(checkId !=null) return checkId;
+
+
         // 비밀번호 및 비밀번호 확인 일치 검사
-        if (!password.equals(passwordCheck)) {
-            log.info("MemberService createMember DOUBLE-CHECK_ERROR");
-            return ResponseDto.fail("DOUBLE-CHECK_ERROR", "두 비밀번호가 일치하지 않습니다");
-        }
+        ResponseDto<Object> doubleCheck = handleBoolean(!request.getPassword().equals(request.getPasswordCheck()), MEMBER_DOUBLE_CHECK);
+        if (doubleCheck != null) return doubleCheck;
+
         // 아이디 중복검사
-        if (!checkDuplicateId(userId).isSuccess()) {
-            log.info("MemberService createMember ALREADY EXIST-ID");
-            return ResponseDto.fail("ALREADY EXIST-ID", "이미 존재하는 아이디 입니다.");
-        }
+        ResponseDto<Object> checkExisId = handleBoolean(!checkDuplicateId(request.getUserId()).isSuccess(), MEMBER_ALREADY_EXIST_ID);
+        if (checkExisId !=null) return checkExisId;
         // 닉네임 중복검사
-        if (!checkDuplicateNickname(nickname).isSuccess()) {
-            log.info("MemberService createMember ALREADY EXIST-NICKNAME");
-            return ResponseDto.fail("ALREADY EXIST-NICKNAME", "이미 존재하는 닉네임 입니다.");
-        }
+        ResponseDto<Object> checkExistNickname = handleBoolean(!checkDuplicateNickname(request.getNickname()).isSuccess(), MEMBER_ALREADY_EXIST_NICKNAME);
+        if (checkExistNickname != null) return checkExistNickname;
+        ResponseDto<Object> checkRequiredAgreement = handleBoolean(request.getRequiredAgreement() == null || request.getRequiredAgreement().equals("false"), MEMBER_REQUIRED_AGREEMENT);
+        if (checkRequiredAgreement !=null) return checkRequiredAgreement;
+        handleBoolean(request.getAgeCheck() == null || request.getAgeCheck().equals("false"), MEMBER_REQUIRED_AGREEMENT);
+
+        String imgUrl;
+
         // 이미지를 업로드 하지 않을 시 기본 이미지 설정
-        if (imgFile == null || imgFile.isEmpty()) {
+        if (request.getImgFile() == null || request.getImgFile().isEmpty()) {
             imgUrl = baseImage;
         } else {
             // 이미지 업로드 관련 로직
-            ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+            ResponseDto<?> image = amazonS3Service.uploadFile(request.getImgFile(), folderName);
             ImageFile imageFile = (ImageFile) image.getData();
             imgUrl = imageFile.getUrl();
         }
 
-        if (requiredAgreement ==null || requiredAgreement.equals("false")) {
-            log.info("MemberService createMember NOT ALLOWED");
-            return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
-        }
-        if (ageCheck == null || ageCheck.equals("false")) {
-            log.info("MemberService createMember NOT ALLOWED");
-            return ResponseDto.fail("NOT ALLOWED", "이용약관을 동의해주세요");
-        }
-        if (requiredAgreement.equals("true")) {
-            setRequiredAgreement = REQUIRED_AGREE;
-        }
-        if (marketingAgreement == null) {
-            setMarketingAgreement = MARKETING_DISAGREE;
-        } else if (marketingAgreement.equals("true")) {
-            setMarketingAgreement = MARKETING_AGREE;
-        }
-        if (ageCheck.equals("true")) {
-            setAgeCheck = CHECKED;
-        }
+        RequiredAgreement setRequiredAgreement = setRequiredAgreement(request);
+        MarketingAgreement setMarketingAgreement = setMarketingAgreement(request);
+        AgeCheck setAgeCheck = setAgeCheck(request);
 
-        if (age < 20) {
-            minAge = 10;
-        } else if (age < 30) {
-            minAge = 20;
-        } else if (age < 40) {
-            minAge = 30;
-        } else if (age < 50) {
-            minAge = 40;
-        } else {
-            minAge = 50;
-        }
-        if (gender.equals("male")) {
-            genderSet = Gender.MALE;
-        } else if (gender.equals("female")) {
-            genderSet = Gender.FEMALE;
-        }
-
-        Member member = Member.builder()
-                .userId(userId)
-                .password(passwordEncoder.encode(password))
-                .nickname(nickname)
-                .imgUrl(imgUrl)
-                .userRole(ROLE_MEMBER)
-                .root(normal)
-                .gender(genderSet)
-                .minAge(minAge)
-                .ageCheck(setAgeCheck)
-                .requiredAgreement(setRequiredAgreement)
-                .marketingAgreement(setMarketingAgreement)
-                .regulation(UNREGULATED)
-                .build();
-
+        int minAge;
+        minAge = setAgeRange(request.getAge());
+        Gender genderSet = setGender(request);
+        Member member = makeMember(request, imgUrl, minAge, genderSet, setAgeCheck, setRequiredAgreement, setMarketingAgreement);
         memberRepository.save(member);
         return ResponseDto.success(member.getUserId() + "님 회원가입 성공");
     }
 
     @Transactional
-    public ResponseDto<String> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseDto<Object> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         Member member = isPresentMember(loginRequestDto.getUserId());
+        ResponseDto<Object> checkNullId = handleNull(loginRequestDto.getUserId(), MEMBER_EMPTY_DATA);
+        if (checkNullId != null) return checkNullId;
+        ResponseDto<Object> handleNullPassword = handleNull(loginRequestDto.getPassword(), MEMBER_EMPTY_DATA);
+        if (handleNullPassword!=null) return handleNullPassword;
+        ResponseDto<Object> memberCheck = handleNull(member, MEMBER_DO_NOT_EXIST);
+        if (memberCheck != null) return memberCheck;
+        ResponseDto<Object> checkPassword = handleBoolean(!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword()), MEMBER_INVALID_PASSWORD);
+        if (checkPassword != null) return checkPassword;
+        ResponseDto<Object> checkRegulation = handleBoolean(member.getRegulation() == REGULATED, MEMBER_REGULATED);
+        if (checkRegulation != null) return checkRegulation;
 
-        if (member == null) {
-            log.info("MemberService login ");
-            return ResponseDto.fail("INVALID ID", "존재하지 않는 아이디입니다.");
-        }
-        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
-            log.info("MemberService login INVALID_PASSWORD");
-            return ResponseDto.fail("INVALID_PASSWORD", "잘못된 비밀번호 입니다.");
-        }
-        if (member.getRegulation() == REGULATED) {
-            return ResponseDto.fail("REGULATED MEMBER", "활동이 제재되었습니다. 관리자에게 문의해주세요");
-        }
-
-        byte[] bytes = member.getNickname().getBytes();
         // 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         // 헤더에 토큰 담기
-        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
-        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
-        response.addHeader("ImgUrl", member.getImgUrl());
-        response.addHeader("Id",member.getUserId());
-        response.addHeader("nickname", String.valueOf(bytes));
-        response.addHeader("role", String.valueOf(member.getUserRole()));
+        addHeader(response, member, tokenDto);
 
         return ResponseDto.success(member.getUserId() + "님 로그인 성공!");
     }
@@ -217,9 +154,6 @@ public class MemberService {
     public ResponseDto<?> editProfile(MemberUpdateDto request, HttpServletRequest httpServletRequest,
                                       HttpServletResponse response) {
         String imgUrl;
-
-        String nickname = request.getNickname();
-        MultipartFile imgFile = request.getImgFile();
 
         // 토큰 유효성 검사
         ResponseDto<?> responseDto = validation.checkAccessToken(httpServletRequest);
@@ -230,47 +164,23 @@ public class MemberService {
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
 
-        if (nickname == null) {
-            log.info("MemberService updateMember NULL_DATA");
-            return ResponseDto.fail("NULL_DATA", "입력값을 다시 확인해주세요");
-        } else if (nickname.trim().isEmpty()) {
-            log.info("MemberService updateMember EMPTY_DATA");
-            return ResponseDto.fail("EMPTY_DATA", "빈칸을 채워주세요");
-        }
-
-        findMember.updateNickname(nickname);
+        ResponseDto<Object> checkNull = handleNull(request.getNickname(), MEMBER__NULL_DATA);
+        if (checkNull != null) return checkNull;
+        ResponseDto<Object> checkEmpty = handleBoolean(request.getNickname().trim().isEmpty(), MEMBER_EMPTY_DATA);
+        if (checkEmpty != null) return checkEmpty;
+        findMember.updateNickname(request.getNickname());
 
         // 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(findMember);
-        // 헤더에 토큰 담기
-        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
-        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
-        response.addHeader("ImgUrl", findMember.getImgUrl());
-        response.addHeader("Id",findMember.getUserId());
+        addHeader(response, findMember, tokenDto);
 
-        if (imgFile == null || imgFile.isEmpty()) {
+        if (request.getImgFile() == null || request.getImgFile().isEmpty()) {
             return ResponseDto.success("업데이트가 완료되었습니다.");
         }
-
-        if (!imgFile.isEmpty()) {
-            if (member.getImgUrl().equals(baseImage)) {
-                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
-                ImageFile imageFile = (ImageFile) image.getData();
-                imgUrl = imageFile.getUrl();
-                findMember.updateImage(imgUrl);
-            } else {
-                ImageFile findImageFile = fileRepository.findByUrl(member.getImgUrl());
-                amazonS3Service.removeFile(findImageFile.getImageName(), folderName);
-                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
-                ImageFile imageFile = (ImageFile) image.getData();
-                imgUrl = imageFile.getUrl();
-                findMember.updateImage(imgUrl);
-            }
-        }
-
-
+        uploadImage(request.getImgFile(), member, findMember);
         return ResponseDto.success("성공적으로 회원 수정이 완료되었습니다");
     }
+
     @Transactional
     public ResponseDto<?> updatePassword(MemberPasswordUpdateDto request, HttpServletRequest httpServletRequest) {
         String password = request.getPassword();
@@ -289,6 +199,9 @@ public class MemberService {
         if (!passwordEncoder.matches(password, member.getPassword())) {
             log.info("MemberService updateMemberPassword PASSWORD_ERROR");
             return ResponseDto.fail("PASSWORD_ERROR", "기존 비밀번호가 일치하지 않습니다");
+        }
+        if (!Pattern.matches(regexpPassword, updatePassword)) {
+            return ResponseDto.fail("INVALID TYPE", "비밀번호 양식을 맞춰주세요");
         }
 
         if (password == null || updatePassword == null || UpdatePasswordCheck == null) {
@@ -315,22 +228,32 @@ public class MemberService {
         String refreshToken = request.getHeader("RefreshToken");
         RefreshToken validateToken = refreshTokenRepository.findByKeyValue(refreshToken).orElse(null);
 
-        if (validateToken == null) {
-            log.info("MemberService logout ALREADY LOGOUT");
-            return ResponseDto.fail("ALREADY LOGOUT", "이미 로그아웃 하셨습니다.");
-        }
+        log.info(String.valueOf(validateToken));
+        ResponseDto<Object> checkLogout = handleNull(validateToken, MEMBER_ALREADY_LOGOUT);
+        if (checkLogout !=null) return checkLogout;
 
-        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
-            log.info("MemberService logout INVALID TOKEN");
-            return ResponseDto.fail("INVALID TOKEN", "토큰 값이 올바르지 않습니다.");
-        }
+        ResponseDto<Object> checkToken = handleBoolean(!tokenProvider.validateToken(request.getHeader("RefreshToken")), MEMBER_INVALID_TOKEN);
+        if (checkToken !=null) return checkToken;
+
+
+//        if (validateToken == null) {
+//            log.info("MemberService logout ALREADY LOGOUT");
+//            return ResponseDto.fail("ALREADY LOGOUT", "이미 로그아웃 하셨습니다.");
+//        }
+
+//        if (!tokenProvider.validateToken(request.getHeader("RefreshToken"))) {
+//            log.info("MemberService logout INVALID TOKEN");
+//            return ResponseDto.fail("INVALID TOKEN", "토큰 값이 올바르지 않습니다.");
+//        }
 
         // 맴버객체 찾아오기
         Member member = tokenProvider.getMemberFromAuthentication();
-        if (null == member) {
-            log.info("MemberService logout MEMBER_NOT_FOUND");
-            return ResponseDto.fail("MEMBER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
-        }
+        ResponseDto<Object> checkLogin = handleNull(member, MEMBER_LOGIN_NOT_FOUND);
+        if (checkLogin != null) return checkLogin;
+//        if (null == member) {
+//            log.info("MemberService logout MEMBER_NOT_FOUND");
+//            return ResponseDto.fail("MEMBER_NOT_FOUND", "사용자를 찾을 수 없습니다.");
+//        }
         tokenProvider.deleteRefreshToken(member);
 
 
@@ -346,51 +269,33 @@ public class MemberService {
             return responseDto;
         }
         Member member = (Member) responseDto.getData();
-        Member findMember = memberRepository.findById(member.getId()).orElse(null);
-        if (member == null) {
-            log.info("MemberService signOut DO NOT EXIST");
-            return ResponseDto.fail("DO NOT EXIST", "존재하지 않는 회원입니다.");
-        }
+        ResponseDto<Object> checkMember = handleNull(member, MEMBER_DO_NOT_EXIST);
+        if (checkMember != null) return checkMember;
 
         if (!member.getImgUrl().equals(baseImage)) {
             ImageFile deleteImage = fileRepository.findByUrl(member.getImgUrl());
             amazonS3Service.removeFile(deleteImage.getImageName(), folderName);
         }
-        // 회원이 주최함 모임들 닫아주기
-        List<Post> AllPost = postRepository.findAllByMemberId(member.getId());
-        for (Post post : AllPost) {
-            if (post.getStatus() == PostState.RECRUIT) {
-                post.disclose();
-            }
-        }
+        // 회원이 주최한 모임들 닫아주기
+        closePost(member);
 
 
         refreshTokenRepository.deleteById(member.getUserId());
 
-        SignOutMember signOutMember = SignOutMember.builder()
-                .userId(member.getUserId())
-                .password(member.getPassword())
-                .nickname(member.getNickname())
-                .minAge(member.getMinAge())
-                .imgUrl(member.getImgUrl())
-                .regulation(member.getRegulation())
-                .build();
+        SignOutMember signOutMember = makeSignOutMemeber(member);
         signOutRepository.save(signOutMember);
 
         member.signOut();
         em.merge(member);
-
-
-
         return ResponseDto.success("회원 탈퇴가 성공적으로 수행되었습니다.");
     }
+
 
 
     // 회원 아이디 중복 검사 method
     public ResponseDto<String> checkDuplicateId(String id) {
         Optional<Member> userId = memberRepository.findByUserId(id);
-        String regexp= "^(?=.*[a-zA-Z]).{5,12}$";
-        if (!Pattern.matches(regexp,id)) {
+        if (!Pattern.matches(regexpId,id)) {
             return ResponseDto.fail("INVALID ID", "아이디 양식을 다시 확인해주세요");
         }
         if (userId.isPresent()) {
@@ -417,7 +322,6 @@ public class MemberService {
     }
 
     // 회원 검색
-    @Transactional(readOnly = true)
     public Member isPresentMember(String userId) {
         Optional<Member> findMember = memberRepository.findByUserId(userId);
         return findMember.orElse(null);
@@ -450,36 +354,144 @@ public class MemberService {
             assert member != null;
             TokenDto tokenDto = tokenProvider.generateTokenDto(member);
             refreshToken.updateValue(tokenDto.getRefreshToken());
+
             tokenToHeaders(tokenDto, response);
-
-
-
             return ResponseDto.success("재발급 완료");
-
     }
-
     @Transactional
     public ResponseDto<?> rejoin(ResignDto resignDto) {
-        String userId = resignDto.getUserId();
-        String password = resignDto.getPassword();
-        SignOutMember signOutMember = signOutRepository.findByUserId(userId).orElse(null);
-        if (signOutMember == null) {
-            return ResponseDto.fail("NOT FOUND", "해당 아이디를 찾을 수 없습니다. ");
-        }
-        if (!passwordEncoder.matches(password,signOutMember.getPassword())) {
-            return ResponseDto.fail("PASSWORD NOT MATCH", "비밀번호를 다시 확인해주세요");
-        }
-        log.info("signout : {}", signOutMember.getUserId());
-        log.info("member : {}", userId);
-        Member member = memberRepository.findByUserId(userId).orElse(null);
+        SignOutMember signOutMember = signOutRepository.findByUserId(resignDto.getUserId()).orElse(null);
+        ResponseDto<Object> checkSignOutMember = handleNull(signOutMember, MEMBER_NOT_FOUND);
+        if (checkSignOutMember != null) return checkSignOutMember;
+
+        ResponseDto<Object> checkPassword = handleBoolean(!passwordEncoder.matches(resignDto.getPassword(), signOutMember.getPassword()), MEMBER_PASSWORD_NOT_MATCH);
+        if (checkPassword != null) return checkPassword;
+
+        Member member = memberRepository.findByUserId(resignDto.getUserId()).orElse(null);
         member.rejoin(signOutMember.getNickname(), signOutMember.getMinAge(), signOutMember.getImgUrl(), signOutMember.getRegulation());
         return ResponseDto.success("재가입이 완료되었습니다.");
-
     }
-    // 헤더에 토큰담기
 
+    // 헤더에 토큰담기
     public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+    }
+
+    private static void addHeader(HttpServletResponse response, Member member, TokenDto tokenDto) {
+        response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+        response.addHeader("RefreshToken", tokenDto.getRefreshToken());
+        response.addHeader("ImgUrl", member.getImgUrl());
+        response.addHeader("Id", member.getUserId());
+        response.addHeader("role", String.valueOf(member.getUserRole()));
+    }
+
+    // 나이 범위 지정
+
+    private static int setAgeRange(Integer age) {
+        int minAge;
+        if (age < 20) {
+            minAge = 10;
+        } else if (age < 30) {
+            minAge = 20;
+        } else if (age < 40) {
+            minAge = 30;
+        } else if (age < 50) {
+            minAge = 40;
+        } else {
+            minAge = 50;
+        }
+        return minAge;
+    }
+    private Member makeMember(SignupRequestDto request, String imgUrl, int minAge, Gender genderSet, AgeCheck setAgeCheck, RequiredAgreement setRequiredAgreement, MarketingAgreement setMarketingAgreement) {
+        Member member = Member.builder()
+                .userId(request.getUserId())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .nickname(request.getNickname())
+                .imgUrl(imgUrl)
+                .userRole(ROLE_MEMBER)
+                .root(normal)
+                .gender(genderSet)
+                .minAge(minAge)
+                .ageCheck(setAgeCheck)
+                .requiredAgreement(setRequiredAgreement)
+                .marketingAgreement(setMarketingAgreement)
+                .regulation(UNREGULATED)
+                .build();
+        return member;
+    }
+
+    private void uploadImage(MultipartFile imgFile, Member member, Member findMember) {
+        String imgUrl;
+        if (!imgFile.isEmpty()) {
+            if (member.getImgUrl().equals(baseImage)) {
+                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+                ImageFile imageFile = (ImageFile) image.getData();
+                imgUrl = imageFile.getUrl();
+                findMember.updateImage(imgUrl);
+            } else {
+                ImageFile findImageFile = fileRepository.findByUrl(member.getImgUrl());
+                amazonS3Service.removeFile(findImageFile.getImageName(), folderName);
+                ResponseDto<?> image = amazonS3Service.uploadFile(imgFile, folderName);
+                ImageFile imageFile = (ImageFile) image.getData();
+                imgUrl = imageFile.getUrl();
+                findMember.updateImage(imgUrl);
+            }
+        }
+    }
+    private static RequiredAgreement setRequiredAgreement(SignupRequestDto request) {
+        RequiredAgreement setRequiredAgreement = REQUIRED_DISAGREE;
+        if (request.getRequiredAgreement().equals("true")) {
+            setRequiredAgreement = REQUIRED_AGREE;
+        }
+        return setRequiredAgreement;
+    }
+    private static MarketingAgreement setMarketingAgreement(SignupRequestDto request) {
+        MarketingAgreement setMarketingAgreement = MARKETING_DISAGREE;
+        if (request.getMarketingAgreement() == null) {
+            setMarketingAgreement = MARKETING_DISAGREE;
+        } else if (request.getMarketingAgreement().equals("true")) {
+            setMarketingAgreement = MARKETING_AGREE;
+        }
+        return setMarketingAgreement;
+    }
+
+    private static AgeCheck setAgeCheck(SignupRequestDto request) {
+        AgeCheck setAgeCheck = UNCHECKED;
+        if (request.getAgeCheck().equals("true")) {
+            setAgeCheck = CHECKED;
+        }
+        return setAgeCheck;
+    }
+
+    private static Gender setGender(SignupRequestDto request) {
+        Gender genderSet = Gender.NEUTRAL;
+        if (request.getGender().equals("male")) {
+            genderSet = Gender.MALE;
+        } else if (request.getGender().equals("female")) {
+            genderSet = Gender.FEMALE;
+        }
+        return genderSet;
+    }
+
+    private static SignOutMember makeSignOutMemeber(Member member) {
+        SignOutMember signOutMember = SignOutMember.builder()
+                .userId(member.getUserId())
+                .password(member.getPassword())
+                .nickname(member.getNickname())
+                .minAge(member.getMinAge())
+                .imgUrl(member.getImgUrl())
+                .regulation(member.getRegulation())
+                .build();
+        return signOutMember;
+    }
+
+    private void closePost(Member member) {
+        List<Post> AllPost = postRepository.findAllByMemberId(member.getId());
+        for (Post post : AllPost) {
+            if (post.getStatus() == PostState.RECRUIT) {
+                post.disclose();
+            }
+        }
     }
 }
