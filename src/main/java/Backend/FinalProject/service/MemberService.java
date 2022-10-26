@@ -285,10 +285,14 @@ public class MemberService {
         }
         Member member = (Member) responseDto.getData();
         Member findMember = memberRepository.findById(member.getId()).get();
+        String regexpPassword = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
             log.info("MemberService updateMemberPassword PASSWORD_ERROR");
             return ResponseDto.fail("PASSWORD_ERROR", "기존 비밀번호가 일치하지 않습니다");
+        }
+        if (!Pattern.matches(regexpPassword, updatePassword)) {
+            return ResponseDto.fail("INVALID TYPE", "비밀번호 양식을 맞춰주세요");
         }
 
         if (password == null || updatePassword == null || UpdatePasswordCheck == null) {
