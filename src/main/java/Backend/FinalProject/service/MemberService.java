@@ -67,7 +67,7 @@ public class MemberService {
     public ResponseDto<String> createMember(SignupRequestDto request) {
 
         String regexpPassword = "^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$";
-        String regexpId="^(?=.*[a-zA-Z])(?=.*[0-9]).{5,12}$";
+        String regexpId="^(?=.*[a-zA-Z]).{5,12}$";
 
         String userId = request.getUserId();
         String password = request.getPassword();
@@ -384,7 +384,7 @@ public class MemberService {
     // 회원 아이디 중복 검사 method
     public ResponseDto<String> checkDuplicateId(String id) {
         Optional<Member> userId = memberRepository.findByUserId(id);
-        String regexp= "^(?=.*[a-zA-Z])(?=.*[0-9]).{5,12}$";
+        String regexp= "^(?=.*[a-zA-Z]).{5,12}$";
         if (!Pattern.matches(regexp,id)) {
             return ResponseDto.fail("INVALID ID", "아이디 양식을 다시 확인해주세요");
         }
