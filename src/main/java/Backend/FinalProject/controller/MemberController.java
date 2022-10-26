@@ -124,6 +124,10 @@ public class MemberController {
         return memberService.reissueAccessToken(httpServletRequest, httpServletResponse);
     }
 
+    /**
+     * 회원 재가입
+     * @param resignDto : 재가입에 필요한 데이터
+     */
     @PostMapping("/member/rejoin")
     public ResponseDto<?> resign(@RequestBody ResignDto resignDto) {
         return memberService.rejoin(resignDto);
