@@ -23,6 +23,8 @@
   - MySQL 8.0.28
   - Spring Security
   - Socket.IO
+  - Junit5
+  - Jmeter
 
 </br>
 
