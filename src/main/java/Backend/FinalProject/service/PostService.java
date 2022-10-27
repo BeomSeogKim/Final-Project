@@ -414,13 +414,13 @@ public class PostService{
 
         List<Post> postList = queryFactory.selectFrom(post)
                 .where(categoryEq(search.getCategory()), keywordEq(search.getKeyword()), post.status.eq(RECRUIT), post.regulation.eq(UNREGULATED))
-                .orderBy(post.modifiedAt.desc())
+                .orderBy(post.createdAt.desc())
                 .offset(pageNum * 9)
                 .limit(9)
                 .fetch();
         QueryResults<Post> pageInfo = queryFactory.selectFrom(post)
                 .where(categoryEq(search.getCategory()), keywordEq(search.getKeyword()), post.status.eq(RECRUIT), post.regulation.eq(UNREGULATED))
-                .orderBy(post.modifiedAt.desc())
+                .orderBy(post.createdAt.desc())
                 .offset(pageNum * 9)
                 .limit(9)
                 .fetchResults();
