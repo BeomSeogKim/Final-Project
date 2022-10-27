@@ -98,35 +98,24 @@ public class ChatRoomService {
         // TODO orElse 수정
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElse(null);
         handleNull(chatRoom, ErrorCode.CHATROOM_NOTFOUND);
-//        if (chatRoom == null) {
-//            return ResponseDto.fail("NOT FOUNT", "채팅방을 찾을 수 없습니다.");
-//        }
 
         // TODO orElse 수정
         ChatMember chatMember = chatMemberRepository.findByMemberAndChatRoom(member, chatRoom).orElse(null);
         ResponseDto<Object> checkMember = handleNull(chatMember, ErrorCode.CHATROOM_NO_CHATMEMBER);
         if (checkMember != null) return checkMember;
-//        if (chatMember == null) {
-//            return ResponseDto.fail("NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다.");
-//        }
-        // 채팅 메세지 읽음 조회
-        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(roomId);
-        for (ChatMessage chatMessage : chatMessageList) {
-            // 로그인 한 회원이 메세지 읽었는지 검증
-            Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
-            if (validateMember == null) {           // 안읽은 회원일 경우
-                chatMessage.addNumOfRead();
-                automatedChatService.createReadCheck(chatMember, chatMessage);
-            }
-
-        }
-
 
         PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC, "createdAt"));
 
         //== 채팅방 관련 정보 조회 ==//
         Page<ChatMessage> pageOfChat = chatMessageRepository.findAllByChatRoomAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(chatRoom, chatMember.getCreatedAt(), pageRequest);
         List<ChatMessage> contentOfChat = pageOfChat.getContent();
+        for (ChatMessage chatMessage : contentOfChat) {
+            Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+            if (validateMember == null) {           // 안읽은 회원일 경우
+                chatMessage.addNumOfRead();
+                automatedChatService.createReadCheck(chatMember, chatMessage);
+            }
+        }
         List<ChatMessageResponse> chatMessageResponses = new ArrayList<>();
 
         getMessageInformation(contentOfChat, chatMessageResponses, member, httpServletRequest);
@@ -150,9 +139,6 @@ public class ChatRoomService {
 
         ResponseDto<Object> checkActiveRoom = handleBoolean(chatList.isEmpty(), CHATROOM_NO_ACTIVEROOM);
         if (checkActiveRoom != null) return checkActiveRoom;
-//        if (chatList.isEmpty()) {
-//            return ResponseDto.fail("NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다.");
-//        }
 
         List<ChatRoomListDto> chatRoomDtoList = new ArrayList<>();
         getChatRoomListInfo(chatList, chatRoomDtoList, member);
