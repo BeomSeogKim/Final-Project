@@ -759,6 +759,6 @@ public class PostService{
     }
 
     private Predicate keywordEq(String keyword) {
-        return keyword != null ? post.title.contains(keyword).or(post.content.contains(keyword)) : null;
+        return keyword != null ? post.title.contains(keyword).or(post.content.contains(keyword)).or(post.address.contains(keyword)) : null;
     }
 }
