@@ -104,6 +104,9 @@ public class ChatRoomService {
         ResponseDto<Object> checkMember = handleNull(chatMember, ErrorCode.CHATROOM_NO_CHATMEMBER);
         if (checkMember != null) return checkMember;
 
+        // 채팅 메세지 읽음 조회
+        readMessage(roomId, member, chatMember);
+
         PageRequest pageRequest = PageRequest.of(pageNum, 10, Sort.by(DESC, "createdAt"));
 
         //== 채팅방 관련 정보 조회 ==//
@@ -290,6 +293,20 @@ public class ChatRoomService {
                             .isLeader(isLeader)
                             .build()
             );
+        }
+    }
+
+    @Transactional
+    void readMessage(Long roomId, Member member, ChatMember chatMember) {
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAllByChatRoomId(roomId);
+        for (ChatMessage chatMessage : chatMessageList) {
+            // 로그인 한 회원이 메세지 읽었는지 검증
+            Member validateMember = readCheckRepository.validateReadMember(chatMessage, member).orElse(null);
+            if (validateMember == null) {           // 안읽은 회원일 경우
+                chatMessage.addNumOfRead();
+                automatedChatService.createReadCheck(chatMember, chatMessage);
+            }
+
         }
     }
 }
