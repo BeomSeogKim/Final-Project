@@ -22,7 +22,7 @@
   - H2 1.4.200
   - MySQL 8.0.28
   - Spring Security
-  - Socket.IO
+  - WebSocket
   - Junit5
   - Jmeter
 
