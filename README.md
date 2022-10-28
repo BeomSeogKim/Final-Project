@@ -202,6 +202,21 @@ _- 개선 후
 
 </div>
 </details>
+  
+### 5.7. 토큰 전략 변경 
+<details>
+<summary> 상세보기 </summary>
+<div markdown="1">
+
+- 개선 전
+    - 전체 접근이 가능한 일부 API를 제외한 나머지 API의 경우 AccessToken과 RefreshToken을 사용하여 회원 검증을 진행
+_- 개선 후
+    - 토큰 재발급을 제외한 나머지 API에서는 AccessToken만 사용 
+- 개선 이유
+    - 모든 API에서 RefreshToken을 보낼 경우 탈취되면 큰 문제가 발생한다 판단하여 토큰 전략 변경 진행
+
+</div>
+</details>
 
 
 </div>
