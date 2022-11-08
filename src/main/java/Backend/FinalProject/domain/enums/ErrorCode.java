@@ -50,7 +50,8 @@ public enum ErrorCode {
     CHATROOM_NO_CHATMEMBER("ChatRoom No Chat Member", "NO CHAT MEMBER", "채팅 멤버를 찾을 수 없습니다."),
     CHATROOM_NO_ACTIVEROOM("ChatRoom No Chat Rooms", "NO CHAT ROOMS", "아직 참여중인 모임이 존재하지 않습니다."),
 
-
+    //== AdminService ==//
+    ADMIN_BAD_REQUEST("AdminService getReportList NOT FOUND", "BAD REQUEST", "올바르지 않은 접근입니다."),
 
 
     ;
