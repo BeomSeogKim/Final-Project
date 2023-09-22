@@ -1,6 +1,6 @@
 # :pushpin: 삼삼오오(3355)
 >같은 관심사를 가진 사람들을 모으고 소통할 수 있도록 돕는 소모임 커뮤니티  
->https://3355.world  
+>~~https://3355.world~~ (Deprecated)
 
 </br>
 
