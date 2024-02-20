@@ -27,7 +27,6 @@ out/
 !**/src/test/**/out/
 src/main/resources/application-aws.properties
 ### Setting File ###
-src/test
 
 ### NetBeans ###
 /nbproject/private/
