@@ -1,7 +1,7 @@
 package Backend.FinalProject.sse.domain;
 
-import Backend.FinalProject.domain.Member;
 import Backend.FinalProject.domain.Timestamped;
+import Backend.FinalProject.domain.member.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

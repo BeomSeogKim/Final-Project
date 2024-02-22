@@ -1,6 +1,6 @@
 package Backend.FinalProject.sercurity;
 
-import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.common.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

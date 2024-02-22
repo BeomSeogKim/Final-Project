@@ -2,7 +2,7 @@ package Backend.FinalProject.configuration;
 
 import Backend.FinalProject.sercurity.JwtFilter;
 import Backend.FinalProject.sercurity.TokenProvider;
-import Backend.FinalProject.service.UserDetailsServiceImpl;
+import Backend.FinalProject.sercurity.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

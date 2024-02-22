@@ -3,7 +3,7 @@ package Backend.FinalProject.WebSocket.repository;
 
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
-import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.member.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

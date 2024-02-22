@@ -8,11 +8,11 @@ import Backend.FinalProject.WebSocket.domain.dtos.ChatMessageDto;
 import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.repository.MemberRepository;
+import Backend.FinalProject.common.AutomatedChatService;
+import Backend.FinalProject.common.dto.ResponseDto;
+import Backend.FinalProject.domain.member.Member;
+import Backend.FinalProject.domain.member.MemberRepository;
 import Backend.FinalProject.sercurity.TokenProvider;
-import Backend.FinalProject.service.AutomatedChatService;
 import Backend.FinalProject.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static Backend.FinalProject.Tool.Validation.handleNull;
+import static Backend.FinalProject.common.Tool.Validation.handleNull;
 import static Backend.FinalProject.domain.enums.ErrorCode.*;
 import static Backend.FinalProject.sse.domain.NotificationType.CHAT;
 

@@ -2,7 +2,7 @@ package Backend.FinalProject.WebSocket.controller;
 
 import Backend.FinalProject.WebSocket.domain.dtos.ChatRequestDto;
 import Backend.FinalProject.WebSocket.service.ChatRoomService;
-import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

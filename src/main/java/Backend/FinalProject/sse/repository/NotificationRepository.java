@@ -1,6 +1,6 @@
 package Backend.FinalProject.sse.repository;
 
-import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.member.Member;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationType;
 import org.springframework.data.jpa.repository.JpaRepository;

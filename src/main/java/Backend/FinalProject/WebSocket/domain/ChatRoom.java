@@ -1,7 +1,7 @@
 package Backend.FinalProject.WebSocket.domain;
 
-import Backend.FinalProject.domain.Post;
 import Backend.FinalProject.domain.Timestamped;
+import Backend.FinalProject.domain.post.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

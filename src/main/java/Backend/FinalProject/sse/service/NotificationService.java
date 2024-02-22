@@ -1,6 +1,5 @@
 package Backend.FinalProject.sse.service;
 
-import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMessage;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
@@ -8,8 +7,9 @@ import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.WebSocket.repository.ReadCheckRepository;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.common.Tool.Validation;
+import Backend.FinalProject.common.dto.ResponseDto;
+import Backend.FinalProject.domain.member.Member;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.domain.NotificationContent;
 import Backend.FinalProject.sse.domain.NotificationType;

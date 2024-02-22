@@ -3,7 +3,7 @@ package Backend.FinalProject.configuration;
 import Backend.FinalProject.sercurity.AccessDeniedHandlerException;
 import Backend.FinalProject.sercurity.AuthenticationEntryPointException;
 import Backend.FinalProject.sercurity.TokenProvider;
-import Backend.FinalProject.service.UserDetailsServiceImpl;
+import Backend.FinalProject.sercurity.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;

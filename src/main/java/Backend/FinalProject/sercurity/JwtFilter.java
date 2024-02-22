@@ -1,6 +1,5 @@
 package Backend.FinalProject.sercurity;
 
-import Backend.FinalProject.service.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

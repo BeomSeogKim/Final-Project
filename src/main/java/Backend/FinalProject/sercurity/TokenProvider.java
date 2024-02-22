@@ -1,17 +1,16 @@
 package Backend.FinalProject.sercurity;
 
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.domain.RefreshToken;
-import Backend.FinalProject.domain.UserDetailsImpl;
-import Backend.FinalProject.dto.TokenDto;
-import Backend.FinalProject.repository.RefreshTokenRepository;
+import Backend.FinalProject.common.dto.TokenDto;
+import Backend.FinalProject.domain.member.Member;
+import Backend.FinalProject.domain.token.RefreshToken;
+import Backend.FinalProject.domain.token.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

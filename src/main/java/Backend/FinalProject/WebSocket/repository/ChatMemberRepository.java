@@ -2,7 +2,7 @@ package Backend.FinalProject.WebSocket.repository;
 
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatRoom;
-import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.domain.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

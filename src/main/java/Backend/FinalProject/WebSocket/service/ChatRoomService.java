@@ -1,6 +1,5 @@
 package Backend.FinalProject.WebSocket.service;
 
-import Backend.FinalProject.Tool.Validation;
 import Backend.FinalProject.WebSocket.ChatRoomDto;
 import Backend.FinalProject.WebSocket.domain.ChatMember;
 import Backend.FinalProject.WebSocket.domain.ChatMemberResponseDto;
@@ -14,11 +13,12 @@ import Backend.FinalProject.WebSocket.repository.ChatMemberRepository;
 import Backend.FinalProject.WebSocket.repository.ChatMessageRepository;
 import Backend.FinalProject.WebSocket.repository.ChatRoomRepository;
 import Backend.FinalProject.WebSocket.repository.ReadCheckRepository;
-import Backend.FinalProject.domain.Member;
+import Backend.FinalProject.common.AutomatedChatService;
+import Backend.FinalProject.common.Tool.Validation;
+import Backend.FinalProject.common.dto.ResponseDto;
 import Backend.FinalProject.domain.enums.ErrorCode;
-import Backend.FinalProject.dto.ResponseDto;
-import Backend.FinalProject.repository.MemberRepository;
-import Backend.FinalProject.service.AutomatedChatService;
+import Backend.FinalProject.domain.member.Member;
+import Backend.FinalProject.domain.member.MemberRepository;
 import Backend.FinalProject.sse.domain.Notification;
 import Backend.FinalProject.sse.repository.NotificationRepository;
 import Backend.FinalProject.sse.service.NotificationService;
@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static Backend.FinalProject.Tool.Validation.handleBoolean;
-import static Backend.FinalProject.Tool.Validation.handleNull;
+import static Backend.FinalProject.common.Tool.Validation.handleBoolean;
+import static Backend.FinalProject.common.Tool.Validation.handleNull;
 import static Backend.FinalProject.domain.enums.ErrorCode.CHATROOM_NO_ACTIVEROOM;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 

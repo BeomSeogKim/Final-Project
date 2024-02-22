@@ -2,7 +2,7 @@ package Backend.FinalProject.WebSocket.controller;
 
 import Backend.FinalProject.WebSocket.domain.dtos.ChatInformationDto;
 import Backend.FinalProject.WebSocket.service.ChatService;
-import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.Header;

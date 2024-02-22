@@ -1,8 +1,8 @@
 package Backend.FinalProject.sse.controller;
 
-import Backend.FinalProject.Tool.Validation;
-import Backend.FinalProject.domain.Member;
-import Backend.FinalProject.dto.ResponseDto;
+import Backend.FinalProject.common.Tool.Validation;
+import Backend.FinalProject.common.dto.ResponseDto;
+import Backend.FinalProject.domain.member.Member;
 import Backend.FinalProject.sse.dto.NotificationChatCountDto;
 import Backend.FinalProject.sse.dto.NotificationCountDto;
 import Backend.FinalProject.sse.dto.NotificationDto;
